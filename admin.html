@@ -163,8 +163,20 @@ textarea{min-height:76px;resize:vertical}
 .leave-opts{background:var(--blue-tint);border-radius:10px;padding:14px 16px;margin-top:10px}
 
 /* ---------- in-page editor ---------- */
-.editor-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;max-width:640px}
+.ed-cols{display:flex;gap:22px;align-items:flex-start}
+.editor-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;max-width:640px;flex:1}
 .ed-foot{display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line);margin-top:22px;padding-top:16px}
+.ed-photo{width:230px;flex-shrink:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;position:sticky;top:24px}
+.ed-photo img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;background:var(--bg)}
+.ed-photo .ph-empty{width:100%;aspect-ratio:3/4;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--blue),var(--blue-dark))}
+.ed-photo-ctl input[type=file]{max-width:100%}
+@media(max-width:1000px){
+  .ed-cols{flex-direction:column-reverse}
+  .ed-photo{width:100%;position:static;display:flex;gap:16px;align-items:flex-start}
+  #ed-photo-frame{width:110px;flex-shrink:0}
+  .ed-photo-ctl{flex:1}
+  .ed-photo-ctl label{margin-top:0}
+}
 .curphoto{display:flex;align-items:center;gap:10px;margin-top:6px}
 .curphoto img{width:40px;height:50px;object-fit:cover;border-radius:6px}
 .curphoto span{font-size:.8rem;color:var(--muted)}
@@ -320,6 +332,7 @@ textarea{min-height:76px;resize:vertical}
         <div class="spacer"></div>
         <button class="btn btn-primary" id="ed-save-top">Vista</button>
       </div>
+      <div class="ed-cols">
       <div class="editor-card">
 
       <div id="form-news" style="display:none">
@@ -340,9 +353,6 @@ textarea{min-height:76px;resize:vertical}
         <label>Félagsstörf / áhugamál</label><textarea id="s-ahugamal" style="min-height:52px"></textarea>
         <label>Sérsvið</label>
         <div class="checks" id="s-tags"></div>
-        <label>Mynd</label>
-        <div class="curphoto" id="s-curphoto" style="display:none"><img id="s-curphoto-img" alt=""><span>Núverandi mynd – veldu nýja skrá til að skipta henni út</span></div>
-        <input type="file" id="s-photo" accept="image/*" style="margin-top:6px">
         <label class="checks" style="margin-top:16px"><span style="display:flex;align-items:center;gap:6px;font-weight:400"><input type="checkbox" id="s-leave"> Í fæðingarorlofi</span></label>
         <div class="leave-opts" id="s-leave-opts" style="display:none">
           <label style="margin-top:0">Væntanleg/ur til baka</label>
@@ -410,6 +420,15 @@ textarea{min-height:76px;resize:vertical}
           <button class="btn btn-quiet" id="ed-cancel">Hætta við</button>
           <button class="btn btn-primary" id="ed-save">Vista</button>
         </div>
+      </div>
+      <aside class="ed-photo" id="ed-photo" style="display:none">
+        <div id="ed-photo-frame"></div>
+        <div class="ed-photo-ctl">
+          <label style="margin-top:14px">Mynd</label>
+          <input type="file" id="s-photo" accept="image/*">
+          <p class="hint">Ný mynd vistast þegar þú smellir á Vista.</p>
+        </div>
+      </aside>
       </div>
     </section>
   </main>
@@ -548,6 +567,7 @@ function openPanel(kind, title) {
   if (returnView === 'editor') returnView = 'tilkynningar';
   $('ed-title').textContent = title;
   ['form-news','form-staff','form-svc'].forEach(f => $(f).style.display = f === 'form-' + kind ? 'block' : 'none');
+  $('ed-photo').style.display = kind === 'staff' ? 'block' : 'none';
   showView('editor');
   document.querySelectorAll('[data-nav]').forEach(x => x.setAttribute('aria-current', x.dataset.nav === returnView));
   window.scrollTo(0, 0);
@@ -641,11 +661,17 @@ function fillStaff(m) {
   dpSet(m?.leave_until || null);
   $('s-show-leave-date').checked = !!m?.show_leave_date;
   $('s-photo').value = '';
-  $('s-curphoto').style.display = m?.photo_url ? 'flex' : 'none';
-  if (m?.photo_url) $('s-curphoto-img').src = m.photo_url;
+  const initials = (m?.name || '?').split(' ').map(w => w[0]).slice(0, 2).join('');
+  $('ed-photo-frame').innerHTML = m?.photo_url
+    ? `<img src="${esc(m.photo_url)}" alt="${esc(m.name)}">`
+    : `<div class="ph-empty">${esc(initials)}</div>`;
   $('s-danger').style.display = m ? 'block' : 'none';
   $('s-del-warn').hidden = true;
 }
+$('s-photo').addEventListener('change', () => {
+  const f = $('s-photo').files[0];
+  if (f) $('ed-photo-frame').innerHTML = `<img src="${URL.createObjectURL(f)}" alt="">`;
+});
 $('staff-new').onclick = () => { fillStaff(null); editId = null; openPanel('staff', 'Nýr starfsmaður'); };
 async function saveStaff() {
   const name = $('s-name').value.trim();
