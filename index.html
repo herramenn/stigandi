@@ -184,8 +184,11 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const MAN = ['janúar','febrúar','mars','apríl','maí','júní','júlí','ágúst','september','október','nóvember','desember'];
 const isDate = d => { const [y,m,day] = (d||'').split('-').map(Number); return y ? `${day}. ${MAN[m-1]} ${y}` : ''; };
 
-fetch('data/news.json').then(r => r.json()).then(d => {
-  const items = (d.items || []).slice().sort((a,b) => (b.date||'').localeCompare(a.date||''));
+const SB_URL = 'https://zzcfyeylqojvzewfpehv.supabase.co';
+const SB_KEY = 'sb_publishable_8dDmyIaz6Ygu9_bVXYjGmg_9sRgt3kF';
+const sb = path => fetch(`${SB_URL}/rest/v1/${path}`, { headers: { apikey: SB_KEY } }).then(r => r.json());
+
+sb('news?select=title,body,date&order=date.desc').then(items => {
   document.getElementById('news-list').innerHTML = items.length ? items.map(n => `
     <div class="news-item">
       <span class="date">${isDate(n.date)}</span>
@@ -194,12 +197,12 @@ fetch('data/news.json').then(r => r.json()).then(d => {
     </div>`).join('') : '<p class="section-sub">Engar tilkynningar í augnablikinu.</p>';
 });
 
-fetch('data/staff.json').then(r => r.json()).then(d => {
-  document.getElementById('staff-grid').innerHTML = (d.members || []).map(m => {
+sb('staff?select=name,title,photo_url,on_leave&order=sort.asc,name.asc').then(members => {
+  document.getElementById('staff-grid').innerHTML = members.map(m => {
     const initials = m.name.split(' ').map(w => w[0]).slice(0,2).join('');
     return `
     <div class="person">
-      <div class="ph">${m.photo ? `<img src="${esc(m.photo.replace(/^\//,''))}" alt="${esc(m.name)}" loading="lazy">` : `<div class="initials">${esc(initials)}</div>`}</div>
+      <div class="ph">${m.photo_url ? `<img src="${esc(m.photo_url)}" alt="${esc(m.name)}" loading="lazy">` : `<div class="initials">${esc(initials)}</div>`}</div>
       <h3>${esc(m.name)}</h3>
       <div class="title">${esc(m.title)}</div>
       ${m.on_leave ? '<span class="badge">Í fæðingarorlofi</span>' : ''}
