@@ -75,13 +75,18 @@ button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px 18px
       <h2>Starfsfólk</h2>
       <div id="staff-list"></div>
       <hr style="border:0;border-top:1px solid #eef2f5;margin:16px 0">
-      <strong style="font-size:.95rem">Nýr starfsmaður</strong>
+      <strong style="font-size:.95rem" id="s-form-title">Nýr starfsmaður</strong>
       <label>Nafn</label><input type="text" id="s-name">
       <label>Starfsheiti</label><input type="text" id="s-title" value="Sjúkraþjálfari">
+      <label>Netfang (má sleppa)</label><input type="email" id="s-email">
+      <label>Ferilskrá / kynning (má sleppa)</label><textarea id="s-bio" style="min-height:140px" placeholder="Starfssvið&#10;...&#10;Menntun&#10;...&#10;Starfsferill&#10;..."></textarea>
       <label>Mynd (má sleppa)</label><input type="file" id="s-photo" accept="image/*">
       <label class="row" style="font-weight:400;margin-top:12px"><input type="checkbox" id="s-leave"> Í fæðingarorlofi</label>
       <div class="msg" id="s-msg"></div>
-      <button class="btn-blue" id="s-add" style="margin-top:12px">Bæta við</button>
+      <div class="row" style="margin-top:12px">
+        <button class="btn-blue" id="s-add">Bæta við</button>
+        <button class="btn-line" id="s-cancel" style="display:none">Hætta við</button>
+      </div>
     </div>
   </div>
 </div>
@@ -144,13 +149,28 @@ async function loadStaff() {
       <div class="info"><strong>${esc(m.name)}</strong><div class="t">${esc(m.title)}</div></div>
       ${m.on_leave ? '<span class="tag">Í fæðingarorlofi</span>' : ''}
       <button class="btn-line btn-small" data-leave="${m.id}" data-val="${m.on_leave}">${m.on_leave ? 'Komin/n úr orlofi' : 'Skrá í orlof'}</button>
+      <button class="btn-line btn-small" data-edit="${m.id}">Breyta</button>
       <button class="btn-del" data-del-staff="${m.id}">Eyða</button>
     </div>`).join('');
+  window._staff = data;
 }
+
+let editingId = null;
+function resetStaffForm() {
+  editingId = null;
+  $('s-form-title').textContent = 'Nýr starfsmaður';
+  $('s-add').textContent = 'Bæta við';
+  $('s-cancel').style.display = 'none';
+  $('s-name').value = ''; $('s-title').value = 'Sjúkraþjálfari';
+  $('s-email').value = ''; $('s-bio').value = '';
+  $('s-photo').value = ''; $('s-leave').checked = false;
+}
+$('s-cancel').onclick = resetStaffForm;
+
 $('s-add').onclick = async () => {
   const name = $('s-name').value.trim();
   if (!name) return flash($('s-msg'), 'Nafn vantar.', false);
-  let photo_url = null;
+  let photo_url;
   const file = $('s-photo').files[0];
   if (file) {
     const path = Date.now() + '-' + file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
@@ -158,13 +178,19 @@ $('s-add').onclick = async () => {
     if (upErr) return flash($('s-msg'), 'Ekki tókst að hlaða upp mynd.', false);
     photo_url = client.storage.from('photos').getPublicUrl(path).data.publicUrl;
   }
-  const { error } = await client.from('staff').insert({
+  const row = {
     name, title: $('s-title').value.trim() || 'Sjúkraþjálfari',
-    photo_url, on_leave: $('s-leave').checked
-  });
+    email: $('s-email').value.trim() || null,
+    bio: $('s-bio').value.trim() || null,
+    on_leave: $('s-leave').checked
+  };
+  if (photo_url) row.photo_url = photo_url;
+  const { error } = editingId
+    ? await client.from('staff').update(row).eq('id', editingId)
+    : await client.from('staff').insert(row);
   if (error) return flash($('s-msg'), 'Villa kom upp – reyndu aftur.', false);
-  $('s-name').value = ''; $('s-title').value = 'Sjúkraþjálfari'; $('s-photo').value = ''; $('s-leave').checked = false;
-  flash($('s-msg'), name + ' hefur verið bætt við.', true); loadStaff();
+  flash($('s-msg'), editingId ? 'Breytingar vistaðar.' : name + ' hefur verið bætt við.', true);
+  resetStaffForm(); loadStaff();
 };
 
 document.addEventListener('click', async e => {
@@ -179,6 +205,18 @@ document.addEventListener('click', async e => {
   }
   if (b.dataset.leave) {
     await client.from('staff').update({ on_leave: b.dataset.val !== 'true' }).eq('id', b.dataset.leave); loadStaff();
+  }
+  if (b.dataset.edit) {
+    const m = (window._staff || []).find(x => x.id === b.dataset.edit);
+    if (!m) return;
+    editingId = m.id;
+    $('s-form-title').textContent = 'Breyta: ' + m.name;
+    $('s-add').textContent = 'Vista breytingar';
+    $('s-cancel').style.display = 'inline-block';
+    $('s-name').value = m.name; $('s-title').value = m.title || '';
+    $('s-email').value = m.email || ''; $('s-bio').value = m.bio || '';
+    $('s-leave').checked = !!m.on_leave; $('s-photo').value = '';
+    $('s-add').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 });
 
