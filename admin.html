@@ -37,6 +37,10 @@ button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px 18px
 .msg.err{display:block;background:#fbeaea;color:var(--red)}
 #app{display:none}
 .muted{color:var(--muted);font-size:.85rem}
+#amodal{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;background:rgba(8,30,48,.55);padding:4vh 16px;overflow-y:auto}
+#amodal.open{display:flex}
+.mcard{background:#fff;border-radius:var(--radius);max-width:640px;width:100%;padding:24px;position:relative;margin-bottom:4vh}
+.mclose{position:absolute;top:8px;right:12px;background:none;border:0;font-size:1.6rem;color:var(--muted);cursor:pointer;line-height:1}
 </style>
 </head>
 <body>
@@ -84,43 +88,47 @@ button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px 18px
     </div>
 
     <div class="panel">
-      <h2>Starfsfólk</h2>
+      <h2 class="row" style="justify-content:space-between">Starfsfólk <button class="btn-blue btn-small" id="s-new">+ Bæta við starfsmanni</button></h2>
       <div id="staff-list"></div>
-      <hr style="border:0;border-top:1px solid #eef2f5;margin:16px 0">
-      <strong style="font-size:.95rem" id="s-form-title">Nýr starfsmaður</strong>
-      <label>Nafn</label><input type="text" id="s-name">
-      <label>Starfsheiti</label><input type="text" id="s-title" value="Sjúkraþjálfari">
-      <label>Netfang (má sleppa)</label><input type="email" id="s-email">
-      <label>Ferilskrá / kynning (má sleppa)</label><textarea id="s-bio" style="min-height:140px" placeholder="Starfssvið&#10;...&#10;Menntun&#10;...&#10;Starfsferill&#10;..."></textarea>
-      <label>Sérsvið</label>
-      <div class="row" id="s-tags" style="gap:6px 16px"></div>
-      <label>Mynd (má sleppa)</label><input type="file" id="s-photo" accept="image/*">
-      <label class="row" style="font-weight:400;margin-top:12px"><input type="checkbox" id="s-leave"> Í fæðingarorlofi</label>
-      <div class="msg" id="s-msg"></div>
-      <div class="row" style="margin-top:12px">
-        <button class="btn-blue" id="s-add">Bæta við</button>
-        <button class="btn-line" id="s-cancel" style="display:none">Hætta við</button>
-      </div>
     </div>
 
     <div class="panel">
-      <h2>Þjónusta</h2>
+      <h2 class="row" style="justify-content:space-between">Þjónusta <button class="btn-blue btn-small" id="v-new">+ Bæta við þjónustu</button></h2>
       <div id="svc-list"></div>
-      <hr style="border:0;border-top:1px solid #eef2f5;margin:16px 0">
-      <strong style="font-size:.95rem" id="v-form-title">Ný þjónusta</strong>
-      <label>Titill</label><input type="text" id="v-title">
-      <label>Stutt lýsing (birtist á spjaldinu)</label><input type="text" id="v-summary">
-      <label>Meginmál (birtist þegar smellt er á spjaldið)</label>
-      <textarea id="v-body" style="min-height:200px" placeholder="## Fyrirsögn&#10;Venjulegur texti&#10;- Punktur í lista"></textarea>
-      <p class="muted" style="margin-top:4px">Skrifaðu <b>##</b> fremst í línu fyrir fyrirsögn og <b>-</b> fremst fyrir punktalista.</p>
-      <label>Hnappur – texti (má sleppa)</label><input type="text" id="v-link-label" placeholder="t.d. Skráning – senda tölvupóst">
-      <label>Hnappur – hlekkur</label><input type="text" id="v-link-url" placeholder="t.d. mailto:mottaka@stigandi.is, tel:+3545991600 eða https://...">
-      <label>Röð (lægri tala birtist fyrst)</label><input type="number" id="v-sort" value="100" style="max-width:120px">
-      <label>Mynd (má sleppa)</label><input type="file" id="v-photo" accept="image/*">
-      <div class="msg" id="v-msg"></div>
-      <div class="row" style="margin-top:12px">
-        <button class="btn-blue" id="v-add">Bæta við</button>
-        <button class="btn-line" id="v-cancel" style="display:none">Hætta við</button>
+    </div>
+  </div>
+
+  <div id="amodal">
+    <div class="mcard">
+      <button class="mclose" id="amodal-close" aria-label="Loka">×</button>
+
+      <div id="form-staff">
+        <h2 id="s-form-title">Nýr starfsmaður</h2>
+        <label>Nafn</label><input type="text" id="s-name">
+        <label>Starfsheiti</label><input type="text" id="s-title" value="Sjúkraþjálfari">
+        <label>Netfang (má sleppa)</label><input type="email" id="s-email">
+        <label>Ferilskrá / kynning (má sleppa)</label><textarea id="s-bio" style="min-height:140px" placeholder="Starfssvið&#10;...&#10;Menntun&#10;...&#10;Starfsferill&#10;..."></textarea>
+        <label>Sérsvið</label>
+        <div class="row" id="s-tags" style="gap:6px 16px"></div>
+        <label>Mynd (má sleppa)</label><input type="file" id="s-photo" accept="image/*">
+        <label class="row" style="font-weight:400;margin-top:12px"><input type="checkbox" id="s-leave"> Í fæðingarorlofi</label>
+        <div class="msg" id="s-msg"></div>
+        <button class="btn-blue" id="s-add" style="margin-top:14px">Bæta við</button>
+      </div>
+
+      <div id="form-svc">
+        <h2 id="v-form-title">Ný þjónusta</h2>
+        <label>Titill</label><input type="text" id="v-title">
+        <label>Stutt lýsing (birtist á spjaldinu)</label><input type="text" id="v-summary">
+        <label>Meginmál (birtist þegar smellt er á spjaldið)</label>
+        <textarea id="v-body" style="min-height:200px" placeholder="## Fyrirsögn&#10;Venjulegur texti&#10;- Punktur í lista"></textarea>
+        <p class="muted" style="margin-top:4px">Skrifaðu <b>##</b> fremst í línu fyrir fyrirsögn og <b>-</b> fremst fyrir punktalista.</p>
+        <label>Hnappur – texti (má sleppa)</label><input type="text" id="v-link-label" placeholder="t.d. Skráning – senda tölvupóst">
+        <label>Hnappur – hlekkur</label><input type="text" id="v-link-url" placeholder="t.d. mailto:mottaka@stigandi.is, tel:+3545991600 eða https://...">
+        <label>Röð (lægri tala birtist fyrst)</label><input type="number" id="v-sort" value="100" style="max-width:120px">
+        <label>Mynd (má sleppa)</label><input type="file" id="v-photo" accept="image/*">
+        <div class="msg" id="v-msg"></div>
+        <button class="btn-blue" id="v-add" style="margin-top:14px">Bæta við</button>
       </div>
     </div>
   </div>
@@ -228,18 +236,31 @@ $('s-tags').innerHTML = TAGS.map(t =>
 const getTags = () => [...document.querySelectorAll('.tagbox:checked')].map(c => c.value);
 const setTags = tags => document.querySelectorAll('.tagbox').forEach(c => c.checked = (tags || []).includes(c.value));
 
+/* ---- edit modal ---- */
+const amodal = $('amodal');
+function openModal(kind) {
+  $('form-staff').style.display = kind === 'staff' ? 'block' : 'none';
+  $('form-svc').style.display = kind === 'svc' ? 'block' : 'none';
+  amodal.classList.add('open');
+  amodal.querySelector('.mcard').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() { amodal.classList.remove('open'); document.body.style.overflow = ''; }
+$('amodal-close').onclick = closeModal;
+amodal.addEventListener('click', e => { if (e.target === amodal) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
 let editingId = null;
 function resetStaffForm() {
   editingId = null;
   $('s-form-title').textContent = 'Nýr starfsmaður';
   $('s-add').textContent = 'Bæta við';
-  $('s-cancel').style.display = 'none';
   $('s-name').value = ''; $('s-title').value = 'Sjúkraþjálfari';
   $('s-email').value = ''; $('s-bio').value = '';
   $('s-photo').value = ''; $('s-leave').checked = false;
   setTags([]);
 }
-$('s-cancel').onclick = resetStaffForm;
+$('s-new').onclick = () => { resetStaffForm(); openModal('staff'); };
 
 $('s-add').onclick = async () => {
   const name = $('s-name').value.trim();
@@ -264,8 +285,7 @@ $('s-add').onclick = async () => {
     ? await client.from('staff').update(row).eq('id', editingId)
     : await client.from('staff').insert(row);
   if (error) return flash($('s-msg'), 'Villa kom upp – reyndu aftur.', false);
-  flash($('s-msg'), editingId ? 'Breytingar vistaðar.' : name + ' hefur verið bætt við.', true);
-  resetStaffForm(); loadStaff();
+  closeModal(); resetStaffForm(); loadStaff();
 };
 
 /* ---- services ---- */
@@ -287,11 +307,10 @@ function resetSvcForm() {
   editingSvcId = null;
   $('v-form-title').textContent = 'Ný þjónusta';
   $('v-add').textContent = 'Bæta við';
-  $('v-cancel').style.display = 'none';
   ['v-title','v-summary','v-body','v-link-label','v-link-url'].forEach(id => $(id).value = '');
   $('v-sort').value = 100; $('v-photo').value = '';
 }
-$('v-cancel').onclick = resetSvcForm;
+$('v-new').onclick = () => { resetSvcForm(); openModal('svc'); };
 
 $('v-add').onclick = async () => {
   const title = $('v-title').value.trim();
@@ -317,8 +336,7 @@ $('v-add').onclick = async () => {
     ? await client.from('services').update(row).eq('id', editingSvcId)
     : await client.from('services').insert(row);
   if (error) return flash($('v-msg'), 'Villa kom upp – reyndu aftur.', false);
-  flash($('v-msg'), editingSvcId ? 'Breytingar vistaðar.' : title + ' hefur verið bætt við.', true);
-  resetSvcForm(); loadServices();
+  closeModal(); resetSvcForm(); loadServices();
 };
 
 document.addEventListener('click', async e => {
@@ -344,12 +362,11 @@ document.addEventListener('click', async e => {
     editingSvcId = s.id;
     $('v-form-title').textContent = 'Breyta: ' + s.title;
     $('v-add').textContent = 'Vista breytingar';
-    $('v-cancel').style.display = 'inline-block';
     $('v-title').value = s.title; $('v-summary').value = s.summary || '';
     $('v-body').value = s.body || ''; $('v-link-label').value = s.link_label || '';
     $('v-link-url').value = s.link_url || ''; $('v-sort').value = s.sort;
     $('v-photo').value = '';
-    $('v-add').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    openModal('svc');
   }
   if (b.dataset.edit) {
     const m = (window._staff || []).find(x => x.id === b.dataset.edit);
@@ -357,12 +374,11 @@ document.addEventListener('click', async e => {
     editingId = m.id;
     $('s-form-title').textContent = 'Breyta: ' + m.name;
     $('s-add').textContent = 'Vista breytingar';
-    $('s-cancel').style.display = 'inline-block';
     $('s-name').value = m.name; $('s-title').value = m.title || '';
     $('s-email').value = m.email || ''; $('s-bio').value = m.bio || '';
     $('s-leave').checked = !!m.on_leave; $('s-photo').value = '';
     setTags(m.tags);
-    $('s-add').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    openModal('staff');
   }
 });
 
