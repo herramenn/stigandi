@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stígandi sjúkraþjálfun | Bíldshöfða 9, Reykjavík</title>
+<meta name="description" content="Stígandi sjúkraþjálfun – Þín markmið, okkar þekking. Einstaklings sjúkraþjálfun, námskeið, vatnsþjálfun og meðgöngusund á Bíldshöfða 9, Reykjavík. Sími 599 1600.">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<style>
+:root{
+  --blue:#0174BD;
+  --blue-dark:#015a94;
+  --ink:#1a1a1a;
+  --muted:#5c6670;
+  --bg:#ffffff;
+  --bg-soft:#f2f6f9;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
+img{max-width:100%;display:block}
+a{color:var(--blue)}
+h2{font-size:1.9rem;margin-bottom:.4rem}
+.section-sub{color:var(--muted);margin-bottom:2rem}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+section{padding:64px 0}
+
+/* header */
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid #e5eaee}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+.nav img{height:40px;width:auto}
+.nav ul{display:flex;gap:22px;list-style:none}
+.nav a{color:var(--ink);text-decoration:none;font-size:.95rem;font-weight:500}
+.nav a:hover{color:var(--blue)}
+.nav .cta{background:var(--blue);color:#fff;padding:8px 16px;border-radius:8px}
+.nav .cta:hover{background:var(--blue-dark);color:#fff}
+#menu-btn{display:none;background:none;border:0;font-size:1.6rem;cursor:pointer;color:var(--ink)}
+
+/* hero */
+.hero{position:relative;color:#fff;padding:110px 0;background:linear-gradient(rgba(4,42,68,.62),rgba(4,42,68,.62)),url('assets/hero.jpg') center/cover}
+.hero h1{font-size:clamp(1.7rem,4.5vw,3rem);font-weight:700;max-width:750px;line-height:1.25}
+.hero p{margin-top:14px;font-size:1.15rem;opacity:.95}
+.hero .buttons{margin-top:28px;display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 26px;border-radius:8px;text-decoration:none;font-weight:600}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-ghost{border:2px solid #fff;color:#fff}
+.btn-ghost:hover{background:rgba(255,255,255,.15)}
+
+/* services */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px}
+.card{border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:0 2px 14px rgba(10,40,70,.09)}
+.card img{height:210px;width:100%;object-fit:cover}
+.card .body{padding:18px}
+.card h3{font-size:1.1rem;margin-bottom:6px}
+.card p{font-size:.92rem;color:var(--muted)}
+
+/* news */
+#tilkynningar{background:var(--bg-soft)}
+.news-item{background:#fff;border-left:4px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:20px 24px;margin-bottom:16px;box-shadow:0 1px 8px rgba(10,40,70,.06)}
+.news-item .date{font-size:.85rem;color:var(--muted)}
+.news-item h3{margin:2px 0 6px}
+.news-item p{color:#333;font-size:.97rem;white-space:pre-line}
+
+/* staff */
+.staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:20px}
+.person{text-align:center}
+.person .ph{aspect-ratio:3/4;border-radius:var(--radius);overflow:hidden;background:var(--bg-soft);margin-bottom:10px;position:relative}
+.person .ph img{width:100%;height:100%;object-fit:cover}
+.person .initials{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--blue),var(--blue-dark))}
+.person h3{font-size:.98rem;line-height:1.3}
+.person .title{font-size:.82rem;color:var(--muted)}
+.badge{display:inline-block;margin-top:4px;font-size:.72rem;background:#eef4fa;color:var(--blue-dark);padding:2px 8px;border-radius:99px}
+
+/* prices */
+#gjaldskra .box{background:var(--bg-soft);border-radius:var(--radius);padding:28px}
+
+/* contact / footer */
+footer{background:#0e2433;color:#dbe6ee;padding:56px 0 32px}
+footer h2{color:#fff}
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px;margin-top:24px}
+.contact-grid h3{color:#fff;font-size:1rem;margin-bottom:8px}
+.contact-grid a{color:#8ec6f0;text-decoration:none}
+.fineprint{margin-top:40px;border-top:1px solid rgba(255,255,255,.15);padding-top:18px;font-size:.82rem;color:#9fb3c2}
+
+@media(max-width:760px){
+  .nav ul{display:none;position:absolute;top:64px;left:0;right:0;background:#fff;flex-direction:column;padding:16px 20px;gap:14px;border-bottom:1px solid #e5eaee}
+  .nav ul.open{display:flex}
+  #menu-btn{display:block}
+  section{padding:44px 0}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="#"><img src="assets/logo.png" alt="Stígandi sjúkraþjálfun"></a>
+    <button id="menu-btn" aria-label="Valmynd">☰</button>
+    <ul id="menu">
+      <li><a href="#thjonusta">Þjónusta</a></li>
+      <li><a href="#tilkynningar">Tilkynningar</a></li>
+      <li><a href="#starfsfolk">Starfsfólk</a></li>
+      <li><a href="#gjaldskra">Gjaldskrá</a></li>
+      <li><a href="#samband" class="cta">Hafa samband</a></li>
+    </ul>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>Þín markmið – Okkar þekking<br>Samvinna sem skilar árangri</h1>
+    <p>Sjúkraþjálfun og þjálfun á Bíldshöfða 9, Reykjavík · Opið mán–fös kl. 8–17</p>
+    <div class="buttons">
+      <a class="btn btn-primary" href="tel:+3545991600">Panta tíma – 599 1600</a>
+      <a class="btn btn-ghost" href="mailto:mottaka@stigandi.is">Senda tölvupóst</a>
+    </div>
+  </div>
+</div>
+
+<section id="thjonusta">
+  <div class="wrap">
+    <h2>Þjónusta</h2>
+    <p class="section-sub">Fjölbreytt þjónusta fyrir alla aldurshópa</p>
+    <div class="cards">
+      <div class="card"><img src="assets/svc-physio.jpg" alt="Einstaklings sjúkraþjálfun" loading="lazy">
+        <div class="body"><h3>Einstaklings sjúkraþjálfun</h3><p>Markviss meðferð og endurhæfing sniðin að þínum þörfum.</p></div></div>
+      <div class="card"><img src="assets/svc-training.jpg" alt="Námskeið og hópþjálfun" loading="lazy">
+        <div class="body"><h3>Námskeið &amp; hópþjálfun</h3><p>Fjölbreytt námskeið og þjálfun í tækjasal undir handleiðslu sjúkraþjálfara.</p></div></div>
+      <div class="card"><img src="assets/svc-water.png" alt="Vatnsþjálfun" loading="lazy">
+        <div class="body"><h3>Vatnsþjálfun</h3><p>Þjálfun í vatni sem hlífir liðum og hentar vel í endurhæfingu.</p></div></div>
+      <div class="card"><img src="assets/svc-maternity.jpg" alt="Meðgöngusund" loading="lazy">
+        <div class="body"><h3>Meðgöngusund</h3><p>Hreyfing og vellíðan í vatni á meðgöngu.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="tilkynningar">
+  <div class="wrap">
+    <h2>Tilkynningar</h2>
+    <p class="section-sub">Fréttir og tilboð frá okkur</p>
+    <div id="news-list"><p class="section-sub">Sæki tilkynningar…</p></div>
+  </div>
+</section>
+
+<section id="starfsfolk">
+  <div class="wrap">
+    <h2>Starfsfólk</h2>
+    <p class="section-sub">Hjá okkur starfar öflugur hópur sjúkraþjálfara</p>
+    <div id="staff-grid" class="staff-grid"></div>
+  </div>
+</section>
+
+<section id="gjaldskra">
+  <div class="wrap">
+    <h2>Gjaldskrá</h2>
+    <p class="section-sub">Gildandi verðskrá og greiðsluþátttaka</p>
+    <div class="box">
+      <p><a class="btn btn-primary" href="assets/gjaldskra.pdf" target="_blank" rel="noopener">Sækja gjaldskrá (PDF)</a></p>
+      <p style="margin-top:18px;font-size:.95rem;color:var(--muted)">Í almanaksmánuði greiða almennir sjúkratryggðir einstaklingar að hámarki 37.794 kr. meðan aldraðir, öryrkjar, börn og börn með umönnunarmat greiða að hámarki 25.198 kr. samkvæmt reglum Sjúkratrygginga Íslands.</p>
+    </div>
+  </div>
+</section>
+
+<footer id="samband">
+  <div class="wrap">
+    <h2>Hafa samband</h2>
+    <div class="contact-grid">
+      <div><h3>Heimilisfang</h3><p>Bíldshöfða 9<br>110 Reykjavík</p></div>
+      <div><h3>Sími &amp; netfang</h3><p><a href="tel:+3545991600">599 1600</a><br><a href="mailto:mottaka@stigandi.is">mottaka@stigandi.is</a></p></div>
+      <div><h3>Opnunartími</h3><p>Mánudaga – föstudaga<br>kl. 8:00 – 17:00</p></div>
+    </div>
+    <p class="fineprint">© Stígandi sjúkraþjálfun · kt. 520220-2160 · Bíldshöfða 9, 110 Reykjavík</p>
+  </div>
+</footer>
+
+<script>
+document.getElementById('menu-btn').onclick = () => document.getElementById('menu').classList.toggle('open');
+document.querySelectorAll('#menu a').forEach(a => a.onclick = () => document.getElementById('menu').classList.remove('open'));
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const MAN = ['janúar','febrúar','mars','apríl','maí','júní','júlí','ágúst','september','október','nóvember','desember'];
+const isDate = d => { const [y,m,day] = (d||'').split('-').map(Number); return y ? `${day}. ${MAN[m-1]} ${y}` : ''; };
+
+fetch('data/news.json').then(r => r.json()).then(d => {
+  const items = (d.items || []).slice().sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  document.getElementById('news-list').innerHTML = items.length ? items.map(n => `
+    <div class="news-item">
+      <span class="date">${isDate(n.date)}</span>
+      <h3>${esc(n.title)}</h3>
+      <p>${esc(n.body)}</p>
+    </div>`).join('') : '<p class="section-sub">Engar tilkynningar í augnablikinu.</p>';
+});
+
+fetch('data/staff.json').then(r => r.json()).then(d => {
+  document.getElementById('staff-grid').innerHTML = (d.members || []).map(m => {
+    const initials = m.name.split(' ').map(w => w[0]).slice(0,2).join('');
+    return `
+    <div class="person">
+      <div class="ph">${m.photo ? `<img src="${esc(m.photo.replace(/^\//,''))}" alt="${esc(m.name)}" loading="lazy">` : `<div class="initials">${esc(initials)}</div>`}</div>
+      <h3>${esc(m.name)}</h3>
+      <div class="title">${esc(m.title)}</div>
+      ${m.on_leave ? '<span class="badge">Í fæðingarorlofi</span>' : ''}
+    </div>`;
+  }).join('');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+{
+  "members": [
+    {
+      "name": "Magnús Birkir Hilmarsson",
+      "title": "Sjúkraþjálfari, sérfræðingur í íþróttasjúkraþjálfun",
+      "photo": "/assets/staff/magnus-birkir-hilmarsson.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Anna Maria Urban",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/anna-maria-urban.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Aron Ingi Heiðmarsson",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/aron-ingi-heidmarsson.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Bergljót Pétursdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/bergljot-petursdottir.jpg",
+      "on_leave": true
+    },
+    {
+      "name": "Bergþóra Þorsteinsdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/bergthora-thorsteinsdottir.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Elva Dröfn Adolfsdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "",
+      "on_leave": false
+    },
+    {
+      "name": "Fríða Pálsdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/frida-palsdottir.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Herdís Guðrún Kjartansdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/herdis-gudrun-kjartansdottir.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Jón Smári Ólafsson",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/jon-smari-olafsson.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Ragna Vigdís Vésteinsdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/ragna-vigdis-vesteinsdottir.jpg",
+      "on_leave": true
+    },
+    {
+      "name": "Sara Ívarsdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/sara-ivarsdottir.jpg",
+      "on_leave": true
+    },
+    {
+      "name": "Sigrún Konráðsdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/sigrun-konradsdottir.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Sigurbjörg Jóhannsdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/sigurbjorg-johannsdottir.jpg",
+      "on_leave": true
+    },
+    {
+      "name": "Soffía Ólafsdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "",
+      "on_leave": false
+    },
+    {
+      "name": "Stanislaw Babicz",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/stanislaw-babicz.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Steinunn Þórðardóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/steinunn-thordardottir.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Sædís Friðriksdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/saedis-fridriksdottir.jpg",
+      "on_leave": true
+    },
+    {
+      "name": "Sólveig Birta Eiðsdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "",
+      "on_leave": false
+    },
+    {
+      "name": "Sólveig Lóa Höskuldsdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/solveig-loa-hoskuldsdottir.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Tsvetan Petrov Dinkov",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/tsvetan-petrov-dinkov.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Íris Rut Garðarsdóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/iris-rut-gardarsdottir.jpg",
+      "on_leave": false
+    },
+    {
+      "name": "Þuríður Erla Helgadóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "",
+      "on_leave": false
+    },
+    {
+      "name": "Þórunn Gísladóttir",
+      "title": "Sjúkraþjálfari",
+      "photo": "/assets/staff/thorunn-gisladottir.jpg",
+      "on_leave": false
+    }
+  ]
+}
