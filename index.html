@@ -220,9 +220,11 @@ sb('news?select=title,body,date&order=date.desc').then(items => {
     </div>`).join('') : '<p class="section-sub">Engar tilkynningar í augnablikinu.</p>';
 });
 
-const HEADINGS = new Set(['Starfssvið','Sérhæfing','Menntun','Menntun/námskeið','Námskeið:','Námskeið','Starfsferill','Annað','Áhugamál','Félagsstörf','Félagsstörf/áhugamál','Félagsstörf/Áhugamál']);
-const bioHtml = bio => bio.split('\n').map(l =>
-  HEADINGS.has(l.trim()) ? `<h4>${esc(l)}</h4>` : `<p>${esc(l)}</p>`).join('');
+const BIO_SECTIONS = [['Starfssvið','starfssvid'],['Sérhæfing','serhaefing'],['Menntun / námskeið','menntun'],['Starfsferill','starfsferill'],['Félagsstörf / áhugamál','ahugamal']];
+const hasBio = m => BIO_SECTIONS.some(([, f]) => m[f]);
+const bioHtml = m => BIO_SECTIONS.map(([label, f]) => m[f]
+  ? `<h4>${label}</h4>` + m[f].split('\n').filter(l => l.trim()).map(l => `<p>${esc(l)}</p>`).join('')
+  : '').join('');
 
 let STAFF = [];
 const photoOrInitials = m => {
@@ -239,7 +241,7 @@ function renderStaff() {
   document.getElementById('staff-grid').innerHTML = list.map(m => {
     const i = STAFF.indexOf(m);
     return `
-    <div class="person${m.bio ? ' has-bio' : ''}" ${m.bio ? `data-bio="${i}" tabindex="0" role="button" aria-label="Nánar um ${esc(m.name)}"` : ''}>
+    <div class="person${hasBio(m) ? ' has-bio' : ''}" ${hasBio(m) ? `data-bio="${i}" tabindex="0" role="button" aria-label="Nánar um ${esc(m.name)}"` : ''}>
       <div class="ph">${photoOrInitials(m)}</div>
       <h3>${esc(m.name)}</h3>
       <div class="title">${esc(m.title)}</div>
@@ -263,7 +265,7 @@ filtersEl.addEventListener('click', e => {
   renderStaff();
 });
 
-sb('staff?select=id,name,title,photo_url,on_leave,bio,email,tags&order=sort.asc,name.asc').then(members => {
+sb('staff?select=id,name,title,photo_url,on_leave,email,tags,starfssvid,serhaefing,menntun,starfsferill,ahugamal&order=sort.asc,name.asc').then(members => {
   STAFF = members;
   renderStaff();
 });
@@ -322,7 +324,7 @@ function openBio(m) {
         ${m.email ? `<a href="mailto:${esc(m.email)}">${esc(m.email)}</a>` : ''}
       </div>
     </div>
-    <div class="modal-bio">${bioHtml(m.bio || '')}</div>`;
+    <div class="modal-bio">${bioHtml(m)}</div>`;
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
