@@ -260,6 +260,10 @@ textarea{min-height:76px;resize:vertical}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Þjónusta <span class="count" id="count-svc">–</span>
       </button>
+      <button data-nav="namskeid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Námskeið <span class="count" id="count-course">–</span>
+      </button>
     </nav>
     <div class="side-foot">
       <a href="index.html" target="_blank" rel="noopener">
@@ -297,6 +301,12 @@ textarea{min-height:76px;resize:vertical}
           <span class="t">Spjöldin og textarnir á forsíðunni</span>
           <span class="n" id="tile-svc">–</span>
         </button>
+        <button class="tile" data-nav="namskeid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <strong>Námskeið</strong>
+          <span class="t">Dagsetningar og skráningar</span>
+          <span class="n" id="tile-course">–</span>
+        </button>
       </div>
     </section>
 
@@ -329,6 +339,15 @@ textarea{min-height:76px;resize:vertical}
       </div>
       <p class="view-sub">Þjónustuspjöldin á forsíðunni og textinn sem opnast þegar smellt er á þau.</p>
       <div class="list" id="svc-list"></div>
+    </section>
+
+    <section data-view="namskeid">
+      <div class="view-head">
+        <h1>Námskeið</h1><div class="spacer"></div>
+        <button class="btn btn-primary" id="course-new">+ Nýtt námskeið</button>
+      </div>
+      <p class="view-sub">Námskeiðin á vefsíðunni, dagsetningar þeirra og skráningar frá viðskiptavinum.</p>
+      <div class="list" id="course-list"></div>
     </section>
     <section data-view="editor">
       <div class="view-head">
@@ -417,6 +436,42 @@ textarea{min-height:76px;resize:vertical}
               <button type="button" class="btn btn-danger" id="v-del-confirm">Eyða varanlega</button>
               <button type="button" class="btn btn-quiet" id="v-archive-instead">Setja í geymslu</button>
               <button type="button" class="btn btn-quiet" id="v-del-cancel">Hætta við</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="form-course" style="display:none">
+        <label>Heiti námskeiðs</label><input type="text" id="c-title">
+        <label>Stutt lýsing (birtist á spjaldinu)</label><input type="text" id="c-summary">
+        <label>Meginmál</label>
+        <textarea id="c-body" style="min-height:170px" placeholder="## Fyrirsögn&#10;Venjulegur texti&#10;- Punktur í lista"></textarea>
+        <p class="hint">Skrifaðu <b>##</b> fremst í línu fyrir fyrirsögn og <b>-</b> fremst fyrir punktalista.</p>
+        <div class="ed-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+          <div><label>Verð</label><input type="text" id="c-price" placeholder="t.d. 66.900 kr. – 8 vikur"></div>
+          <div><label>Tímasetning</label><input type="text" id="c-schedule" placeholder="t.d. Mán, mið og fös kl. 11–11:55"></div>
+          <div><label>Staðsetning</label><input type="text" id="c-location" value="Heilsuklasinn, Bíldshöfða 9"></div>
+          <div><label>Röð (lægri tala birtist fyrst)</label><input type="number" id="c-sort" value="100"></div>
+          <div><label>Lágmarksfjöldi þátttakenda</label><input type="number" id="c-min" placeholder="t.d. 4"></div>
+          <div><label>Hámarksfjöldi (má sleppa)</label><input type="number" id="c-max"></div>
+        </div>
+        <label>Dagsetningar í boði</label>
+        <p class="hint" style="margin:0 0 8px">Viðskiptavinir velja allt að 3 dagsetningar í skráningu. Merktu dagsetningu „Staðfest" þegar lágmarksfjölda er náð.</p>
+        <div id="c-dates"></div>
+        <button type="button" class="btn btn-quiet btn-sm" id="c-date-add">+ Bæta við dagsetningu</button>
+        <div id="c-regs" style="display:none">
+          <label style="margin-top:26px">Skráningar</label>
+          <div class="list" id="c-reg-list"></div>
+        </div>
+        <div class="field-err" id="c-err"></div>
+        <div class="danger-zone" id="c-danger" style="display:none">
+          <button type="button" class="btn btn-danger-quiet" id="c-del-open">Eyða námskeiði…</button>
+          <div class="warnbox" id="c-del-warn" hidden>
+            <p><b>Ertu viss?</b> Þetta eyðir námskeiðinu, öllum dagsetningum þess og skráningum varanlega. Ef þú vilt geyma það er betra að fela.</p>
+            <div class="row-btns">
+              <button type="button" class="btn btn-danger" id="c-del-confirm">Eyða varanlega</button>
+              <button type="button" class="btn btn-quiet" id="c-hide-instead">Fela í staðinn</button>
+              <button type="button" class="btn btn-quiet" id="c-del-cancel">Hætta við</button>
             </div>
           </div>
         </div>
@@ -523,7 +578,7 @@ async function show() {
   $('app').classList.toggle('on', !!session && !setpw);
   if (session && !setpw) {
     $('side-user').textContent = session.user.email;
-    loadNews(); loadStaff(); loadServices();
+    loadNews(); loadStaff(); loadServices(); loadCourses();
   }
 }
 client.auth.onAuthStateChange(() => show());
@@ -573,7 +628,7 @@ function openPanel(kind, title) {
   returnView = document.querySelector('section[data-view].on')?.dataset.view || returnView;
   if (returnView === 'editor') returnView = 'tilkynningar';
   $('ed-title').textContent = title;
-  ['form-news','form-staff','form-svc'].forEach(f => $(f).style.display = f === 'form-' + kind ? 'block' : 'none');
+  ['form-news','form-staff','form-svc','form-course'].forEach(f => $(f).style.display = f === 'form-' + kind ? 'block' : 'none');
   $('ed-photo').style.display = kind === 'staff' ? 'block' : 'none';
   showView('editor');
   document.querySelectorAll('[data-nav]').forEach(x => x.setAttribute('aria-current', x.dataset.nav === returnView));
@@ -588,7 +643,7 @@ $('ed-cancel').onclick = closePanel;
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && mode) closePanel(); });
 
 const doSave = async () => {
-  const save = { news: saveNews, staff: saveStaff, svc: saveSvc }[mode];
+  const save = { news: saveNews, staff: saveStaff, svc: saveSvc, course: saveCourse }[mode];
   if (save) await save();
 };
 $('ed-save').onclick = doSave;
@@ -810,6 +865,152 @@ async function saveSvc() {
   closePanel(); toast(wasEdit ? 'Breytingar vistaðar' : title + ' bætt við'); loadServices();
 }
 
+/* ---------- courses ---------- */
+const CD_STATUS = { open: 'Opið', confirmed: 'Staðfest', full: 'Fullbókað', cancelled: 'Fellt niður' };
+const REG_STATUS = { new: 'Ný', contacted: 'Haft samband', confirmed: 'Staðfest', cancelled: 'Hætt við' };
+let courseDatesLoaded = [];
+
+async function loadCourses() {
+  const [{ data }, { data: regs }] = await Promise.all([
+    client.from('courses').select('*').order('sort').order('title'),
+    client.from('registrations').select('course_id,status')
+  ]);
+  if (!data) return;
+  window._courses = data;
+  const regCount = {};
+  (regs || []).forEach(r => { if (r.status !== 'cancelled') regCount[r.course_id] = (regCount[r.course_id] || 0) + 1; });
+  $('count-course').textContent = data.length;
+  const newRegs = (regs || []).filter(r => r.status === 'new').length;
+  $('tile-course').textContent = data.length + ' námskeið' + (newRegs ? ' · ' + newRegs + ' nýjar skráningar' : '');
+  $('course-list').innerHTML = data.map(c => `
+    <div class="rowitem click${c.hidden ? ' dim' : ''}" data-open-course="${c.id}" tabindex="0" role="button" aria-label="Opna ${esc(c.title)}">
+      <div class="info">
+        <strong>${esc(c.title)}</strong>
+        <div class="t">${esc(c.price || '')}${c.schedule ? ' · ' + esc(c.schedule) : ''}</div>
+        <div>${regCount[c.id] ? `<span class="chip">${regCount[c.id]} skráningar</span>` : ''}${c.hidden ? '<span class="chip">Falið – birtist ekki á vefsíðunni</span>' : ''}</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-quiet btn-sm" data-hide-course="${c.id}" data-val="${c.hidden}">${c.hidden ? 'Sýna' : 'Fela'}</button>
+      </div>
+    </div>`).join('') || '<div class="empty"><div class="big">Engin námskeið</div>Smelltu á „+ Nýtt námskeið" til að byrja.</div>';
+}
+
+function dateRowHtml(d = {}) {
+  return `<div class="cta-row date-row" data-id="${d.id || ''}">
+    <input type="date" class="cd-date" value="${d.start_date || ''}" style="max-width:170px">
+    <input type="text" class="cd-note" placeholder="Athugasemd (má sleppa)" value="${esc(d.note || '')}">
+    <select class="cd-status" style="width:auto">${Object.entries(CD_STATUS).map(([k, v]) =>
+      `<option value="${k}"${k === (d.status || 'open') ? ' selected' : ''}>${v}</option>`).join('')}</select>
+    <span class="hint cd-count" style="margin:0;min-width:52px">${d._count != null ? d._count + ' óskir' : ''}</span>
+    <button type="button" class="cta-del cd-del" aria-label="Fjarlægja dagsetningu">×</button>
+  </div>`;
+}
+$('c-date-add').onclick = () => $('c-dates').insertAdjacentHTML('beforeend', dateRowHtml());
+$('c-dates').addEventListener('click', e => { if (e.target.classList.contains('cd-del')) e.target.closest('.date-row').remove(); });
+
+function fillCourse(c) {
+  $('c-title').value = c?.title || '';
+  $('c-summary').value = c?.summary || '';
+  $('c-body').value = c?.body || '';
+  $('c-price').value = c?.price || '';
+  $('c-schedule').value = c?.schedule || '';
+  $('c-location').value = c?.location ?? 'Heilsuklasinn, Bíldshöfða 9';
+  $('c-sort').value = c?.sort ?? 100;
+  $('c-min').value = c?.min_participants ?? '';
+  $('c-max').value = c?.max_participants ?? '';
+  $('c-dates').innerHTML = '';
+  $('c-reg-list').innerHTML = '';
+  $('c-regs').style.display = 'none';
+  courseDatesLoaded = [];
+  $('c-danger').style.display = c ? 'block' : 'none';
+  $('c-del-warn').hidden = true;
+}
+
+async function openCourse(id) {
+  const c = (window._courses || []).find(x => x.id === id); if (!c) return;
+  fillCourse(c); editId = c.id;
+  openPanel('course', 'Breyta: ' + c.title);
+  const [{ data: dates }, { data: regs }] = await Promise.all([
+    client.from('course_dates').select('*').eq('course_id', c.id).order('start_date'),
+    client.from('registrations').select('*').eq('course_id', c.id).order('created_at', { ascending: false })
+  ]);
+  courseDatesLoaded = (dates || []).map(d => d.id);
+  const counts = {};
+  (regs || []).forEach(r => { if (r.status !== 'cancelled') (r.date_ids || []).forEach(di => counts[di] = (counts[di] || 0) + 1); });
+  $('c-dates').innerHTML = (dates || []).map(d => dateRowHtml({ ...d, _count: counts[d.id] || 0 })).join('');
+  const dateLabel = {};
+  (dates || []).forEach(d => dateLabel[d.id] = isDate(d.start_date));
+  if ((regs || []).length) {
+    $('c-regs').style.display = 'block';
+    $('c-reg-list').innerHTML = regs.map(r => `
+      <div class="rowitem">
+        <div class="info">
+          <strong>${esc(r.name)}</strong>
+          <div class="t">kt. ${esc(r.kennitala || '–')} · ${esc(r.phone || '')} · ${esc(r.email)}</div>
+          <div class="t">Óskir: ${(r.date_ids || []).map(di => dateLabel[di] || '?').join(' / ') || 'áhugalisti'}${r.message ? ' · „' + esc(r.message) + '“' : ''}</div>
+        </div>
+        <div class="actions">
+          <select data-reg-status="${r.id}" style="width:auto">${Object.entries(REG_STATUS).map(([k, v]) =>
+            `<option value="${k}"${k === r.status ? ' selected' : ''}>${v}</option>`).join('')}</select>
+          <button class="btn-danger-quiet btn" data-del-reg="${r.id}">Eyða</button>
+        </div>
+      </div>`).join('');
+  }
+}
+
+async function saveCourse() {
+  const title = $('c-title').value.trim();
+  if (!title) return err('c-err', 'Heiti námskeiðs vantar.');
+  const row = {
+    title, summary: $('c-summary').value.trim() || null, body: $('c-body').value.trim() || null,
+    price: $('c-price').value.trim() || null, schedule: $('c-schedule').value.trim() || null,
+    location: $('c-location').value.trim() || null, sort: parseInt($('c-sort').value) || 100,
+    min_participants: parseInt($('c-min').value) || null, max_participants: parseInt($('c-max').value) || null
+  };
+  let courseId = editId;
+  if (editId) {
+    const { error } = await client.from('courses').update(row).eq('id', editId);
+    if (error) return err('c-err', 'Villa kom upp – reyndu aftur.');
+  } else {
+    row.slug = slugify(title) || 'namskeid-' + Date.now().toString(36);
+    const { data, error } = await client.from('courses').insert(row).select('id').single();
+    if (error) return err('c-err', 'Villa kom upp – reyndu aftur.');
+    courseId = data.id;
+  }
+  const seen = [];
+  for (const dr of document.querySelectorAll('#c-dates .date-row')) {
+    const start = dr.querySelector('.cd-date').value;
+    if (!start) continue;
+    const vals = { course_id: courseId, start_date: start, note: dr.querySelector('.cd-note').value.trim() || null, status: dr.querySelector('.cd-status').value };
+    const id = dr.dataset.id;
+    if (id) { await client.from('course_dates').update(vals).eq('id', id); seen.push(id); }
+    else await client.from('course_dates').insert(vals);
+  }
+  const removed = courseDatesLoaded.filter(id => !seen.includes(id));
+  if (removed.length) await client.from('course_dates').delete().in('id', removed);
+  const wasEdit = !!editId;
+  closePanel(); toast(wasEdit ? 'Námskeið vistað' : title + ' bætt við'); loadCourses();
+}
+
+$('course-new').onclick = () => { fillCourse(null); editId = null; openPanel('course', 'Nýtt námskeið'); };
+$('c-del-open').onclick = () => $('c-del-warn').hidden = false;
+$('c-del-cancel').onclick = () => $('c-del-warn').hidden = true;
+$('c-del-confirm').onclick = async () => {
+  if (!editId) return;
+  await client.from('courses').delete().eq('id', editId);
+  toast('Námskeiði eytt'); closePanel(); loadCourses();
+};
+$('c-hide-instead').onclick = async () => {
+  if (!editId) return;
+  await client.from('courses').update({ hidden: true }).eq('id', editId);
+  toast('Námskeið falið af vefsíðunni'); closePanel(); loadCourses();
+};
+$('c-reg-list').addEventListener('change', async e => {
+  const sel = e.target.closest('[data-reg-status]'); if (!sel) return;
+  await client.from('registrations').update({ status: sel.value }).eq('id', sel.dataset.regStatus);
+  toast('Staða skráningar uppfærð');
+});
+
 /* ---------- open profile / row actions ---------- */
 function openStaff(id) {
   const m = (window._staff || []).find(x => x.id === id); if (!m) return;
@@ -845,21 +1046,36 @@ document.addEventListener('click', async e => {
       toast(hide ? 'Þjónusta falin af vefsíðunni' : 'Þjónusta sýnileg á ný'); loadServices();
       return;
     }
+    if (b.dataset.hideCourse) {
+      const hide = b.dataset.val !== 'true';
+      await client.from('courses').update({ hidden: hide }).eq('id', b.dataset.hideCourse);
+      toast(hide ? 'Námskeið falið af vefsíðunni' : 'Námskeið sýnilegt á ný'); loadCourses();
+      return;
+    }
+    if (b.dataset.delReg) {
+      if (!confirm('Eyða þessari skráningu?')) return;
+      await client.from('registrations').delete().eq('id', b.dataset.delReg);
+      b.closest('.rowitem').remove(); toast('Skráningu eytt');
+      return;
+    }
     if (b.closest('.rowitem')) return;
   }
-  const row = e.target.closest('[data-open-staff],[data-open-svc],[data-open-news]');
+  const row = e.target.closest('[data-open-staff],[data-open-svc],[data-open-news],[data-open-course]');
   if (!row) return;
+  if (e.target.closest('select')) return;
   if (row.dataset.openStaff) openStaff(row.dataset.openStaff);
   else if (row.dataset.openSvc) openSvc(row.dataset.openSvc);
   else if (row.dataset.openNews) openNews(row.dataset.openNews);
+  else if (row.dataset.openCourse) openCourse(row.dataset.openCourse);
 });
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
-  const row = e.target.closest?.('[data-open-staff],[data-open-svc],[data-open-news]');
+  const row = e.target.closest?.('[data-open-staff],[data-open-svc],[data-open-news],[data-open-course]');
   if (!row) return;
   if (row.dataset.openStaff) openStaff(row.dataset.openStaff);
   else if (row.dataset.openSvc) openSvc(row.dataset.openSvc);
   else if (row.dataset.openNews) openNews(row.dataset.openNews);
+  else if (row.dataset.openCourse) openCourse(row.dataset.openCourse);
 });
 
 /* ---------- danger zones ---------- */

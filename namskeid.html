@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Námskeið | Stígandi sjúkraþjálfun</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0174BD;
+  --blue-dark:#015a94;
+  --blue-tint:#eaf3fa;
+  --navy:#0e2433;
+  --ink:#152430;
+  --muted:#54646f;
+  --line:#e3e9ee;
+  --bg:#ffffff;
+  --bg-soft:#f3f7fa;
+  --ok:#1e7a3a;
+  --danger:#b3261e;
+  --r-lg:20px;
+  --r-md:14px;
+  --shadow-lg:0 20px 50px -18px rgba(10,40,70,.28);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:"Bricolage Grotesque",-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);line-height:1.65;font-size:16.5px}
+img{max-width:100%;display:block}
+a{color:var(--blue)}
+h1,h2{text-wrap:balance}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px}
+
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:76px;max-width:1140px;margin:0 auto;padding:0 24px}
+.nav img{height:42px;width:auto}
+.nav ul{display:flex;gap:6px;list-style:none;align-items:center}
+.nav ul a{color:var(--ink);text-decoration:none;font-size:.95rem;font-weight:500;padding:9px 14px;border-radius:99px;transition:background .15s,color .15s}
+.nav ul a:hover{background:var(--blue-tint);color:var(--blue-dark)}
+.nav .cta{background:var(--navy);color:#fff}
+.nav .cta:hover{background:var(--blue);color:#fff}
+@media(max-width:760px){.nav ul{display:none}}
+
+.backlink{display:inline-flex;align-items:center;gap:6px;margin:30px 0 0;color:var(--muted);text-decoration:none;font-size:.94rem;font-weight:600}
+.backlink:hover{color:var(--blue)}
+
+h1{font-size:clamp(1.9rem,4.4vw,2.8rem);font-weight:800;letter-spacing:-.02em;margin:26px 0 8px;line-height:1.12}
+.summary{color:var(--muted);font-size:1.12rem;margin-bottom:22px;max-width:56ch}
+.facts{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:30px}
+.fact{background:var(--blue-tint);color:var(--blue-dark);font-weight:600;font-size:.92rem;padding:9px 18px;border-radius:99px}
+
+.content h4{color:var(--blue-dark);font-size:1.25rem;font-weight:700;margin:30px 0 8px}
+.content p{margin:11px 0;max-width:70ch;color:#2c3b46}
+.content ul{margin:12px 0 12px 4px;list-style:none}
+.content li{margin:7px 0;padding-left:26px;position:relative;color:#2c3b46}
+.content li::before{content:"";position:absolute;left:0;top:.52em;width:14px;height:14px;border-radius:50%;background:var(--blue-tint);box-shadow:inset 0 0 0 4.5px var(--blue)}
+
+/* signup */
+#signup{background:var(--bg-soft);border-radius:var(--r-lg);padding:clamp(26px,4vw,42px);margin:44px 0 20px}
+#signup h2{font-size:clamp(1.4rem,2.8vw,1.9rem);font-weight:700;letter-spacing:-.015em}
+#signup .sub{color:var(--muted);font-size:.97rem;margin:8px 0 22px;max-width:62ch}
+.dates{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.date-opt{display:flex;align-items:center;gap:13px;background:#fff;border:1.5px solid var(--line);border-radius:var(--r-md);padding:14px 18px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.date-opt:hover{border-color:#a9c6dd}
+.date-opt.sel{border-color:var(--blue);box-shadow:0 0 0 3px rgba(1,116,189,.13)}
+.date-opt input{width:19px;height:19px;accent-color:var(--blue);flex-shrink:0}
+.date-opt b{font-size:1rem;font-weight:700}
+.date-opt span{color:var(--muted);font-size:.88rem}
+.date-opt .full{margin-left:auto;font-size:.78rem;font-weight:700;color:var(--danger)}
+.date-hint{font-size:.85rem;color:var(--muted);margin-bottom:22px}
+label{display:block;font-size:.9rem;font-weight:700;margin:16px 0 6px}
+input[type=text],input[type=email],input[type=tel],textarea{width:100%;padding:12px 15px;border:1.5px solid var(--line);border-radius:var(--r-md);background:#fff;font:inherit;font-size:1rem;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(1,116,189,.13)}
+textarea{min-height:90px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+.smallprint{font-size:.83rem;color:var(--muted);margin-top:18px;line-height:1.7;max-width:66ch}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:15px 32px;border-radius:99px;text-decoration:none;font-weight:700;font-size:1.02rem;border:0;cursor:pointer;font-family:inherit;background:var(--blue);color:#fff;margin-top:20px;transition:background .18s,transform .18s}
+.btn:hover{background:#1d8ad1;transform:translateY(-1px)}
+.btn:disabled{background:#9dbdd4;cursor:default;transform:none}
+.msg{display:none;border-radius:var(--r-md);padding:14px 18px;font-size:.95rem;margin-top:18px}
+.msg.err{display:block;background:#fbeeed;color:var(--danger)}
+.success{text-align:center;padding:30px 10px}
+.success .check{width:64px;height:64px;border-radius:50%;background:#e8f6ec;color:var(--ok);font-size:2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.success h2{margin-bottom:10px}
+.success p{color:var(--muted);max-width:52ch;margin:0 auto}
+.hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
+
+.notfound{text-align:center;padding:90px 0}
+footer{background:var(--navy);color:#b9cbd8;padding:44px 0;margin-top:80px}
+footer .wrap{max-width:1140px;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:.94rem}
+footer b{color:#fff}
+footer a{color:#8ec6f0;text-decoration:none}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a href="index.html"><img src="assets/logo.png" alt="Stígandi sjúkraþjálfun"></a>
+    <ul>
+      <li><a href="index.html#thjonusta">Þjónusta</a></li>
+      <li><a href="index.html#tilkynningar">Tilkynningar</a></li>
+      <li><a href="index.html#starfsfolk">Starfsfólk</a></li>
+      <li><a href="index.html#gjaldskra">Gjaldskrá</a></li>
+      <li><a href="index.html#samband" class="cta">Hafa samband</a></li>
+    </ul>
+  </div>
+</header>
+
+<div class="wrap">
+  <a class="backlink" href="thjonusta.html#namskeid">← Öll námskeið</a>
+  <div id="page"><p style="color:var(--muted);margin-top:30px">Sæki efni…</p></div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div><b>Stígandi sjúkraþjálfun</b><br>Heilsuklasinn, Bíldshöfða 9, 110 Reykjavík</div>
+    <div><a href="tel:+3545991600">599 1600</a><br><a href="mailto:mottaka@stigandi.is">mottaka@stigandi.is</a></div>
+    <div>Opið mán–fös<br>kl. 8:00 – 17:00</div>
+  </div>
+</footer>
+
+<script>
+const SB_URL = 'https://zzcfyeylqojvzewfpehv.supabase.co';
+const SB_KEY = 'sb_publishable_8dDmyIaz6Ygu9_bVXYjGmg_9sRgt3kF';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MAN = ['janúar','febrúar','mars','apríl','maí','júní','júlí','ágúst','september','október','nóvember','desember'];
+const DOW = ['sunnudagur','mánudagur','þriðjudagur','miðvikudagur','fimmtudagur','föstudagur','laugardagur'];
+const isDate = iso => { const [y,m,d] = iso.split('-').map(Number); return `${d}. ${MAN[m-1]} ${y}`; };
+const dowOf = iso => { const [y,m,d] = iso.split('-').map(Number); return DOW[new Date(y, m-1, d).getDay()]; };
+
+function svcHtml(body) {
+  let out = '', inList = false;
+  for (let line of (body || '').split('\n')) {
+    line = line.trim();
+    if (!line) continue;
+    const isB = line.startsWith('- ');
+    if (isB && !inList) { out += '<ul>'; inList = true; }
+    if (!isB && inList) { out += '</ul>'; inList = false; }
+    if (line.startsWith('## ')) out += `<h4>${esc(line.slice(3))}</h4>`;
+    else if (isB) out += `<li>${esc(line.slice(2))}</li>`;
+    else out += `<p>${esc(line)}</p>`;
+  }
+  return out + (inList ? '</ul>' : '');
+}
+
+const slug = decodeURIComponent(location.hash.slice(1) || '');
+const hdrs = { apikey: SB_KEY };
+let COURSE = null, DATES = [];
+
+Promise.all([
+  fetch(`${SB_URL}/rest/v1/courses?slug=eq.${encodeURIComponent(slug)}&hidden=eq.false&select=*`, { headers: hdrs }).then(r => r.json()),
+]).then(async ([[c]]) => {
+  const page = document.getElementById('page');
+  if (!c) {
+    page.innerHTML = '<div class="notfound"><h1>Námskeið fannst ekki</h1><p><a href="thjonusta.html#namskeid">Skoða öll námskeið</a></p></div>';
+    return;
+  }
+  COURSE = c;
+  document.title = c.title + ' | Stígandi sjúkraþjálfun';
+  const today = new Date().toISOString().slice(0, 10);
+  DATES = await fetch(`${SB_URL}/rest/v1/course_dates?course_id=eq.${c.id}&start_date=gte.${today}&status=neq.cancelled&order=start_date.asc`, { headers: hdrs }).then(r => r.json());
+
+  page.innerHTML = `
+    <h1>${esc(c.title)}</h1>
+    ${c.summary ? `<p class="summary">${esc(c.summary)}</p>` : ''}
+    <div class="facts">
+      ${c.price ? `<span class="fact">${esc(c.price)}</span>` : ''}
+      ${c.schedule ? `<span class="fact">${esc(c.schedule)}</span>` : ''}
+      ${c.location ? `<span class="fact">${esc(c.location)}</span>` : ''}
+    </div>
+    <div class="content">${svcHtml(c.body)}</div>
+
+    <div id="signup">
+      <h2>Skráning</h2>
+      <p class="sub">${DATES.length
+        ? 'Veldu þær dagsetningar sem henta þér – allt að þrjár. Lágmarksfjöldi þátttakenda þarf að nást svo námskeið fari af stað og við höfum samband og staðfestum hvaða dagsetning verður fyrir valinu.'
+        : 'Engar dagsetningar eru í boði í augnablikinu. Skráðu þig á áhugalista og við höfum samband þegar næsta námskeið er ákveðið.'}</p>
+      <form id="reg-form" novalidate>
+        ${DATES.length ? `
+        <div class="dates">
+          ${DATES.map(d => `
+          <label class="date-opt${d.status === 'full' ? ' is-full' : ''}">
+            <input type="checkbox" name="dates" value="${d.id}" ${d.status === 'full' ? 'disabled' : ''}>
+            <div><b>${isDate(d.start_date)}</b> <span>· ${dowOf(d.start_date)}${d.note ? ' · ' + esc(d.note) : ''}</span></div>
+            ${d.status === 'full' ? '<span class="full">Fullbókað</span>' : d.status === 'confirmed' ? '<span style="margin-left:auto;font-size:.78rem;font-weight:700;color:var(--ok)">Staðfest – fer af stað</span>' : ''}
+          </label>`).join('')}
+        </div>
+        <p class="date-hint">Hægt er að velja allt að 3 dagsetningar.</p>` : ''}
+        <div class="grid2">
+          <div><label for="f-name">Fullt nafn *</label><input type="text" id="f-name" autocomplete="name" required></div>
+          <div><label for="f-kt">Kennitala *</label><input type="text" id="f-kt" inputmode="numeric" placeholder="000000-0000" required></div>
+          <div><label for="f-email">Netfang *</label><input type="email" id="f-email" autocomplete="email" required></div>
+          <div><label for="f-phone">Símanúmer *</label><input type="tel" id="f-phone" autocomplete="tel" inputmode="numeric" required></div>
+        </div>
+        <label for="f-msg">Athugasemd (má sleppa)</label>
+        <textarea id="f-msg" placeholder="T.d. spurningar eða annað sem gott er fyrir okkur að vita"></textarea>
+        <input type="text" id="f-web" class="hp" tabindex="-1" autocomplete="off">
+        <p class="smallprint">Skráning er ekki greiðsla – greiðsla fer fram þegar námskeið hefur verið staðfest. Upplýsingarnar eru eingöngu notaðar til að halda utan um skráninguna og til samskipta vegna námskeiðsins.</p>
+        <div class="msg err" id="f-err"></div>
+        <button class="btn" type="submit" id="f-send">Senda skráningu</button>
+      </form>
+      <div class="success" id="reg-done" style="display:none">
+        <div class="check">✓</div>
+        <h2>Skráning móttekin!</h2>
+        <p>Takk fyrir – við höfum samband um leið og dagsetning hefur verið staðfest. Ef spurningar vakna má alltaf hringja í 599 1600.</p>
+      </div>
+    </div>`;
+
+  document.querySelectorAll('.date-opt input').forEach(cb => cb.addEventListener('change', () => {
+    const sel = [...document.querySelectorAll('.date-opt input:checked')];
+    if (sel.length > 3) { cb.checked = false; return; }
+    document.querySelectorAll('.date-opt').forEach(o => o.classList.toggle('sel', o.querySelector('input').checked));
+  }));
+
+  document.getElementById('reg-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const err = document.getElementById('f-err');
+    err.style.display = 'none';
+    const show = t => { err.textContent = t; err.style.display = 'block'; err.scrollIntoView({ block: 'center' }); };
+    if (document.getElementById('f-web').value) return;
+    const name = document.getElementById('f-name').value.trim();
+    const kt = document.getElementById('f-kt').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const phone = document.getElementById('f-phone').value.trim();
+    const dateIds = [...document.querySelectorAll('.date-opt input:checked')].map(c2 => c2.value);
+    if (!name) return show('Vinsamlegast skráðu fullt nafn.');
+    if (!/^\d{6}-?\d{4}$/.test(kt)) return show('Kennitala þarf að vera 10 tölustafir.');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return show('Netfangið lítur ekki rétt út.');
+    if (!phone) return show('Vinsamlegast skráðu símanúmer.');
+    if (DATES.filter(d => d.status !== 'full').length && !dateIds.length) return show('Veldu að minnsta kosti eina dagsetningu.');
+    const btn = document.getElementById('f-send');
+    btn.disabled = true; btn.textContent = 'Sendi…';
+    const res = await fetch(`${SB_URL}/rest/v1/registrations`, {
+      method: 'POST',
+      headers: { ...hdrs, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        course_id: COURSE.id, date_ids: dateIds, name,
+        kennitala: kt.replace('-', ''), email, phone,
+        message: document.getElementById('f-msg').value.trim() || null
+      })
+    });
+    if (!res.ok) { btn.disabled = false; btn.textContent = 'Senda skráningu'; return show('Eitthvað fór úrskeiðis – reyndu aftur eða hringdu í 599 1600.'); }
+    document.getElementById('reg-form').style.display = 'none';
+    document.querySelector('#signup .sub').style.display = 'none';
+    document.getElementById('reg-done').style.display = 'block';
+    document.getElementById('signup').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+});
+window.addEventListener('hashchange', () => location.reload());
+</script>
+</body>
+</html>
