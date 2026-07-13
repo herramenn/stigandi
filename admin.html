@@ -107,6 +107,10 @@ textarea{min-height:76px;resize:vertical}
 .field-err.on{display:block}
 .field-ok{display:none;background:var(--ok-tint);color:var(--ok);border-radius:8px;padding:9px 13px;font-size:.9rem;margin-top:12px}
 .field-ok.on{display:block}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid #c9d4dd;background:#fff;border-radius:8px;padding:8px 14px;font-size:.9rem;font-weight:500;transition:background .15s ease-out,border-color .15s ease-out,color .15s ease-out}
+.seg button:hover{border-color:var(--blue)}
+.seg button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
 
 /* ---------- modal ---------- */
 #backdrop{position:fixed;inset:0;background:rgba(11,29,42,.5);z-index:var(--z-backdrop);display:none}
@@ -288,8 +292,17 @@ textarea{min-height:76px;resize:vertical}
         <label>Meginmál (birtist þegar smellt er á spjaldið)</label>
         <textarea id="v-body" style="min-height:190px" placeholder="## Fyrirsögn&#10;Venjulegur texti&#10;- Punktur í lista"></textarea>
         <p class="hint">Skrifaðu <b>##</b> fremst í línu fyrir fyrirsögn og <b>-</b> fremst fyrir punktalista.</p>
-        <label>Hnappur – texti (má sleppa)</label><input type="text" id="v-link-label" placeholder="t.d. Skráning – senda tölvupóst">
-        <label>Hnappur – hlekkur</label><input type="text" id="v-link-url" placeholder="mailto:mottaka@stigandi.is · tel:+3545991600 · https://…">
+        <label>Hnappur á spjaldinu</label>
+        <div class="seg" id="v-cta" role="radiogroup" aria-label="Tegund hnapps">
+          <button type="button" data-cta="none" aria-pressed="true">Enginn</button>
+          <button type="button" data-cta="email" aria-pressed="false">✉ Tölvupóstur</button>
+          <button type="button" data-cta="tel" aria-pressed="false">📞 Símtal</button>
+          <button type="button" data-cta="web" aria-pressed="false">🌐 Vefsíða</button>
+        </div>
+        <div id="v-cta-fields" style="display:none">
+          <label id="v-link-value-label">Netfang</label><input type="text" id="v-link-value">
+          <label>Texti á hnappnum</label><input type="text" id="v-link-label">
+        </div>
         <label>Röð (lægri tala birtist fyrst)</label><input type="number" id="v-sort" value="100" style="max-width:120px">
         <label>Mynd</label>
         <div class="curphoto" id="v-curphoto" style="display:none"><img id="v-curphoto-img" alt=""><span>Núverandi mynd – veldu nýja skrá til að skipta henni út</span></div>
@@ -505,6 +518,38 @@ async function saveStaff() {
 }
 
 /* ---------- services ---------- */
+const CTA = {
+  email: { field: 'Netfang', ph: 'mottaka@stigandi.is', defLabel: 'Senda tölvupóst' },
+  tel:   { field: 'Símanúmer', ph: '599 1600', defLabel: 'Hringja og panta' },
+  web:   { field: 'Vefslóð', ph: 'https://…', defLabel: 'Nánar' }
+};
+let ctaType = 'none';
+function setCta(type, value) {
+  ctaType = type;
+  document.querySelectorAll('#v-cta button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cta === type));
+  $('v-cta-fields').style.display = type === 'none' ? 'none' : 'block';
+  if (type !== 'none') {
+    $('v-link-value-label').textContent = CTA[type].field;
+    $('v-link-value').placeholder = CTA[type].ph;
+    $('v-link-label').placeholder = CTA[type].defLabel;
+  }
+  if (value !== undefined) $('v-link-value').value = value;
+}
+document.querySelectorAll('#v-cta button').forEach(b => b.onclick = () => setCta(b.dataset.cta));
+
+function parseCta(url) {
+  if (!url) return ['none', ''];
+  if (url.startsWith('mailto:')) return ['email', url.slice(7)];
+  if (url.startsWith('tel:')) return ['tel', url.slice(4).replace(/^\+354/, '')];
+  return ['web', url];
+}
+function buildCtaUrl() {
+  const v = $('v-link-value').value.trim();
+  if (ctaType === 'none' || !v) return null;
+  if (ctaType === 'email') return 'mailto:' + v;
+  if (ctaType === 'tel') { const d = v.replace(/[\s-]+/g, ''); return 'tel:' + (d.startsWith('+') ? d : '+354' + d); }
+  return /^https?:\/\//.test(v) ? v : 'https://' + v;
+}
 async function loadServices() {
   const { data, error } = await client.from('services').select('*').order('sort').order('title');
   if (error) return;
@@ -525,7 +570,7 @@ function fillSvc(s) {
   $('v-summary').value = s?.summary || '';
   $('v-body').value = s?.body || '';
   $('v-link-label').value = s?.link_label || '';
-  $('v-link-url').value = s?.link_url || '';
+  setCta(...parseCta(s?.link_url));
   $('v-sort').value = s?.sort ?? 100;
   $('v-photo').value = '';
   $('v-curphoto').style.display = s?.photo_url ? 'flex' : 'none';
@@ -538,8 +583,10 @@ async function saveSvc() {
   let photo_url;
   try { photo_url = await uploadPhoto($('v-photo'), 'svc-'); }
   catch { return err('v-err', 'Ekki tókst að hlaða upp mynd.'); }
+  if (ctaType !== 'none' && !$('v-link-value').value.trim()) return err('v-err', CTA[ctaType].field + ' vantar fyrir hnappinn.');
+  const link_url = buildCtaUrl();
   const row = { title, summary: $('v-summary').value.trim() || null, body: $('v-body').value.trim() || null,
-    link_label: $('v-link-label').value.trim() || null, link_url: $('v-link-url').value.trim() || null,
+    link_label: link_url ? ($('v-link-label').value.trim() || CTA[ctaType].defLabel) : null, link_url,
     sort: parseInt($('v-sort').value) || 100 };
   if (photo_url) row.photo_url = photo_url;
   const { error } = editId
