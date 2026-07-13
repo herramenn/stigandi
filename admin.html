@@ -102,6 +102,27 @@ button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px 18px
         <button class="btn-line" id="s-cancel" style="display:none">Hætta við</button>
       </div>
     </div>
+
+    <div class="panel">
+      <h2>Þjónusta</h2>
+      <div id="svc-list"></div>
+      <hr style="border:0;border-top:1px solid #eef2f5;margin:16px 0">
+      <strong style="font-size:.95rem" id="v-form-title">Ný þjónusta</strong>
+      <label>Titill</label><input type="text" id="v-title">
+      <label>Stutt lýsing (birtist á spjaldinu)</label><input type="text" id="v-summary">
+      <label>Meginmál (birtist þegar smellt er á spjaldið)</label>
+      <textarea id="v-body" style="min-height:200px" placeholder="## Fyrirsögn&#10;Venjulegur texti&#10;- Punktur í lista"></textarea>
+      <p class="muted" style="margin-top:4px">Skrifaðu <b>##</b> fremst í línu fyrir fyrirsögn og <b>-</b> fremst fyrir punktalista.</p>
+      <label>Hnappur – texti (má sleppa)</label><input type="text" id="v-link-label" placeholder="t.d. Skráning – senda tölvupóst">
+      <label>Hnappur – hlekkur</label><input type="text" id="v-link-url" placeholder="t.d. mailto:mottaka@stigandi.is, tel:+3545991600 eða https://...">
+      <label>Röð (lægri tala birtist fyrst)</label><input type="number" id="v-sort" value="100" style="max-width:120px">
+      <label>Mynd (má sleppa)</label><input type="file" id="v-photo" accept="image/*">
+      <div class="msg" id="v-msg"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn-blue" id="v-add">Bæta við</button>
+        <button class="btn-line" id="v-cancel" style="display:none">Hætta við</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -130,7 +151,7 @@ async function show() {
   $('login').style.display = session ? 'none' : 'block';
   $('app').style.display = session && !setpw ? 'block' : 'none';
   $('logout').style.display = session ? 'inline-block' : 'none';
-  if (session && !setpw) { loadNews(); loadStaff(); }
+  if (session && !setpw) { loadNews(); loadStaff(); loadServices(); }
 }
 // the token in the hash is processed async by supabase-js on load; re-render when it lands
 client.auth.onAuthStateChange(() => show());
@@ -247,6 +268,59 @@ $('s-add').onclick = async () => {
   resetStaffForm(); loadStaff();
 };
 
+/* ---- services ---- */
+async function loadServices() {
+  const { data, error } = await client.from('services').select('*').order('sort').order('title');
+  if (error) return;
+  $('svc-list').innerHTML = data.map(s => `
+    <div class="item">
+      ${s.photo_url ? `<img src="${esc(s.photo_url)}">` : `<div class="noimg">Þ</div>`}
+      <div class="info"><strong>${esc(s.title)}</strong><div class="t">${esc(s.summary || '')}</div></div>
+      <button class="btn-line btn-small" data-edit-svc="${s.id}">Breyta</button>
+      <button class="btn-del" data-del-svc="${s.id}">Eyða</button>
+    </div>`).join('') || '<p class="muted">Engin þjónusta skráð.</p>';
+  window._services = data;
+}
+
+let editingSvcId = null;
+function resetSvcForm() {
+  editingSvcId = null;
+  $('v-form-title').textContent = 'Ný þjónusta';
+  $('v-add').textContent = 'Bæta við';
+  $('v-cancel').style.display = 'none';
+  ['v-title','v-summary','v-body','v-link-label','v-link-url'].forEach(id => $(id).value = '');
+  $('v-sort').value = 100; $('v-photo').value = '';
+}
+$('v-cancel').onclick = resetSvcForm;
+
+$('v-add').onclick = async () => {
+  const title = $('v-title').value.trim();
+  if (!title) return flash($('v-msg'), 'Titil vantar.', false);
+  let photo_url;
+  const file = $('v-photo').files[0];
+  if (file) {
+    const path = 'svc-' + Date.now() + '-' + file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
+    const { error: upErr } = await client.storage.from('photos').upload(path, file);
+    if (upErr) return flash($('v-msg'), 'Ekki tókst að hlaða upp mynd.', false);
+    photo_url = client.storage.from('photos').getPublicUrl(path).data.publicUrl;
+  }
+  const row = {
+    title,
+    summary: $('v-summary').value.trim() || null,
+    body: $('v-body').value.trim() || null,
+    link_label: $('v-link-label').value.trim() || null,
+    link_url: $('v-link-url').value.trim() || null,
+    sort: parseInt($('v-sort').value) || 100
+  };
+  if (photo_url) row.photo_url = photo_url;
+  const { error } = editingSvcId
+    ? await client.from('services').update(row).eq('id', editingSvcId)
+    : await client.from('services').insert(row);
+  if (error) return flash($('v-msg'), 'Villa kom upp – reyndu aftur.', false);
+  flash($('v-msg'), editingSvcId ? 'Breytingar vistaðar.' : title + ' hefur verið bætt við.', true);
+  resetSvcForm(); loadServices();
+};
+
 document.addEventListener('click', async e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.delNews) {
@@ -259,6 +333,23 @@ document.addEventListener('click', async e => {
   }
   if (b.dataset.leave) {
     await client.from('staff').update({ on_leave: b.dataset.val !== 'true' }).eq('id', b.dataset.leave); loadStaff();
+  }
+  if (b.dataset.delSvc) {
+    if (!confirm('Fjarlægja þessa þjónustu af síðunni?')) return;
+    await client.from('services').delete().eq('id', b.dataset.delSvc); loadServices();
+  }
+  if (b.dataset.editSvc) {
+    const s = (window._services || []).find(x => x.id === b.dataset.editSvc);
+    if (!s) return;
+    editingSvcId = s.id;
+    $('v-form-title').textContent = 'Breyta: ' + s.title;
+    $('v-add').textContent = 'Vista breytingar';
+    $('v-cancel').style.display = 'inline-block';
+    $('v-title').value = s.title; $('v-summary').value = s.summary || '';
+    $('v-body').value = s.body || ''; $('v-link-label').value = s.link_label || '';
+    $('v-link-url').value = s.link_url || ''; $('v-sort').value = s.sort;
+    $('v-photo').value = '';
+    $('v-add').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
   if (b.dataset.edit) {
     const m = (window._staff || []).find(x => x.id === b.dataset.edit);

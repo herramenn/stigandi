@@ -146,16 +146,7 @@ footer h2{color:#fff}
   <div class="wrap">
     <h2>Þjónusta</h2>
     <p class="section-sub">Fjölbreytt þjónusta fyrir alla aldurshópa</p>
-    <div class="cards">
-      <div class="card" data-svc="einstaklings" tabindex="0" role="button"><img src="assets/svc-physio.jpg" alt="Einstaklings sjúkraþjálfun" loading="lazy">
-        <div class="body"><h3>Einstaklings sjúkraþjálfun</h3><p>Markviss meðferð og endurhæfing sniðin að þínum þörfum.</p></div></div>
-      <div class="card" data-svc="namskeid" tabindex="0" role="button"><img src="assets/svc-training.jpg" alt="Námskeið og hópþjálfun" loading="lazy">
-        <div class="body"><h3>Námskeið &amp; hópþjálfun</h3><p>Stoðleiðir, Mömmuþjálfun og Gigtarhópur undir handleiðslu sjúkraþjálfara.</p></div></div>
-      <div class="card" data-svc="vatn" tabindex="0" role="button"><img src="assets/svc-water.png" alt="Vatnsþjálfun" loading="lazy">
-        <div class="body"><h3>Vatnsþjálfun</h3><p>Þjálfun í vatni sem hlífir liðum og hentar vel í endurhæfingu.</p></div></div>
-      <div class="card" data-svc="medgongusund" tabindex="0" role="button"><img src="assets/svc-maternity.jpg" alt="Meðgöngusund" loading="lazy">
-        <div class="body"><h3>Meðgöngusund</h3><p>Hreyfing og vellíðan í vatni á meðgöngu.</p></div></div>
-    </div>
+    <div class="cards" id="svc-cards"></div>
     <p class="section-sub" style="margin-top:14px;margin-bottom:0">Smelltu á þjónustu til að lesa meira.</p>
   </div>
 </section>
@@ -277,102 +268,47 @@ sb('staff?select=id,name,title,photo_url,on_leave,bio,email,tags&order=sort.asc,
   renderStaff();
 });
 
-// service/course texts copied from the old site; h=heading, p=paragraph, b=bullet
-const SERVICES = {
-  einstaklings: { title: 'Einstaklings sjúkraþjálfun', lines: [
-    ['p','Stígandi sjúkraþjálfun leggur mikla áherslu á einstaklingsmiðaða nálgun og gagnreynda meðferð með það að leiðarljósi að ná markmiðum skjólstæðinga okkar.'],
-    ['p','Panta má tíma í síma 599 1600 eða með tölvupósti á mottaka@stigandi.is.']
-  ]},
-  vatn: { title: 'Vatnsþjálfun', lines: [
-    ['p','Stígandi býður upp á vatnsþjálfun undir leiðsögn sjúkraþjálfara fyrir einstaklinga með stoðkerfiseinkenni og/eða þá sem eru að hefja sína endurhæfingu eftir veikindi af ýmsum toga. Sama hvort um er að ræða endurhæfingu eftir nýleg meiðsl eða langvinn vandamál. Líkaminn er léttari í vatni og álag á liðina er minna en á þurru landi og því gengur mörgum betur að stunda líkamsþjálfun í vatni. Þjálfun í vatni hefur að auki jákvæð áhrif á sogæðakerfið og er vatnslosandi. Mótstaða vatnsins nýtist vel til styrktar- og þolþjálfunar og auðvelt er að aðlaga þyngd æfinga að hverjum og einum.'],
-    ['p','Þrenns konar hópar eru í boði, Vatnsþjálfun 1, 2 og 3. Vatnsþjálfun 1–2 eru niðurgreiddar af Sjúkratryggingum Íslands sé tilvísun frá lækni til staðar og fer kostnaður eftir stöðu einstaklings innan heilbrigðiskerfisins. Vatnsþjálfun 3 er utan Sjúkratrygginga Íslands og krefst ekki beiðni frá lækni en oft er hægt að sækja um styrki gegnum stéttarfélög.'],
-    ['p','Kennsla fer fram í Mörkinni, Suðurlandsbraut 58–62.'],
-    ['h','Vatnsþjálfun 1 – Biðlisti'],
-    ['p','Vatnsþjálfun 1 hentar vel þeim sem hafa ekki verið áður í vatnsþjálfun, eru ertanlegir eða þurfa fara rólega af stað. Á námskeiðinu er farið yfir ýmis grunnatriði í endurhæfingu og er mikil áhersla lögð á fræðslu.'],
-    ['b','Þriðjudaga og fimmtudaga kl. 12:15 og 15:15'],
-    ['b','Mikil fræðsla og grunnæfingar'],
-    ['b','Kennarar eru sjúkraþjálfarar Stíganda sjúkraþjálfunar'],
-    ['b','Hópsjúkraþjálfun'],
-    ['b','Verð er samkvæmt gjaldskrá Sjúkratrygginga Íslands um hópþjálfun II liggi fyrir beiðni frá lækni*'],
-    ['h','Vatnsþjálfun 2 – Biðlisti'],
-    ['p','Vatnsþjálfun 2 hentar þeim sem hafa áður verið í vatnsþjálfun, eru ekki ertanlegir og/eða þekkja sín takmörk við þjálfun en þurfa á stuðningi sjúkraþjálfara að halda. Meira álag og ákefð er í Vatnsþjálfun 2 miðað við Vatnsþjálfun 1 og er gert ráð fyrir að þátttakendur séu komnir lengra í sinni þjálfun.'],
-    ['b','Þriðjudaga og fimmtudaga kl. 13:00, 13:45, 14:30, 16:00 og kl. 16:45'],
-    ['b','Fræðsla og þjálfun'],
-    ['b','Þjálfarar eru sjúkraþjálfarar Stíganda sjúkraþjálfunar'],
-    ['b','Hópsjúkraþjálfun'],
-    ['b','Verð er samkvæmt gjaldskrá Sjúkratrygginga Íslands um hópþjálfun II liggi fyrir beiðni frá lækni*'],
-    ['h','Vatnsþjálfun 3'],
-    ['p','Vatnsþjálfun 3 hentar þeim sem hafa áður verið í vatnsþjálfun, eru ekki ertanlegir og/eða þekkja sín takmörk við þjálfun en þurfa á stuðningi sjúkraþjálfara að halda. Álag og ákefð sambærileg og í Vatnsþjálfun 2 og er gert ráð fyrir að þátttakendur séu komnir lengra í sinni þjálfun.'],
-    ['b','Mánudaga og miðvikudaga kl. 12:15, kl. 13:00 eða 13:45'],
-    ['b','Fræðsla og þjálfun. Áhersla lögð á almenna styrktar- og þolþjálfun'],
-    ['b','Þjálfarar eru sjúkraþjálfarar Stíganda sjúkraþjálfunar'],
-    ['b','Áskrift 20.990 kr. á mánuði (2ja mánaða binditími, enginn uppsagnarfrestur) – oft styrkhæft gegnum stéttarfélög'],
-    ['p','Skráning fer fram í gegnum mottaka@stigandi.is eða í síma 599 1600. Mikilvægt er að taka fram nafn, kennitölu, símanúmer, netfang og hvaða stigi óskað er eftir.'],
-    ['p','*Athugið að staða einstaklings innan greiðsluþátttökukerfis Sjúkratrygginga Íslands stýrir verðinu hverju sinni.']
-  ]},
-  medgongusund: { title: 'Meðgöngusund Stíganda', lines: [
-    ['p','Vatnsþjálfun fyrir konur á meðgöngu. Kennsla fer fram í Mörkinni, Suðurlandsbraut 58–62.'],
-    ['p','Mánudaga og miðvikudaga kl. 16:00 og 16:45'],
-    ['b','Styrktar- og stöðugleikaþjálfun fyrir mjóhrygg og mjaðmagrind'],
-    ['b','Grindarbotnsþjálfun'],
-    ['b','Almenn styrktar- og þolþjálfun'],
-    ['b','Mjúkar, liðkandi æfingar og slökun'],
-    ['b','Fræðsla um ástand líkamans á meðgöngu og eftir, auk ráðlegginga um líkamsbeitingu og fleira'],
-    ['p','1 mánuður: 24.900 kr. · 1 vika: 6.900 kr.'],
-    ['p','Meðgöngusund er frábær leið til að halda sér virkri á meðgöngu og hlúa að líkamanum á öruggan og áhrifaríkan hátt. Vatnið léttir á líkamanum og dregur úr álagi á liði og stoðkerfi, sem gerir hreyfinguna bæði þægilegri og aðgengilegri – sérstaklega fyrir þær sem finna fyrir stoðkerfisverkjum.'],
-    ['p','Vatnið veitir náttúrulega mótstöðu sem hentar vel til styrktar- og þolþjálfunar og auðvelt er að laga álagið að hverri konu fyrir sig. Regluleg hreyfing í vatni getur einnig haft jákvæð áhrif á sogæðakerfið og hjálpað til við að draga úr bjúg.'],
-    ['p','Á meðgöngu er mikilvægt að styrkja líkamann og halda honum virkum – það auðveldar daglegt líf og getur stytt bataferlið eftir fæðingu. Með auknum styrk og úthaldi verður auðveldara að takast á við nýjar áskoranir, svo sem brjósta- eða pelagjöf, að halda á barni eða bera bílstól.'],
-    ['p','Allir tímar fara fram undir leiðsögn sjúkraþjálfara sem tryggir örugga og markvissa þjálfun sem tekur mið af þínum þörfum á meðgöngunni.'],
-    ['p','Greiðsluskilmálar: Greiðsla staðfestir skráningu. Áskrift endurnýjast mánaðarlega, binditími er einn mánuður, enginn uppsagnarfrestur. Þær sem hafa verið hjá okkur geta keypt staka viku þegar minna en 4 vikur eru í fæðingu. Ekki er boðið upp á endurgreiðslu þátttökugjalds.']
-  ]},
-  namskeid: { title: 'Námskeið & hópþjálfun', lines: [
-    ['h','Stoðleiðir'],
-    ['p','Stoðleiðir 1–3 eru námskeið á vegum Stíganda sjúkraþjálfunar. Sjúkraþjálfarar kenna alla tíma, alls 8 vikur. Þátttakendur fá fullan aðgang að líkamsrækt Heilsuklasans á meðan námskeiði stendur. Einstaklingar sem koma á vegum Virk fá einstaklingsviðtal og ráðgjöf hjá sjúkraþjálfara námskeiðsins í upphafi.'],
-    ['h','Stoðleið 1 – Fræðandi'],
-    ['p','Skóli og hreyfing. Fræðsla og þjálfun – grunnur að því bataferli sem framundan er. Mánudaga, miðvikudaga og föstudaga kl. 11–11:55.'],
-    ['p','Fyrir alla þá sem eiga í erfiðleikum með hreyfingu eða ýmis störf vegna stoðkerfisvandamála eða verkja – sama hvort orsökin stafar af álagi, slysi, sjúkdómum, vefjagigt, langvinnum verkjum eða öðru. Verð: átta vikur 66.900 kr.'],
-    ['p','Stoðleið 1 er einnig í boði fyrir pólskumælandi (Edukacja i ruch) mánudaga, miðvikudaga og föstudaga kl. 9–9:50.'],
-    ['h','Stoðleið 2 – Hvetjandi'],
-    ['p','Orka og hreyfing. Hópþjálfun þriðjudaga og fimmtudaga kl. 11–11:55. Fyrir þá sem glíma við orkuleysi, þrekleysi, svefnvanda, andlega vanlíðan eða áþekk einkenni og alla þá sem vilja komast af stað í rólega og vandaða þjálfun eftir veikindi. Verð: átta vikur 41.900 kr.'],
-    ['h','Stoðleið 3 – Styrkjandi'],
-    ['p','Stoðkerfið og hreyfing. Hópþjálfun mánudaga, miðvikudaga og föstudaga kl. 14–14:55. Fyrir þá sem glíma við stoðkerfisvandamál af ýmsum toga og þurfa stuðning sjúkraþjálfara til að komast af stað og/eða viðhalda hreyfingu. Meiri ákefð en í Stoðleið 2. Verð: átta vikur 56.900 kr.'],
-    ['h','Mömmuþjálfun Stíganda'],
-    ['p','Þjálfun fyrir mæður eftir barnsburð undir leiðsögn sjúkraþjálfara. Námskeiðið er sérsniðið til að hjálpa þér að endurheimta styrk, orku og öryggi við þjálfun. Námskeiðið hentar öllum konum eftir barnsburð og börnin eru velkomin með.'],
-    ['b','Styrktar- og stöðugleikaþjálfun fyrir mjaðmagrind, kviðvöðva og grindarbotnsvöðva'],
-    ['b','Fræðsla um breytingar líkamans á meðgöngu og eftir fæðingu'],
-    ['b','Almenn styrktar- og þolþjálfun og liðkandi æfingar'],
-    ['b','Þjálfun í sal 2x í viku í 4 vikur, kort í Heilsuklasann fylgir'],
-    ['b','Vikuleg fræðslumyndbönd, heimaæfing á myndbandi og lokaður Facebook-hópur'],
-    ['p','Þriðjudagar og fimmtudagar kl. 9:00–9:50. Verð fyrir 4 vikur: 26.900 kr. Þjálfari er Herdís Guðrún Kjartansdóttir sjúkraþjálfari, sérhæfð í kvenheilsusjúkraþjálfun (Pre- and Postnatal Specialist).'],
-    ['h','Gigtarhópur Stíganda'],
-    ['p','Styrktar- og þolþjálfun í sundlaug og æfingasal fyrir einstaklinga með stoðkerfisvandamál vegna gigtar – þar með talið liðagigtar, hryggiktar, sóragigtar og slitgigtar. Markmiðið er að byggja upp vöðva- og beinstyrk, auka úthald og liðleika, vernda liði og auka almenna vellíðan.'],
-    ['b','Mánudagar og miðvikudagar í sundlaug í Mörkinni: hópur A kl. 14:30, hópur B kl. 15:10'],
-    ['b','Fimmtudagar í æfingasal Stíganda (Heilsuklasanum): hópur A kl. 14:00, hópur B kl. 14:45'],
-    ['p','Gigtarhóparnir eru niðurgreiddir af Sjúkratryggingum Íslands sé tilvísun frá lækni til staðar.'],
-    ['p','Skráning á öll námskeið fer fram í gegnum mottaka@stigandi.is eða í síma 599 1600. Mikilvægt er að taka fram nafn, kennitölu, símanúmer og netfang.']
-  ]}
-};
-
-function svcHtml(lines) {
+// services live in Supabase; body format: "## " = heading, "- " = bullet, other lines = paragraphs
+let SVCS = [];
+function svcHtml(body) {
   let out = '', inList = false;
-  for (const [t, txt] of lines) {
-    if (t === 'b' && !inList) { out += '<ul>'; inList = true; }
-    if (t !== 'b' && inList) { out += '</ul>'; inList = false; }
-    out += t === 'h' ? `<h4>${esc(txt)}</h4>` : t === 'b' ? `<li>${esc(txt)}</li>` : `<p>${esc(txt)}</p>`;
+  for (let line of (body || '').split('\n')) {
+    line = line.trim();
+    if (!line) continue;
+    const isB = line.startsWith('- ');
+    if (isB && !inList) { out += '<ul>'; inList = true; }
+    if (!isB && inList) { out += '</ul>'; inList = false; }
+    if (line.startsWith('## ')) out += `<h4>${esc(line.slice(3))}</h4>`;
+    else if (isB) out += `<li>${esc(line.slice(2))}</li>`;
+    else out += `<p>${esc(line)}</p>`;
   }
   return out + (inList ? '</ul>' : '');
 }
 
-function openSvc(id) {
-  const s = SERVICES[id];
+function openSvc(s) {
   document.getElementById('modal-body').innerHTML =
-    `<h3 style="font-size:1.35rem;margin-bottom:6px">${esc(s.title)}</h3><div class="modal-bio">${svcHtml(s.lines)}</div>`;
+    `<h3 style="font-size:1.35rem;margin-bottom:6px">${esc(s.title)}</h3>
+     <div class="modal-bio">${svcHtml(s.body)}</div>
+     ${s.link_url ? `<p style="margin-top:18px"><a class="btn btn-primary" href="${esc(s.link_url)}">${esc(s.link_label || 'Nánar')}</a></p>` : ''}`;
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-document.querySelectorAll('.card[data-svc]').forEach(c => {
-  c.addEventListener('click', () => openSvc(c.dataset.svc));
-  c.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSvc(c.dataset.svc); } });
+
+sb('services?select=*&order=sort.asc,title.asc').then(list => {
+  SVCS = list;
+  document.getElementById('svc-cards').innerHTML = list.map((s, i) => `
+    <div class="card" data-svc="${i}" tabindex="0" role="button" aria-label="Nánar um ${esc(s.title)}">
+      ${s.photo_url ? `<img src="${esc(s.photo_url)}" alt="${esc(s.title)}" loading="lazy">` : ''}
+      <div class="body"><h3>${esc(s.title)}</h3><p>${esc(s.summary || '')}</p></div>
+    </div>`).join('');
+});
+document.getElementById('svc-cards').addEventListener('click', e => {
+  const c = e.target.closest('[data-svc]');
+  if (c) openSvc(SVCS[c.dataset.svc]);
+});
+document.getElementById('svc-cards').addEventListener('keydown', e => {
+  const c = e.target.closest('[data-svc]');
+  if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openSvc(SVCS[c.dataset.svc]); }
 });
 
 const modal = document.getElementById('modal');
