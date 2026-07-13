@@ -113,19 +113,9 @@ textarea{min-height:76px;resize:vertical}
 .cta-row .cta-del{background:none;border:1px solid transparent;color:var(--danger);border-radius:8px;padding:7px 10px;font-size:1rem;line-height:1}
 .cta-row .cta-del:hover{background:var(--danger-tint)}
 
-/* ---------- modal ---------- */
-#backdrop{position:fixed;inset:0;background:rgba(11,29,42,.5);z-index:var(--z-backdrop);display:none}
-#backdrop.on{display:block;animation:fadein .15s ease-out}
-#panel{position:fixed;inset:0;z-index:var(--z-modal);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:4vh 16px}
-#panel.on{display:flex}
-.panel-card{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);width:100%;max-width:600px;margin-bottom:4vh;animation:pop .18s ease-out}
-@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
-.panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line)}
-.panel-head h2{font-size:1.1rem}
-.panel-head button{background:none;border:0;color:var(--muted);font-size:1.5rem;line-height:1;padding:2px 6px;border-radius:6px}
-.panel-head button:hover{background:var(--bg);color:var(--ink)}
-.panel-body{padding:20px 22px}
-.panel-foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 22px;border-top:1px solid var(--line)}
+/* ---------- in-page editor ---------- */
+.editor-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;max-width:640px}
+.ed-foot{display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line);margin-top:22px;padding-top:16px}
 .curphoto{display:flex;align-items:center;gap:10px;margin-top:6px}
 .curphoto img{width:40px;height:50px;object-fit:cover;border-radius:6px}
 .curphoto span{font-size:.8rem;color:var(--muted)}
@@ -249,18 +239,14 @@ textarea{min-height:76px;resize:vertical}
       <p class="view-sub">Þjónustuspjöldin á forsíðunni og textinn sem opnast þegar smellt er á þau.</p>
       <div class="list" id="svc-list"></div>
     </section>
-  </main>
-</div>
-
-<!-- modal -->
-<div id="backdrop"></div>
-<div id="panel" role="dialog" aria-modal="true">
-  <div class="panel-card">
-    <div class="panel-head">
-      <h2 id="panel-title">–</h2>
-      <button id="panel-close" aria-label="Loka">×</button>
-    </div>
-    <div class="panel-body">
+    <section data-view="editor">
+      <div class="view-head">
+        <button class="btn btn-quiet" id="ed-back">← Til baka</button>
+        <h1 id="ed-title" style="font-size:1.2rem">–</h1>
+        <div class="spacer"></div>
+        <button class="btn btn-primary" id="ed-save-top">Vista</button>
+      </div>
+      <div class="editor-card">
 
       <div id="form-news" style="display:none">
         <label>Titill</label><input type="text" id="n-title">
@@ -304,13 +290,15 @@ textarea{min-height:76px;resize:vertical}
         <div class="field-err" id="v-err"></div>
       </div>
 
-    </div>
-    <div class="panel-foot">
-      <button class="btn btn-quiet" id="panel-cancel">Hætta við</button>
-      <button class="btn btn-primary" id="panel-save">Vista</button>
-    </div>
-  </div>
+        <div class="ed-foot">
+          <button class="btn btn-quiet" id="ed-cancel">Hætta við</button>
+          <button class="btn btn-primary" id="ed-save">Vista</button>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>
+
 
 <div id="toast" role="status"></div>
 
@@ -391,33 +379,40 @@ $('setpw-btn').onclick = async () => {
 
 /* ---------- navigation ---------- */
 document.querySelectorAll('[data-nav]').forEach(b => b.onclick = () => {
-  document.querySelectorAll('[data-nav]').forEach(x => x.setAttribute('aria-current', x === b));
-  document.querySelectorAll('section[data-view]').forEach(s => s.classList.toggle('on', s.dataset.view === b.dataset.nav));
+  mode = null; editId = null;
+  showView(b.dataset.nav);
 });
 
-/* ---------- modal ---------- */
-let mode = null, editId = null;
+/* ---------- in-page editor ---------- */
+let mode = null, editId = null, returnView = 'tilkynningar';
+function showView(name) {
+  document.querySelectorAll('section[data-view]').forEach(s => s.classList.toggle('on', s.dataset.view === name));
+  document.querySelectorAll('[data-nav]').forEach(x => x.setAttribute('aria-current', x.dataset.nav === name));
+}
 function openPanel(kind, title) {
   mode = kind;
-  $('panel-title').textContent = title;
+  returnView = document.querySelector('section[data-view].on')?.dataset.view || returnView;
+  if (returnView === 'editor') returnView = 'tilkynningar';
+  $('ed-title').textContent = title;
   ['form-news','form-staff','form-svc'].forEach(f => $(f).style.display = f === 'form-' + kind ? 'block' : 'none');
-  $('backdrop').classList.add('on'); $('panel').classList.add('on');
-  $('panel').scrollTop = 0;
-  document.body.style.overflow = 'hidden';
+  showView('editor');
+  document.querySelectorAll('[data-nav]').forEach(x => x.setAttribute('aria-current', x.dataset.nav === returnView));
+  window.scrollTo(0, 0);
 }
 function closePanel() {
-  $('backdrop').classList.remove('on'); $('panel').classList.remove('on');
-  document.body.style.overflow = ''; mode = null; editId = null;
+  mode = null; editId = null;
+  showView(returnView);
 }
-$('panel-close').onclick = closePanel;
-$('panel-cancel').onclick = closePanel;
-$('panel').addEventListener('click', e => { if (e.target === $('panel')) closePanel(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+$('ed-back').onclick = closePanel;
+$('ed-cancel').onclick = closePanel;
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && mode) closePanel(); });
 
-$('panel-save').onclick = async () => {
+const doSave = async () => {
   const save = { news: saveNews, staff: saveStaff, svc: saveSvc }[mode];
   if (save) await save();
 };
+$('ed-save').onclick = doSave;
+$('ed-save-top').onclick = doSave;
 
 /* ---------- news ---------- */
 async function loadNews() {
