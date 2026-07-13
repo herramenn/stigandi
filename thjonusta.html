@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Þjónusta | Stígandi sjúkraþjálfun</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<style>
+:root{
+  --blue:#0174BD;
+  --blue-dark:#015a94;
+  --ink:#1a1a1a;
+  --muted:#5c6670;
+  --bg:#ffffff;
+  --bg-soft:#f2f6f9;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
+img{max-width:100%;display:block}
+a{color:var(--blue)}
+.wrap{max-width:840px;margin:0 auto;padding:0 20px}
+
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid #e5eaee}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1100px;margin:0 auto;padding:0 20px}
+.nav img{height:40px;width:auto}
+.nav ul{display:flex;gap:22px;list-style:none}
+.nav a{color:var(--ink);text-decoration:none;font-size:.95rem;font-weight:500}
+.nav a:hover{color:var(--blue)}
+.nav .cta{background:var(--blue);color:#fff;padding:8px 16px;border-radius:8px}
+.nav .cta:hover{background:var(--blue-dark);color:#fff}
+@media(max-width:760px){.nav ul{display:none}}
+
+.backlink{display:inline-flex;align-items:center;gap:6px;margin:26px 0 0;color:var(--muted);text-decoration:none;font-size:.92rem;font-weight:500}
+.backlink:hover{color:var(--blue)}
+
+.hero-img{width:100%;height:300px;object-fit:cover;border-radius:var(--radius);margin-top:18px}
+h1{font-size:clamp(1.6rem,4vw,2.3rem);margin:26px 0 6px;line-height:1.25}
+.summary{color:var(--muted);font-size:1.08rem;margin-bottom:26px}
+
+.content h4{color:var(--blue-dark);font-size:1.15rem;margin:28px 0 8px}
+.content p{margin:10px 0;max-width:72ch}
+.content ul{margin:10px 0 10px 22px}
+.content li{margin:5px 0}
+
+.btn{display:inline-block;padding:13px 26px;border-radius:8px;text-decoration:none;font-weight:600;border:0;font-size:1rem;cursor:pointer}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-ghost{background:none;border:2px solid var(--blue);color:var(--blue)}
+.btn-ghost:hover{background:#eef4fa}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin:34px 0 10px}
+
+#shop{margin:40px 0 10px;display:none}
+#shop.open{display:block}
+#shop h2{font-size:1.4rem;margin-bottom:4px}
+#shop .shop-sub{color:var(--muted);font-size:.9rem;margin-bottom:14px}
+#shop .shop-sub a{font-weight:500}
+#shop iframe{width:100%;min-height:1000px;border:1px solid #e5eaee;border-radius:var(--radius);background:var(--bg-soft)}
+
+.notfound{text-align:center;padding:80px 0}
+
+footer{background:#0e2433;color:#dbe6ee;padding:40px 0;margin-top:70px}
+footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:.92rem}
+footer a{color:#8ec6f0;text-decoration:none}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a href="index.html"><img src="assets/logo.png" alt="Stígandi sjúkraþjálfun"></a>
+    <ul>
+      <li><a href="index.html#thjonusta">Þjónusta</a></li>
+      <li><a href="index.html#tilkynningar">Tilkynningar</a></li>
+      <li><a href="index.html#starfsfolk">Starfsfólk</a></li>
+      <li><a href="index.html#gjaldskra">Gjaldskrá</a></li>
+      <li><a href="index.html#samband" class="cta">Hafa samband</a></li>
+    </ul>
+  </div>
+</header>
+
+<div class="wrap">
+  <a class="backlink" href="index.html#thjonusta">← Öll þjónusta</a>
+  <div id="page"><p style="color:var(--muted);margin-top:30px">Sæki efni…</p></div>
+
+  <div id="shop">
+    <h2>Kaupa / skrá</h2>
+    <p class="shop-sub">Öruggt greiðsluferli hjá Abler. <a id="shop-newwin" href="#" target="_blank" rel="noopener">Opna í nýjum glugga ↗</a></p>
+    <iframe id="shop-frame" title="Vefverslun" loading="lazy" allow="payment"></iframe>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div><b style="color:#fff">Stígandi sjúkraþjálfun</b><br>Bíldshöfða 9, 110 Reykjavík</div>
+    <div><a href="tel:+3545991600">599 1600</a><br><a href="mailto:mottaka@stigandi.is">mottaka@stigandi.is</a></div>
+    <div>Opið mán–fös<br>kl. 8:00 – 17:00</div>
+  </div>
+</footer>
+
+<script>
+const SB_URL = 'https://zzcfyeylqojvzewfpehv.supabase.co';
+const SB_KEY = 'sb_publishable_8dDmyIaz6Ygu9_bVXYjGmg_9sRgt3kF';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function svcHtml(body) {
+  let out = '', inList = false;
+  for (let line of (body || '').split('\n')) {
+    line = line.trim();
+    if (!line) continue;
+    const isB = line.startsWith('- ');
+    if (isB && !inList) { out += '<ul>'; inList = true; }
+    if (!isB && inList) { out += '</ul>'; inList = false; }
+    if (line.startsWith('## ')) out += `<h4>${esc(line.slice(3))}</h4>`;
+    else if (isB) out += `<li>${esc(line.slice(2))}</li>`;
+    else out += `<p>${esc(line)}</p>`;
+  }
+  return out + (inList ? '</ul>' : '');
+}
+
+function openShop(url) {
+  const frame = document.getElementById('shop-frame');
+  if (frame.src !== url) frame.src = url;
+  document.getElementById('shop-newwin').href = url;
+  document.getElementById('shop').classList.add('open');
+  document.getElementById('shop').scrollIntoView({ behavior: 'smooth' });
+}
+
+const slug = decodeURIComponent(location.hash.slice(1) || '');
+fetch(`${SB_URL}/rest/v1/services?slug=eq.${encodeURIComponent(slug)}&hidden=eq.false&select=*`, { headers: { apikey: SB_KEY } })
+  .then(r => r.json())
+  .then(([s]) => {
+    const page = document.getElementById('page');
+    if (!s) {
+      page.innerHTML = '<div class="notfound"><h1>Síða fannst ekki</h1><p><a href="index.html#thjonusta">Skoða alla þjónustu</a></p></div>';
+      return;
+    }
+    document.title = s.title + ' | Stígandi sjúkraþjálfun';
+    const links = (s.links && s.links.length) ? s.links : [];
+    page.innerHTML = `
+      ${s.photo_url ? `<img class="hero-img" src="${esc(s.photo_url)}" alt="${esc(s.title)}">` : ''}
+      <h1>${esc(s.title)}</h1>
+      ${s.summary ? `<p class="summary">${esc(s.summary)}</p>` : ''}
+      <div class="cta-row" id="cta-top"></div>
+      <div class="content">${svcHtml(s.body)}</div>
+      <div class="cta-row" id="cta-bottom"></div>`;
+    const btnHtml = links.map((l, i) => l.embed
+      ? `<button class="btn btn-primary" data-shop="${esc(l.url)}">${esc(l.label || 'Kaupa')}</button>`
+      : `<a class="btn ${i === 0 ? 'btn-primary' : 'btn-ghost'}" href="${esc(l.url)}">${esc(l.label || 'Nánar')}</a>`).join('');
+    document.getElementById('cta-bottom').innerHTML = btnHtml;
+    // repeat the primary CTA at the top only when there is real content below it
+    if (s.body && s.body.length > 400) document.getElementById('cta-top').innerHTML = btnHtml;
+    document.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => openShop(b.dataset.shop));
+  });
+window.addEventListener('hashchange', () => location.reload());
+</script>
+</body>
+</html>

@@ -50,7 +50,7 @@ header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);backdro
 
 /* services */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px}
-.card{border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:0 2px 14px rgba(10,40,70,.09);cursor:pointer}
+.card{border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:0 2px 14px rgba(10,40,70,.09);cursor:pointer;display:block;text-decoration:none;color:var(--ink)}
 .card:hover{outline:3px solid var(--blue)}
 .card img{height:210px;width:100%;object-fit:cover}
 .card .body{padding:18px}
@@ -270,49 +270,12 @@ sb('staff?select=id,name,title,photo_url,on_leave,leave_until,show_leave_date,em
   renderStaff();
 });
 
-// services live in Supabase; body format: "## " = heading, "- " = bullet, other lines = paragraphs
-let SVCS = [];
-function svcHtml(body) {
-  let out = '', inList = false;
-  for (let line of (body || '').split('\n')) {
-    line = line.trim();
-    if (!line) continue;
-    const isB = line.startsWith('- ');
-    if (isB && !inList) { out += '<ul>'; inList = true; }
-    if (!isB && inList) { out += '</ul>'; inList = false; }
-    if (line.startsWith('## ')) out += `<h4>${esc(line.slice(3))}</h4>`;
-    else if (isB) out += `<li>${esc(line.slice(2))}</li>`;
-    else out += `<p>${esc(line)}</p>`;
-  }
-  return out + (inList ? '</ul>' : '');
-}
-
-function openSvc(s) {
-  const links = (s.links && s.links.length) ? s.links : (s.link_url ? [{ label: s.link_label || 'Nánar', url: s.link_url }] : []);
-  document.getElementById('modal-body').innerHTML =
-    `<h3 style="font-size:1.35rem;margin-bottom:6px">${esc(s.title)}</h3>
-     <div class="modal-bio">${svcHtml(s.body)}</div>
-     ${links.length ? `<p style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">${links.map(l =>
-       `<a class="btn btn-primary" href="${esc(l.url)}">${esc(l.label || 'Nánar')}</a>`).join('')}</p>` : ''}`;
-  modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-sb('services?select=*&hidden=eq.false&order=sort.asc,title.asc').then(list => {
-  SVCS = list;
-  document.getElementById('svc-cards').innerHTML = list.map((s, i) => `
-    <div class="card" data-svc="${i}" tabindex="0" role="button" aria-label="Nánar um ${esc(s.title)}">
+sb('services?select=slug,title,summary,photo_url&hidden=eq.false&order=sort.asc,title.asc').then(list => {
+  document.getElementById('svc-cards').innerHTML = list.map(s => `
+    <a class="card" href="thjonusta.html#${esc(s.slug || '')}" aria-label="Nánar um ${esc(s.title)}">
       ${s.photo_url ? `<img src="${esc(s.photo_url)}" alt="${esc(s.title)}" loading="lazy">` : ''}
       <div class="body"><h3>${esc(s.title)}</h3><p>${esc(s.summary || '')}</p></div>
-    </div>`).join('');
-});
-document.getElementById('svc-cards').addEventListener('click', e => {
-  const c = e.target.closest('[data-svc]');
-  if (c) openSvc(SVCS[c.dataset.svc]);
-});
-document.getElementById('svc-cards').addEventListener('keydown', e => {
-  const c = e.target.closest('[data-svc]');
-  if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openSvc(SVCS[c.dataset.svc]); }
+    </a>`).join('');
 });
 
 const modal = document.getElementById('modal');

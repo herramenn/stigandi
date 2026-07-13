@@ -709,18 +709,24 @@ async function saveStaff() {
 const CTA = {
   email: { name: 'Tölvupóstur', ph: 'mottaka@stigandi.is', defLabel: 'Senda tölvupóst' },
   tel:   { name: 'Símtal', ph: '599 1600', defLabel: 'Hringja og panta' },
-  web:   { name: 'Vefsíða', ph: 'https://…', defLabel: 'Nánar' }
+  web:   { name: 'Vefsíða', ph: 'https://…', defLabel: 'Nánar' },
+  shop:  { name: 'Vefverslun (innfelld)', ph: 'https://www.abler.io/shop/…', defLabel: 'Kaupa – skrá mig' }
 };
-function parseCta(url) {
-  if (url.startsWith('mailto:')) return ['email', url.slice(7)];
-  if (url.startsWith('tel:')) return ['tel', url.slice(4).replace(/^\+354/, '')];
-  return ['web', url];
+function parseCta(l) {
+  if (l.embed) return ['shop', l.url];
+  if (l.url.startsWith('mailto:')) return ['email', l.url.slice(7)];
+  if (l.url.startsWith('tel:')) return ['tel', l.url.slice(4).replace(/^\+354/, '')];
+  return ['web', l.url];
 }
 function buildCtaUrl(type, v) {
   if (type === 'email') return 'mailto:' + v;
   if (type === 'tel') { const d = v.replace(/[\s-]+/g, ''); return 'tel:' + (d.startsWith('+') ? d : '+354' + d); }
   return /^https?:\/\//.test(v) ? v : 'https://' + v;
 }
+const slugify = t => t.toLowerCase()
+  .replace(/ð/g,'d').replace(/þ/g,'th').replace(/æ/g,'ae').replace(/ö/g,'o')
+  .normalize('NFD').replace(/[̀-ͯ]/g,'')
+  .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 function ctaRowHtml(type = 'email', value = '', label = '') {
   return `<div class="cta-row">
     <select class="cta-type" aria-label="Tegund hnapps">${Object.entries(CTA).map(([k, c]) =>
@@ -739,7 +745,7 @@ $('v-ctas').addEventListener('change', e => {
   row.querySelector('.cta-label').placeholder = CTA[e.target.value].defLabel;
 });
 function fillCtas(links) {
-  $('v-ctas').innerHTML = (links || []).map(l => ctaRowHtml(...parseCta(l.url), l.label || '')).join('');
+  $('v-ctas').innerHTML = (links || []).map(l => ctaRowHtml(...parseCta(l), l.label || '')).join('');
 }
 function readCtas() {
   const out = [];
@@ -747,7 +753,9 @@ function readCtas() {
     const type = row.querySelector('.cta-type').value;
     const v = row.querySelector('.cta-value').value.trim();
     if (!v) return { error: CTA[type].name + ': gildi vantar fyrir hnappinn.' };
-    out.push({ label: row.querySelector('.cta-label').value.trim() || CTA[type].defLabel, url: buildCtaUrl(type, v) });
+    const link = { label: row.querySelector('.cta-label').value.trim() || CTA[type].defLabel, url: buildCtaUrl(type, v) };
+    if (type === 'shop') link.embed = true;
+    out.push(link);
   }
   return { links: out };
 }
@@ -792,6 +800,7 @@ async function saveSvc() {
   const row = { title, summary: $('v-summary').value.trim() || null, body: $('v-body').value.trim() || null,
     links: ctas.links, link_label: ctas.links[0]?.label || null, link_url: ctas.links[0]?.url || null,
     sort: parseInt($('v-sort').value) || 100 };
+  if (!editId) row.slug = slugify(title) || 'thjonusta-' + Date.now().toString(36);
   if (photo_url) row.photo_url = photo_url;
   const { error } = editId
     ? await client.from('services').update(row).eq('id', editId)
