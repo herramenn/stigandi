@@ -61,12 +61,16 @@ h1{font-size:clamp(1.9rem,4.4vw,2.9rem);font-weight:800;letter-spacing:-.02em;ma
 .btn-ghost:hover{background:var(--blue-tint)}
 .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin:34px 0 10px}
 
-#shop{margin:52px 0 10px;display:none}
-#shop.open{display:block}
-#shop h2{font-size:clamp(1.4rem,2.6vw,1.9rem);font-weight:700;letter-spacing:-.015em;margin-bottom:4px}
-#shop .shop-sub{color:var(--muted);font-size:.92rem;margin-bottom:16px}
-#shop .shop-sub a{font-weight:600}
-#shop iframe{width:100%;min-height:1000px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg-soft)}
+#shop{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(9,24,36,.65);backdrop-filter:blur(4px);padding:max(2.5vh,14px) 14px}
+#shop.open{display:flex}
+.shop-card{background:#fff;border-radius:var(--r-lg);width:100%;max-width:960px;height:min(92vh,980px);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg)}
+.shop-head{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);flex-shrink:0}
+.shop-head h2{font-size:1.1rem;font-weight:700;letter-spacing:-.01em}
+.shop-head .shop-sub{font-size:.85rem;color:var(--muted);margin-left:auto}
+.shop-head .shop-sub a{font-weight:600}
+.shop-close{background:var(--bg-soft);border:0;width:36px;height:36px;border-radius:50%;font-size:1.3rem;color:var(--muted);cursor:pointer;line-height:1;flex-shrink:0;transition:background .15s,color .15s}
+.shop-close:hover{background:var(--blue-tint);color:var(--blue-dark)}
+#shop iframe{flex:1;width:100%;border:0;background:var(--bg-soft)}
 
 .notfound{text-align:center;padding:90px 0}
 
@@ -97,10 +101,15 @@ footer a:hover{text-decoration:underline}
   <a class="backlink" href="index.html#thjonusta">← Öll þjónusta</a>
   <div id="page"><p style="color:var(--muted);margin-top:30px">Sæki efni…</p></div>
 
-  <div id="shop">
-    <h2>Kaupa / skrá</h2>
-    <p class="shop-sub">Öruggt greiðsluferli hjá Abler. <a id="shop-newwin" href="#" target="_blank" rel="noopener">Opna í nýjum glugga ↗</a></p>
-    <iframe id="shop-frame" title="Vefverslun" loading="lazy" allow="payment"></iframe>
+  <div id="shop" role="dialog" aria-modal="true" aria-label="Vefverslun">
+    <div class="shop-card">
+      <div class="shop-head">
+        <h2>Kaupa / skrá</h2>
+        <span class="shop-sub">Öruggt greiðsluferli hjá Abler · <a id="shop-newwin" href="#" target="_blank" rel="noopener">Opna í nýjum glugga ↗</a></span>
+        <button class="shop-close" id="shop-close" aria-label="Loka">×</button>
+      </div>
+      <iframe id="shop-frame" title="Vefverslun" loading="lazy" allow="payment"></iframe>
+    </div>
   </div>
 </div>
 
@@ -137,8 +146,15 @@ function openShop(url) {
   if (frame.src !== url) frame.src = url;
   document.getElementById('shop-newwin').href = url;
   document.getElementById('shop').classList.add('open');
-  document.getElementById('shop').scrollIntoView({ behavior: 'smooth' });
+  document.body.style.overflow = 'hidden';
 }
+function closeShop() {
+  document.getElementById('shop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('shop-close').onclick = closeShop;
+document.getElementById('shop').addEventListener('click', e => { if (e.target === document.getElementById('shop')) closeShop(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeShop(); });
 
 const slug = decodeURIComponent(location.hash.slice(1) || '');
 fetch(`${SB_URL}/rest/v1/services?slug=eq.${encodeURIComponent(slug)}&hidden=eq.false&select=*`, { headers: { apikey: SB_KEY } })
