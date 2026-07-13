@@ -71,12 +71,16 @@ section[data-view].on{display:block;animation:fadein .18s ease-out}
 .view-sub{color:var(--muted);font-size:.92rem;margin-bottom:22px}
 
 /* ---------- buttons ---------- */
-.btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:8px;padding:9px 16px;font-weight:600;font-size:.92rem;transition:background .15s ease-out,color .15s ease-out,border-color .15s ease-out}
-.btn-primary{background:var(--blue);color:#fff}
-.btn-primary:hover{background:var(--blue-dark)}
-.btn-primary:disabled{background:#9dbdd4;cursor:default}
-.btn-quiet{background:none;border:1px solid var(--line);color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;border-radius:9px;padding:9px 16px;font-weight:600;font-size:.92rem;transition:background .15s ease-out,color .15s ease-out,border-color .15s ease-out,box-shadow .15s ease-out}
+.btn-primary{background:linear-gradient(180deg,#0d82cc,var(--blue));color:#fff;border-color:var(--blue-dark);box-shadow:0 1px 2px rgba(14,36,51,.2),inset 0 1px 0 rgba(255,255,255,.18)}
+.btn-primary:hover{background:linear-gradient(180deg,var(--blue),var(--blue-dark))}
+.btn-primary:disabled{background:#9dbdd4;border-color:#9dbdd4;cursor:default}
+.btn-quiet{background:#fff;border-color:#cdd7df;color:var(--ink);box-shadow:0 1px 2px rgba(14,36,51,.06)}
 .btn-quiet:hover{border-color:var(--blue);color:var(--blue)}
+.filebtn{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #cdd7df;border-radius:9px;padding:9px 16px;font-weight:600;font-size:.92rem;cursor:pointer;box-shadow:0 1px 2px rgba(14,36,51,.06);transition:border-color .15s ease-out,color .15s ease-out;margin:0}
+.filebtn:hover{border-color:var(--blue);color:var(--blue)}
+.filebtn input{display:none}
+.filename{font-size:.84rem;color:var(--muted);margin-top:7px}
 .btn-danger-quiet{background:none;border:1px solid transparent;color:var(--danger);padding:7px 10px;font-size:.88rem}
 .btn-danger-quiet:hover{background:var(--danger-tint)}
 .btn-sm{padding:7px 12px;font-size:.88rem}
@@ -107,8 +111,9 @@ section[data-view].on{display:block;animation:fadein .18s ease-out}
 /* ---------- forms ---------- */
 label{display:block;font-size:.85rem;font-weight:600;margin:14px 0 5px}
 label:first-child{margin-top:0}
-input[type=text],input[type=email],input[type=password],input[type=date],input[type=number],textarea{width:100%;padding:9px 12px;border:1px solid #c9d4dd;border-radius:8px;background:#fff;transition:border-color .15s ease-out}
-input:focus,textarea:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(1,116,189,.15)}
+input[type=text],input[type=email],input[type=password],input[type=date],input[type=number],textarea,select{width:100%;padding:10px 13px;border:1px solid #cdd7df;border-radius:9px;background:#fff;box-shadow:inset 0 1px 2px rgba(14,36,51,.04);transition:border-color .15s ease-out,box-shadow .15s ease-out}
+input:hover:not(:focus),textarea:hover:not(:focus),select:hover:not(:focus){border-color:#a9bac7}
+input:focus,textarea:focus,select:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(1,116,189,.14)}
 textarea{min-height:76px;resize:vertical}
 .hint{font-size:.8rem;color:var(--muted);margin-top:4px}
 .checks{display:flex;flex-wrap:wrap;gap:6px 18px;padding:2px 0}
@@ -118,7 +123,7 @@ textarea{min-height:76px;resize:vertical}
 .field-ok{display:none;background:var(--ok-tint);color:var(--ok);border-radius:8px;padding:9px 13px;font-size:.9rem;margin-top:12px}
 .field-ok.on{display:block}
 .cta-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap}
-.cta-row select{padding:9px 10px;border:1px solid #c9d4dd;border-radius:8px;background:#fff;flex-shrink:0}
+.cta-row select{width:auto;padding:9px 10px;border-radius:9px;flex-shrink:0}
 .cta-row input{flex:1;min-width:130px}
 .cta-row .cta-del{background:none;border:1px solid transparent;color:var(--danger);border-radius:8px;padding:7px 10px;font-size:1rem;line-height:1}
 .cta-row .cta-del:hover{background:var(--danger-tint)}
@@ -401,7 +406,8 @@ textarea{min-height:76px;resize:vertical}
         <label>Röð (lægri tala birtist fyrst)</label><input type="number" id="v-sort" value="100" style="max-width:120px">
         <label>Mynd</label>
         <div class="curphoto" id="v-curphoto" style="display:none"><img id="v-curphoto-img" alt=""><span>Núverandi mynd – veldu nýja skrá til að skipta henni út</span></div>
-        <input type="file" id="v-photo" accept="image/*" style="margin-top:6px">
+        <label class="filebtn" style="margin-top:8px">Velja mynd<input type="file" id="v-photo" accept="image/*"></label>
+        <div class="filename" id="v-photo-name">Engin ný mynd valin</div>
         <div class="field-err" id="v-err"></div>
         <div class="danger-zone" id="v-danger" style="display:none">
           <button type="button" class="btn btn-danger-quiet" id="v-del-open">Eyða þjónustu…</button>
@@ -425,7 +431,8 @@ textarea{min-height:76px;resize:vertical}
         <div id="ed-photo-frame"></div>
         <div class="ed-photo-ctl">
           <label style="margin-top:14px">Mynd</label>
-          <input type="file" id="s-photo" accept="image/*">
+          <label class="filebtn">Velja mynd<input type="file" id="s-photo" accept="image/*"></label>
+          <div class="filename" id="s-photo-name">Engin ný mynd valin</div>
           <p class="hint">Ný mynd vistast þegar þú smellir á Vista.</p>
         </div>
       </div>
@@ -661,6 +668,7 @@ function fillStaff(m) {
   dpSet(m?.leave_until || null);
   $('s-show-leave-date').checked = !!m?.show_leave_date;
   $('s-photo').value = '';
+  $('s-photo-name').textContent = 'Engin ný mynd valin';
   const initials = (m?.name || '?').split(' ').map(w => w[0]).slice(0, 2).join('');
   $('ed-photo-frame').innerHTML = m?.photo_url
     ? `<img src="${esc(m.photo_url)}" alt="${esc(m.name)}">`
@@ -670,7 +678,12 @@ function fillStaff(m) {
 }
 $('s-photo').addEventListener('change', () => {
   const f = $('s-photo').files[0];
+  $('s-photo-name').textContent = f ? f.name : 'Engin ný mynd valin';
   if (f) $('ed-photo-frame').innerHTML = `<img src="${URL.createObjectURL(f)}" alt="">`;
+});
+$('v-photo').addEventListener('change', () => {
+  const f = $('v-photo').files[0];
+  $('v-photo-name').textContent = f ? f.name : 'Engin ný mynd valin';
 });
 $('staff-new').onclick = () => { fillStaff(null); editId = null; openPanel('staff', 'Nýr starfsmaður'); };
 async function saveStaff() {
@@ -761,6 +774,7 @@ function fillSvc(s) {
   fillCtas(s?.links?.length ? s.links : (s?.link_url ? [{ label: s.link_label, url: s.link_url }] : []));
   $('v-sort').value = s?.sort ?? 100;
   $('v-photo').value = '';
+  $('v-photo-name').textContent = 'Engin ný mynd valin';
   $('v-curphoto').style.display = s?.photo_url ? 'flex' : 'none';
   if (s?.photo_url) $('v-curphoto-img').src = s.photo_url;
   $('v-danger').style.display = s ? 'block' : 'none';
