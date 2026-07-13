@@ -107,10 +107,11 @@ textarea{min-height:76px;resize:vertical}
 .field-err.on{display:block}
 .field-ok{display:none;background:var(--ok-tint);color:var(--ok);border-radius:8px;padding:9px 13px;font-size:.9rem;margin-top:12px}
 .field-ok.on{display:block}
-.seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg button{border:1px solid #c9d4dd;background:#fff;border-radius:8px;padding:8px 14px;font-size:.9rem;font-weight:500;transition:background .15s ease-out,border-color .15s ease-out,color .15s ease-out}
-.seg button:hover{border-color:var(--blue)}
-.seg button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.cta-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap}
+.cta-row select{padding:9px 10px;border:1px solid #c9d4dd;border-radius:8px;background:#fff;flex-shrink:0}
+.cta-row input{flex:1;min-width:130px}
+.cta-row .cta-del{background:none;border:1px solid transparent;color:var(--danger);border-radius:8px;padding:7px 10px;font-size:1rem;line-height:1}
+.cta-row .cta-del:hover{background:var(--danger-tint)}
 
 /* ---------- modal ---------- */
 #backdrop{position:fixed;inset:0;background:rgba(11,29,42,.5);z-index:var(--z-backdrop);display:none}
@@ -292,17 +293,10 @@ textarea{min-height:76px;resize:vertical}
         <label>Meginmál (birtist þegar smellt er á spjaldið)</label>
         <textarea id="v-body" style="min-height:190px" placeholder="## Fyrirsögn&#10;Venjulegur texti&#10;- Punktur í lista"></textarea>
         <p class="hint">Skrifaðu <b>##</b> fremst í línu fyrir fyrirsögn og <b>-</b> fremst fyrir punktalista.</p>
-        <label>Hnappur á spjaldinu</label>
-        <div class="seg" id="v-cta" role="radiogroup" aria-label="Tegund hnapps">
-          <button type="button" data-cta="none" aria-pressed="true">Enginn</button>
-          <button type="button" data-cta="email" aria-pressed="false">✉ Tölvupóstur</button>
-          <button type="button" data-cta="tel" aria-pressed="false">📞 Símtal</button>
-          <button type="button" data-cta="web" aria-pressed="false">🌐 Vefsíða</button>
-        </div>
-        <div id="v-cta-fields" style="display:none">
-          <label id="v-link-value-label">Netfang</label><input type="text" id="v-link-value">
-          <label>Texti á hnappnum</label><input type="text" id="v-link-label">
-        </div>
+        <label>Hnappar á spjaldinu</label>
+        <div id="v-ctas"></div>
+        <button type="button" class="btn btn-quiet btn-sm" id="v-cta-add" style="margin-top:4px">+ Bæta við hnappi</button>
+        <p class="hint">Hver hnappur birtist neðst í glugganum þegar smellt er á þjónustuna.</p>
         <label>Röð (lægri tala birtist fyrst)</label><input type="number" id="v-sort" value="100" style="max-width:120px">
         <label>Mynd</label>
         <div class="curphoto" id="v-curphoto" style="display:none"><img id="v-curphoto-img" alt=""><span>Núverandi mynd – veldu nýja skrá til að skipta henni út</span></div>
@@ -519,36 +513,49 @@ async function saveStaff() {
 
 /* ---------- services ---------- */
 const CTA = {
-  email: { field: 'Netfang', ph: 'mottaka@stigandi.is', defLabel: 'Senda tölvupóst' },
-  tel:   { field: 'Símanúmer', ph: '599 1600', defLabel: 'Hringja og panta' },
-  web:   { field: 'Vefslóð', ph: 'https://…', defLabel: 'Nánar' }
+  email: { name: 'Tölvupóstur', ph: 'mottaka@stigandi.is', defLabel: 'Senda tölvupóst' },
+  tel:   { name: 'Símtal', ph: '599 1600', defLabel: 'Hringja og panta' },
+  web:   { name: 'Vefsíða', ph: 'https://…', defLabel: 'Nánar' }
 };
-let ctaType = 'none';
-function setCta(type, value) {
-  ctaType = type;
-  document.querySelectorAll('#v-cta button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cta === type));
-  $('v-cta-fields').style.display = type === 'none' ? 'none' : 'block';
-  if (type !== 'none') {
-    $('v-link-value-label').textContent = CTA[type].field;
-    $('v-link-value').placeholder = CTA[type].ph;
-    $('v-link-label').placeholder = CTA[type].defLabel;
-  }
-  if (value !== undefined) $('v-link-value').value = value;
-}
-document.querySelectorAll('#v-cta button').forEach(b => b.onclick = () => setCta(b.dataset.cta));
-
 function parseCta(url) {
-  if (!url) return ['none', ''];
   if (url.startsWith('mailto:')) return ['email', url.slice(7)];
   if (url.startsWith('tel:')) return ['tel', url.slice(4).replace(/^\+354/, '')];
   return ['web', url];
 }
-function buildCtaUrl() {
-  const v = $('v-link-value').value.trim();
-  if (ctaType === 'none' || !v) return null;
-  if (ctaType === 'email') return 'mailto:' + v;
-  if (ctaType === 'tel') { const d = v.replace(/[\s-]+/g, ''); return 'tel:' + (d.startsWith('+') ? d : '+354' + d); }
+function buildCtaUrl(type, v) {
+  if (type === 'email') return 'mailto:' + v;
+  if (type === 'tel') { const d = v.replace(/[\s-]+/g, ''); return 'tel:' + (d.startsWith('+') ? d : '+354' + d); }
   return /^https?:\/\//.test(v) ? v : 'https://' + v;
+}
+function ctaRowHtml(type = 'email', value = '', label = '') {
+  return `<div class="cta-row">
+    <select class="cta-type" aria-label="Tegund hnapps">${Object.entries(CTA).map(([k, c]) =>
+      `<option value="${k}"${k === type ? ' selected' : ''}>${c.name}</option>`).join('')}</select>
+    <input type="text" class="cta-value" placeholder="${CTA[type].ph}" value="${esc(value)}" aria-label="Gildi">
+    <input type="text" class="cta-label" placeholder="${CTA[type].defLabel}" value="${esc(label)}" aria-label="Texti á hnappnum">
+    <button type="button" class="cta-del" aria-label="Fjarlægja hnapp">×</button>
+  </div>`;
+}
+$('v-cta-add').onclick = () => $('v-ctas').insertAdjacentHTML('beforeend', ctaRowHtml());
+$('v-ctas').addEventListener('click', e => { if (e.target.classList.contains('cta-del')) e.target.closest('.cta-row').remove(); });
+$('v-ctas').addEventListener('change', e => {
+  if (!e.target.classList.contains('cta-type')) return;
+  const row = e.target.closest('.cta-row');
+  row.querySelector('.cta-value').placeholder = CTA[e.target.value].ph;
+  row.querySelector('.cta-label').placeholder = CTA[e.target.value].defLabel;
+});
+function fillCtas(links) {
+  $('v-ctas').innerHTML = (links || []).map(l => ctaRowHtml(...parseCta(l.url), l.label || '')).join('');
+}
+function readCtas() {
+  const out = [];
+  for (const row of document.querySelectorAll('#v-ctas .cta-row')) {
+    const type = row.querySelector('.cta-type').value;
+    const v = row.querySelector('.cta-value').value.trim();
+    if (!v) return { error: CTA[type].name + ': gildi vantar fyrir hnappinn.' };
+    out.push({ label: row.querySelector('.cta-label').value.trim() || CTA[type].defLabel, url: buildCtaUrl(type, v) });
+  }
+  return { links: out };
 }
 async function loadServices() {
   const { data, error } = await client.from('services').select('*').order('sort').order('title');
@@ -569,8 +576,7 @@ function fillSvc(s) {
   $('v-title').value = s?.title || '';
   $('v-summary').value = s?.summary || '';
   $('v-body').value = s?.body || '';
-  $('v-link-label').value = s?.link_label || '';
-  setCta(...parseCta(s?.link_url));
+  fillCtas(s?.links?.length ? s.links : (s?.link_url ? [{ label: s.link_label, url: s.link_url }] : []));
   $('v-sort').value = s?.sort ?? 100;
   $('v-photo').value = '';
   $('v-curphoto').style.display = s?.photo_url ? 'flex' : 'none';
@@ -583,10 +589,10 @@ async function saveSvc() {
   let photo_url;
   try { photo_url = await uploadPhoto($('v-photo'), 'svc-'); }
   catch { return err('v-err', 'Ekki tókst að hlaða upp mynd.'); }
-  if (ctaType !== 'none' && !$('v-link-value').value.trim()) return err('v-err', CTA[ctaType].field + ' vantar fyrir hnappinn.');
-  const link_url = buildCtaUrl();
+  const ctas = readCtas();
+  if (ctas.error) return err('v-err', ctas.error);
   const row = { title, summary: $('v-summary').value.trim() || null, body: $('v-body').value.trim() || null,
-    link_label: link_url ? ($('v-link-label').value.trim() || CTA[ctaType].defLabel) : null, link_url,
+    links: ctas.links, link_label: ctas.links[0]?.label || null, link_url: ctas.links[0]?.url || null,
     sort: parseInt($('v-sort').value) || 100 };
   if (photo_url) row.photo_url = photo_url;
   const { error } = editId

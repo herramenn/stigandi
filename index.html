@@ -288,10 +288,12 @@ function svcHtml(body) {
 }
 
 function openSvc(s) {
+  const links = (s.links && s.links.length) ? s.links : (s.link_url ? [{ label: s.link_label || 'Nánar', url: s.link_url }] : []);
   document.getElementById('modal-body').innerHTML =
     `<h3 style="font-size:1.35rem;margin-bottom:6px">${esc(s.title)}</h3>
      <div class="modal-bio">${svcHtml(s.body)}</div>
-     ${s.link_url ? `<p style="margin-top:18px"><a class="btn btn-primary" href="${esc(s.link_url)}">${esc(s.link_label || 'Nánar')}</a></p>` : ''}`;
+     ${links.length ? `<p style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">${links.map(l =>
+       `<a class="btn btn-primary" href="${esc(l.url)}">${esc(l.label || 'Nánar')}</a>`).join('')}</p>` : ''}`;
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
