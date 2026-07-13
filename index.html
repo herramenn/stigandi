@@ -245,7 +245,7 @@ function renderStaff() {
       <div class="ph">${photoOrInitials(m)}</div>
       <h3>${esc(m.name)}</h3>
       <div class="title">${esc(m.title)}</div>
-      ${m.on_leave ? '<span class="badge">Í fæðingarorlofi</span>' : ''}
+      ${m.on_leave ? `<span class="badge">Í fæðingarorlofi${m.show_leave_date && m.leave_until ? ' til ' + isDate(m.leave_until) : ''}</span>` : ''}
     </div>`;
   }).join('');
 }
@@ -265,7 +265,7 @@ filtersEl.addEventListener('click', e => {
   renderStaff();
 });
 
-sb('staff?select=id,name,title,photo_url,on_leave,email,tags,starfssvid,serhaefing,menntun,starfsferill,ahugamal&order=sort.asc,name.asc').then(members => {
+sb('staff?select=id,name,title,photo_url,on_leave,leave_until,show_leave_date,email,tags,starfssvid,serhaefing,menntun,starfsferill,ahugamal&hidden=eq.false&order=sort.asc,name.asc').then(members => {
   STAFF = members;
   renderStaff();
 });
@@ -298,7 +298,7 @@ function openSvc(s) {
   document.body.style.overflow = 'hidden';
 }
 
-sb('services?select=*&order=sort.asc,title.asc').then(list => {
+sb('services?select=*&hidden=eq.false&order=sort.asc,title.asc').then(list => {
   SVCS = list;
   document.getElementById('svc-cards').innerHTML = list.map((s, i) => `
     <div class="card" data-svc="${i}" tabindex="0" role="button" aria-label="Nánar um ${esc(s.title)}">
@@ -322,7 +322,7 @@ function openBio(m) {
       ${photoOrInitials(m)}
       <div>
         <h3>${esc(m.name)}</h3>
-        <div class="title">${esc(m.title)}${m.on_leave ? ' · í fæðingarorlofi' : ''}</div>
+        <div class="title">${esc(m.title)}${m.on_leave ? ' · í fæðingarorlofi' + (m.show_leave_date && m.leave_until ? ' til ' + isDate(m.leave_until) : '') : ''}</div>
         ${m.email ? `<a href="mailto:${esc(m.email)}">${esc(m.email)}</a>` : ''}
       </div>
     </div>

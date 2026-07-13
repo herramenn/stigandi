@@ -113,6 +113,45 @@ textarea{min-height:76px;resize:vertical}
 .cta-row .cta-del{background:none;border:1px solid transparent;color:var(--danger);border-radius:8px;padding:7px 10px;font-size:1rem;line-height:1}
 .cta-row .cta-del:hover{background:var(--danger-tint)}
 
+/* clickable rows */
+.rowitem.click{cursor:pointer}
+.rowitem.dim{opacity:.55}
+.rowitem.dim:hover{opacity:.8}
+
+/* toggle switch */
+.switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;font-size:.92rem;margin:0}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.switch .track{width:40px;height:23px;border-radius:99px;background:#c3cfd8;position:relative;flex-shrink:0;transition:background .18s ease-out}
+.switch .track::after{content:"";position:absolute;top:2.5px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .18s ease-out}
+.switch input:checked + .track{background:var(--blue)}
+.switch input:checked + .track::after{transform:translateX(16px)}
+.switch input:focus-visible + .track{outline:2px solid var(--blue);outline-offset:2px}
+
+/* datepicker */
+.dp{position:relative;max-width:260px}
+.dp input{cursor:pointer;background:#fff}
+.dp-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:var(--z-modal);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px;width:280px;animation:fadein .15s ease-out}
+.dp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dp-head strong{font-size:.95rem;text-transform:capitalize}
+.dp-head button{background:none;border:1px solid var(--line);border-radius:7px;width:30px;height:30px;font-size:1rem;line-height:1;color:var(--ink)}
+.dp-head button:hover{border-color:var(--blue);color:var(--blue)}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.dp-dow{font-size:.72rem;font-weight:700;color:var(--muted);padding:4px 0}
+.dp-day{background:none;border:0;border-radius:50%;aspect-ratio:1;font-size:.88rem;color:var(--ink)}
+.dp-day:hover{background:var(--blue-tint)}
+.dp-day.today{box-shadow:inset 0 0 0 1.5px var(--blue)}
+.dp-day.sel{background:var(--blue);color:#fff;font-weight:700}
+.dp-foot{display:flex;justify-content:flex-end;margin-top:10px}
+
+/* danger zone */
+.danger-zone{margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
+.warnbox{background:var(--danger-tint);border-radius:10px;padding:16px;margin-top:12px}
+.warnbox p{font-size:.92rem;color:#7a1a14;margin-bottom:12px}
+.warnbox .row-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#8f1e17}
+.leave-opts{background:var(--blue-tint);border-radius:10px;padding:14px 16px;margin-top:10px}
+
 /* ---------- in-page editor ---------- */
 .editor-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;max-width:640px}
 .ed-foot{display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line);margin-top:22px;padding-top:16px}
@@ -269,8 +308,39 @@ textarea{min-height:76px;resize:vertical}
         <label>Mynd</label>
         <div class="curphoto" id="s-curphoto" style="display:none"><img id="s-curphoto-img" alt=""><span>Núverandi mynd – veldu nýja skrá til að skipta henni út</span></div>
         <input type="file" id="s-photo" accept="image/*" style="margin-top:6px">
-        <label class="checks" style="margin-top:14px"><span style="display:flex;align-items:center;gap:6px;font-weight:400"><input type="checkbox" id="s-leave"> Í fæðingarorlofi</span></label>
+        <label class="checks" style="margin-top:16px"><span style="display:flex;align-items:center;gap:6px;font-weight:400"><input type="checkbox" id="s-leave"> Í fæðingarorlofi</span></label>
+        <div class="leave-opts" id="s-leave-opts" style="display:none">
+          <label style="margin-top:0">Væntanleg/ur til baka</label>
+          <div class="dp" id="dp">
+            <input type="text" id="dp-display" readonly placeholder="Veldu dagsetningu…" aria-haspopup="dialog">
+            <div class="dp-pop" id="dp-pop" hidden>
+              <div class="dp-head">
+                <button type="button" id="dp-prev" aria-label="Fyrri mánuður">‹</button>
+                <strong id="dp-label"></strong>
+                <button type="button" id="dp-next" aria-label="Næsti mánuður">›</button>
+              </div>
+              <div class="dp-grid" id="dp-grid"></div>
+              <div class="dp-foot"><button type="button" class="link" id="dp-clear">Hreinsa dagsetningu</button></div>
+            </div>
+          </div>
+          <label class="switch" style="margin-top:14px">
+            <input type="checkbox" id="s-show-leave-date">
+            <span class="track"></span>
+            Birta dagsetninguna á vefsíðunni
+          </label>
+        </div>
         <div class="field-err" id="s-err"></div>
+        <div class="danger-zone" id="s-danger" style="display:none">
+          <button type="button" class="btn btn-danger-quiet" id="s-del-open">Eyða starfsmanni…</button>
+          <div class="warnbox" id="s-del-warn" hidden>
+            <p><b>Ertu viss?</b> Þetta eyðir starfsmanninum og ferilskránni varanlega og er ekki hægt að afturkalla. Ef þú vilt aðeins taka viðkomandi af vefsíðunni er betra að fela.</p>
+            <div class="row-btns">
+              <button type="button" class="btn btn-danger" id="s-del-confirm">Eyða varanlega</button>
+              <button type="button" class="btn btn-quiet" id="s-hide-instead">Fela í staðinn</button>
+              <button type="button" class="btn btn-quiet" id="s-del-cancel">Hætta við</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="form-svc" style="display:none">
@@ -288,6 +358,17 @@ textarea{min-height:76px;resize:vertical}
         <div class="curphoto" id="v-curphoto" style="display:none"><img id="v-curphoto-img" alt=""><span>Núverandi mynd – veldu nýja skrá til að skipta henni út</span></div>
         <input type="file" id="v-photo" accept="image/*" style="margin-top:6px">
         <div class="field-err" id="v-err"></div>
+        <div class="danger-zone" id="v-danger" style="display:none">
+          <button type="button" class="btn btn-danger-quiet" id="v-del-open">Eyða þjónustu…</button>
+          <div class="warnbox" id="v-del-warn" hidden>
+            <p><b>Ertu viss?</b> Þetta eyðir þjónustunni og öllum texta hennar varanlega. Ef þú vilt geyma hana til seinni tíma er betra að setja hana í geymslu – þá hverfur hún af vefsíðunni en helst hér í stjórnborðinu.</p>
+            <div class="row-btns">
+              <button type="button" class="btn btn-danger" id="v-del-confirm">Eyða varanlega</button>
+              <button type="button" class="btn btn-quiet" id="v-archive-instead">Setja í geymslu</button>
+              <button type="button" class="btn btn-quiet" id="v-del-cancel">Hætta við</button>
+            </div>
+          </div>
+        </div>
       </div>
 
         <div class="ed-foot">
@@ -318,6 +399,43 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const err = (id, msg) => { const el = $(id); el.textContent = msg; el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 5000); };
 let toastTimer;
 const toast = msg => { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2600); };
+
+const MAN = ['janúar','febrúar','mars','apríl','maí','júní','júlí','ágúst','september','október','nóvember','desember'];
+const isDate = iso => { if (!iso) return ''; const [y, m, d] = iso.split('-').map(Number); return `${d}. ${MAN[m - 1]} ${y}`; };
+
+/* ---------- datepicker ---------- */
+let dpValue = null;
+let dpView = new Date();
+function dpSet(iso) {
+  dpValue = iso || null;
+  $('dp-display').value = isDate(dpValue);
+  if (dpValue) { const [y, m] = dpValue.split('-').map(Number); dpView = new Date(y, m - 1, 1); }
+}
+function dpRender() {
+  const y = dpView.getFullYear(), m = dpView.getMonth();
+  $('dp-label').textContent = MAN[m] + ' ' + y;
+  const startGap = (new Date(y, m, 1).getDay() + 6) % 7;
+  const days = new Date(y, m + 1, 0).getDate();
+  const now = new Date();
+  const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  let html = ['M','Þ','M','F','F','L','S'].map(d => `<span class="dp-dow">${d}</span>`).join('');
+  html += '<span></span>'.repeat(startGap);
+  for (let d = 1; d <= days; d++) {
+    const iso = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    html += `<button type="button" class="dp-day${iso === dpValue ? ' sel' : ''}${iso === todayIso ? ' today' : ''}" data-iso="${iso}">${d}</button>`;
+  }
+  $('dp-grid').innerHTML = html;
+}
+$('dp-display').onclick = () => { const pop = $('dp-pop'); pop.hidden = !pop.hidden; if (!pop.hidden) dpRender(); };
+$('dp-prev').onclick = () => { dpView.setMonth(dpView.getMonth() - 1); dpRender(); };
+$('dp-next').onclick = () => { dpView.setMonth(dpView.getMonth() + 1); dpRender(); };
+$('dp-clear').onclick = () => { dpSet(null); $('dp-pop').hidden = true; };
+$('dp-grid').addEventListener('click', e => {
+  const b = e.target.closest('.dp-day'); if (!b) return;
+  dpSet(b.dataset.iso); $('dp-pop').hidden = true;
+});
+document.addEventListener('click', e => { if (!e.target.closest('.dp')) $('dp-pop').hidden = true; });
+$('s-leave').addEventListener('change', () => $('s-leave-opts').style.display = $('s-leave').checked ? 'block' : 'none');
 
 const TAGS = ['Öldrun','Stoðkerfi','Gigt','Hjarta og lungu','Íþróttir','Kvenheilsa','Svimi/jafnvægi','Höfuðhögg'];
 const BIO_FIELDS = [['s-starfssvid','starfssvid'],['s-serhaefing','serhaefing'],['s-menntun','menntun'],['s-ferill','starfsferill'],['s-ahugamal','ahugamal']];
@@ -421,10 +539,9 @@ async function loadNews() {
   window._news = data;
   $('count-news').textContent = data.length;
   $('news-list').innerHTML = data.map(n => `
-    <div class="rowitem">
-      <div class="info"><strong>${esc(n.title)}</strong><div class="t">${esc(n.date)}${n.body ? ' · ' + esc(n.body.slice(0, 80)) : ''}</div></div>
+    <div class="rowitem click" data-open-news="${n.id}" tabindex="0" role="button" aria-label="Opna ${esc(n.title)}">
+      <div class="info"><strong>${esc(n.title)}</strong><div class="t">${esc(isDate(n.date))}${n.body ? ' · ' + esc(n.body.slice(0, 80)) : ''}</div></div>
       <div class="actions">
-        <button class="btn btn-quiet btn-sm" data-edit-news="${n.id}">Breyta</button>
         <button class="btn-danger-quiet btn" data-del-news="${n.id}">Eyða</button>
       </div>
     </div>`).join('') || '<div class="empty"><div class="big">Engar tilkynningar</div>Smelltu á „+ Ný tilkynning“ til að birta frétt eða tilboð.</div>';
@@ -449,17 +566,15 @@ async function saveNews() {
 /* ---------- staff ---------- */
 function staffRow(m) {
   return `
-    <div class="rowitem" data-name="${esc(m.name.toLowerCase())}">
+    <div class="rowitem click${m.hidden ? ' dim' : ''}" data-open-staff="${m.id}" data-name="${esc(m.name.toLowerCase())}" tabindex="0" role="button" aria-label="Opna ${esc(m.name)}">
       ${m.photo_url ? `<img class="thumb" src="${esc(m.photo_url)}" alt="" loading="lazy">` : `<div class="noimg">${esc(m.name.split(' ').map(w => w[0]).slice(0, 2).join(''))}</div>`}
       <div class="info">
         <strong>${esc(m.name)}</strong>
         <div class="t">${esc(m.title)}</div>
-        <div>${(m.tags || []).map(t => `<span class="chip">${esc(t)}</span>`).join('')}${m.on_leave ? '<span class="chip warn">Í fæðingarorlofi</span>' : ''}</div>
+        <div>${(m.tags || []).map(t => `<span class="chip">${esc(t)}</span>`).join('')}${m.on_leave ? `<span class="chip warn">Í fæðingarorlofi${m.leave_until ? ' til ' + isDate(m.leave_until) : ''}</span>` : ''}${m.hidden ? '<span class="chip">Falinn – birtist ekki á vefsíðunni</span>' : ''}</div>
       </div>
       <div class="actions">
-        <button class="btn btn-quiet btn-sm" data-leave="${m.id}" data-val="${m.on_leave}">${m.on_leave ? 'Úr orlofi' : 'Í orlof'}</button>
-        <button class="btn btn-quiet btn-sm" data-edit-staff="${m.id}">Breyta</button>
-        <button class="btn-danger-quiet btn" data-del-staff="${m.id}">Eyða</button>
+        <button class="btn btn-quiet btn-sm" data-hide-staff="${m.id}" data-val="${m.hidden}">${m.hidden ? 'Sýna' : 'Fela'}</button>
       </div>
     </div>`;
 }
@@ -484,9 +599,14 @@ function fillStaff(m) {
   BIO_FIELDS.forEach(([id, col]) => $(id).value = m?.[col] || '');
   setTags(m?.tags);
   $('s-leave').checked = !!m?.on_leave;
+  $('s-leave-opts').style.display = m?.on_leave ? 'block' : 'none';
+  dpSet(m?.leave_until || null);
+  $('s-show-leave-date').checked = !!m?.show_leave_date;
   $('s-photo').value = '';
   $('s-curphoto').style.display = m?.photo_url ? 'flex' : 'none';
   if (m?.photo_url) $('s-curphoto-img').src = m.photo_url;
+  $('s-danger').style.display = m ? 'block' : 'none';
+  $('s-del-warn').hidden = true;
 }
 $('staff-new').onclick = () => { fillStaff(null); editId = null; openPanel('staff', 'Nýr starfsmaður'); };
 async function saveStaff() {
@@ -495,7 +615,9 @@ async function saveStaff() {
   let photo_url;
   try { photo_url = await uploadPhoto($('s-photo'), ''); }
   catch { return err('s-err', 'Ekki tókst að hlaða upp mynd.'); }
-  const row = { name, title: $('s-title').value.trim() || 'Sjúkraþjálfari', email: $('s-email').value.trim() || null, on_leave: $('s-leave').checked, tags: getTags() };
+  const row = { name, title: $('s-title').value.trim() || 'Sjúkraþjálfari', email: $('s-email').value.trim() || null,
+    on_leave: $('s-leave').checked, leave_until: $('s-leave').checked ? dpValue : null,
+    show_leave_date: $('s-leave').checked && $('s-show-leave-date').checked, tags: getTags() };
   BIO_FIELDS.forEach(([id, col]) => row[col] = $(id).value.trim() || null);
   if (photo_url) row.photo_url = photo_url;
   const { error } = editId
@@ -558,12 +680,11 @@ async function loadServices() {
   window._services = data;
   $('count-svc').textContent = data.length;
   $('svc-list').innerHTML = data.map(s => `
-    <div class="rowitem">
+    <div class="rowitem click${s.hidden ? ' dim' : ''}" data-open-svc="${s.id}" tabindex="0" role="button" aria-label="Opna ${esc(s.title)}">
       ${s.photo_url ? `<img class="thumb wide" src="${esc(s.photo_url)}" alt="" loading="lazy">` : '<div class="noimg">Þ</div>'}
-      <div class="info"><strong>${esc(s.title)}</strong><div class="t">${esc(s.summary || '')}</div></div>
+      <div class="info"><strong>${esc(s.title)}</strong><div class="t">${esc(s.summary || '')}</div>${s.hidden ? '<div><span class="chip">Í geymslu – birtist ekki á vefsíðunni</span></div>' : ''}</div>
       <div class="actions">
-        <button class="btn btn-quiet btn-sm" data-edit-svc="${s.id}">Breyta</button>
-        <button class="btn-danger-quiet btn" data-del-svc="${s.id}">Eyða</button>
+        <button class="btn btn-quiet btn-sm" data-hide-svc="${s.id}" data-val="${s.hidden}">${s.hidden ? 'Sýna' : 'Fela'}</button>
       </div>
     </div>`).join('') || '<div class="empty"><div class="big">Engin þjónusta skráð</div>Smelltu á „+ Ný þjónusta“ til að byrja.</div>';
 }
@@ -576,6 +697,8 @@ function fillSvc(s) {
   $('v-photo').value = '';
   $('v-curphoto').style.display = s?.photo_url ? 'flex' : 'none';
   if (s?.photo_url) $('v-curphoto-img').src = s.photo_url;
+  $('v-danger').style.display = s ? 'block' : 'none';
+  $('v-del-warn').hidden = true;
 }
 $('svc-new').onclick = () => { fillSvc(null); editId = null; openPanel('svc', 'Ný þjónusta'); };
 async function saveSvc() {
@@ -598,39 +721,83 @@ async function saveSvc() {
   closePanel(); toast(wasEdit ? 'Breytingar vistaðar' : title + ' bætt við'); loadServices();
 }
 
-/* ---------- row actions ---------- */
+/* ---------- open profile / row actions ---------- */
+function openStaff(id) {
+  const m = (window._staff || []).find(x => x.id === id); if (!m) return;
+  fillStaff(m); editId = m.id; openPanel('staff', 'Breyta: ' + m.name);
+}
+function openSvc(id) {
+  const s = (window._services || []).find(x => x.id === id); if (!s) return;
+  fillSvc(s); editId = s.id; openPanel('svc', 'Breyta: ' + s.title);
+}
+function openNews(id) {
+  const n = (window._news || []).find(x => x.id === id); if (!n) return;
+  $('n-title').value = n.title; $('n-date').value = n.date; $('n-body').value = n.body || '';
+  editId = n.id; openPanel('news', 'Breyta: ' + n.title);
+}
+
 document.addEventListener('click', async e => {
-  const b = e.target.closest('button'); if (!b) return;
-  if (b.dataset.editNews) {
-    const n = (window._news || []).find(x => x.id === b.dataset.editNews); if (!n) return;
-    $('n-title').value = n.title; $('n-date').value = n.date; $('n-body').value = n.body || '';
-    editId = n.id; openPanel('news', 'Breyta: ' + n.title);
+  const b = e.target.closest('button');
+  if (b) {
+    if (b.dataset.delNews) {
+      if (!confirm('Eyða þessari tilkynningu?')) return;
+      await client.from('news').delete().eq('id', b.dataset.delNews); toast('Tilkynningu eytt'); loadNews();
+      return;
+    }
+    if (b.dataset.hideStaff) {
+      const hide = b.dataset.val !== 'true';
+      await client.from('staff').update({ hidden: hide }).eq('id', b.dataset.hideStaff);
+      toast(hide ? 'Starfsmaður falinn af vefsíðunni' : 'Starfsmaður sýnilegur á ný'); loadStaff();
+      return;
+    }
+    if (b.dataset.hideSvc) {
+      const hide = b.dataset.val !== 'true';
+      await client.from('services').update({ hidden: hide }).eq('id', b.dataset.hideSvc);
+      toast(hide ? 'Þjónusta falin af vefsíðunni' : 'Þjónusta sýnileg á ný'); loadServices();
+      return;
+    }
+    if (b.closest('.rowitem')) return;
   }
-  if (b.dataset.delNews) {
-    if (!confirm('Eyða þessari tilkynningu?')) return;
-    await client.from('news').delete().eq('id', b.dataset.delNews); toast('Tilkynningu eytt'); loadNews();
-  }
-  if (b.dataset.editStaff) {
-    const m = (window._staff || []).find(x => x.id === b.dataset.editStaff); if (!m) return;
-    fillStaff(m); editId = m.id; openPanel('staff', 'Breyta: ' + m.name);
-  }
-  if (b.dataset.delStaff) {
-    if (!confirm('Fjarlægja þennan starfsmann af síðunni?')) return;
-    await client.from('staff').delete().eq('id', b.dataset.delStaff); toast('Starfsmaður fjarlægður'); loadStaff();
-  }
-  if (b.dataset.leave) {
-    await client.from('staff').update({ on_leave: b.dataset.val !== 'true' }).eq('id', b.dataset.leave);
-    toast('Orlofsstaða uppfærð'); loadStaff();
-  }
-  if (b.dataset.editSvc) {
-    const s = (window._services || []).find(x => x.id === b.dataset.editSvc); if (!s) return;
-    fillSvc(s); editId = s.id; openPanel('svc', 'Breyta: ' + s.title);
-  }
-  if (b.dataset.delSvc) {
-    if (!confirm('Fjarlægja þessa þjónustu af síðunni?')) return;
-    await client.from('services').delete().eq('id', b.dataset.delSvc); toast('Þjónustu eytt'); loadServices();
-  }
+  const row = e.target.closest('[data-open-staff],[data-open-svc],[data-open-news]');
+  if (!row) return;
+  if (row.dataset.openStaff) openStaff(row.dataset.openStaff);
+  else if (row.dataset.openSvc) openSvc(row.dataset.openSvc);
+  else if (row.dataset.openNews) openNews(row.dataset.openNews);
 });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const row = e.target.closest?.('[data-open-staff],[data-open-svc],[data-open-news]');
+  if (!row) return;
+  if (row.dataset.openStaff) openStaff(row.dataset.openStaff);
+  else if (row.dataset.openSvc) openSvc(row.dataset.openSvc);
+  else if (row.dataset.openNews) openNews(row.dataset.openNews);
+});
+
+/* ---------- danger zones ---------- */
+$('s-del-open').onclick = () => $('s-del-warn').hidden = false;
+$('s-del-cancel').onclick = () => $('s-del-warn').hidden = true;
+$('s-del-confirm').onclick = async () => {
+  if (!editId) return;
+  await client.from('staff').delete().eq('id', editId);
+  toast('Starfsmanni eytt'); closePanel(); loadStaff();
+};
+$('s-hide-instead').onclick = async () => {
+  if (!editId) return;
+  await client.from('staff').update({ hidden: true }).eq('id', editId);
+  toast('Starfsmaður falinn af vefsíðunni'); closePanel(); loadStaff();
+};
+$('v-del-open').onclick = () => $('v-del-warn').hidden = false;
+$('v-del-cancel').onclick = () => $('v-del-warn').hidden = true;
+$('v-del-confirm').onclick = async () => {
+  if (!editId) return;
+  await client.from('services').delete().eq('id', editId);
+  toast('Þjónustu eytt'); closePanel(); loadServices();
+};
+$('v-archive-instead').onclick = async () => {
+  if (!editId) return;
+  await client.from('services').update({ hidden: true }).eq('id', editId);
+  toast('Þjónusta sett í geymslu'); closePanel(); loadServices();
+};
 
 show();
 </script>
