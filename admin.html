@@ -7,142 +7,311 @@
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <style>
-:root{--blue:#0174BD;--blue-dark:#015a94;--ink:#1a1a1a;--muted:#5c6670;--bg-soft:#f2f6f9;--red:#c0392b;--radius:10px}
+:root{
+  --blue:#0174BD; --blue-dark:#015a94; --blue-tint:#eef5fb;
+  --navy:#0e2433; --navy-soft:#1a3547;
+  --ink:#16232e; --muted:#51616e; --line:#e2e8ee;
+  --bg:#f4f6f8; --surface:#ffffff;
+  --danger:#b3261e; --danger-tint:#fbeeed; --ok:#1e7a3a; --ok-tint:#e8f6ec;
+  --radius:10px;
+  --shadow:0 1px 3px rgba(14,36,51,.08),0 4px 16px rgba(14,36,51,.06);
+  --z-sticky:10; --z-backdrop:40; --z-modal:50; --z-toast:60;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg-soft);line-height:1.5}
-.wrap{max-width:820px;margin:0 auto;padding:24px 16px 80px}
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-header img{height:38px}
-h1{font-size:1.4rem}
-h2{font-size:1.15rem;margin-bottom:12px}
-.panel{background:#fff;border-radius:var(--radius);padding:20px;margin-bottom:24px;box-shadow:0 1px 8px rgba(10,40,70,.07)}
-label{display:block;font-size:.85rem;font-weight:600;margin:10px 0 4px}
-input[type=text],input[type=email],input[type=password],input[type=date],textarea{width:100%;padding:10px;border:1px solid #ccd6de;border-radius:8px;font:inherit}
-textarea{min-height:90px;resize:vertical}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px 18px;cursor:pointer}
-.btn-blue{background:var(--blue);color:#fff}
-.btn-blue:hover{background:var(--blue-dark)}
-.btn-line{background:none;border:1px solid #ccd6de;color:var(--ink)}
-.btn-del{background:none;border:1px solid #e5c4c0;color:var(--red);padding:6px 12px;font-size:.85rem}
-.btn-small{padding:6px 12px;font-size:.85rem}
-.item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #eef2f5}
-.item:last-child{border-bottom:0}
-.item img,.item .noimg{width:44px;height:56px;object-fit:cover;border-radius:6px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
-.item .info{flex:1;min-width:0}
-.item .info .t{font-size:.82rem;color:var(--muted)}
-.tag{font-size:.72rem;background:#eef4fa;color:var(--blue-dark);padding:2px 8px;border-radius:99px}
-.msg{padding:10px 14px;border-radius:8px;margin:12px 0;font-size:.9rem;display:none}
-.msg.ok{display:block;background:#e8f6ec;color:#1e7a3a}
-.msg.err{display:block;background:#fbeaea;color:var(--red)}
-#app{display:none}
-.muted{color:var(--muted);font-size:.85rem}
-#amodal{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;background:rgba(8,30,48,.55);padding:4vh 16px;overflow-y:auto}
-#amodal.open{display:flex}
-.mcard{background:#fff;border-radius:var(--radius);max-width:640px;width:100%;padding:24px;position:relative;margin-bottom:4vh}
-.mclose{position:absolute;top:8px;right:12px;background:none;border:0;font-size:1.6rem;color:var(--muted);cursor:pointer;line-height:1}
+html{font-size:15px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+img{display:block}
+button{font:inherit;cursor:pointer}
+input,textarea,select{font:inherit;color:var(--ink)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* ---------- auth screens ---------- */
+.auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-card{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);padding:36px;width:100%;max-width:400px}
+.auth-card img{height:44px;margin-bottom:22px}
+.auth-card h1{font-size:1.25rem;margin-bottom:4px}
+.auth-card .sub{color:var(--muted);font-size:.92rem;margin-bottom:18px}
+
+/* ---------- app shell ---------- */
+#app{display:none;min-height:100vh}
+#app.on{display:grid;grid-template-columns:230px 1fr}
+aside{background:var(--navy);color:#c8d6e0;display:flex;flex-direction:column;padding:20px 14px;position:sticky;top:0;height:100vh}
+.brand{padding:2px 10px 20px}
+.brand img{height:34px}
+nav{display:flex;flex-direction:column;gap:2px}
+nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;color:#c8d6e0;padding:10px 12px;border-radius:8px;font-weight:500;font-size:.95rem;transition:background .15s ease-out,color .15s ease-out}
+nav button:hover{background:var(--navy-soft);color:#fff}
+nav button[aria-current="true"]{background:var(--blue);color:#fff}
+nav button .count{margin-left:auto;font-size:.75rem;background:rgba(255,255,255,.14);border-radius:99px;padding:1px 8px;font-weight:600}
+nav button svg{width:17px;height:17px;flex-shrink:0}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:2px;border-top:1px solid rgba(255,255,255,.12);padding-top:12px}
+.side-foot a,.side-foot button{display:flex;align-items:center;gap:10px;color:#c8d6e0;text-decoration:none;background:none;border:0;padding:9px 12px;border-radius:8px;font-size:.9rem;text-align:left;transition:background .15s ease-out}
+.side-foot a:hover,.side-foot button:hover{background:var(--navy-soft);color:#fff}
+.side-foot svg{width:16px;height:16px}
+.side-user{padding:4px 12px 8px;font-size:.78rem;color:#7e93a3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+main{padding:34px 40px;max-width:960px;width:100%}
+section[data-view]{display:none}
+section[data-view].on{display:block;animation:fadein .18s ease-out}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.view-head{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.view-head h1{font-size:1.45rem}
+.view-head .spacer{flex:1}
+.view-sub{color:var(--muted);font-size:.92rem;margin-bottom:22px}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:8px;padding:9px 16px;font-weight:600;font-size:.92rem;transition:background .15s ease-out,color .15s ease-out,border-color .15s ease-out}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-primary:disabled{background:#9dbdd4;cursor:default}
+.btn-quiet{background:none;border:1px solid var(--line);color:var(--ink)}
+.btn-quiet:hover{border-color:var(--blue);color:var(--blue)}
+.btn-danger-quiet{background:none;border:1px solid transparent;color:var(--danger);padding:7px 10px;font-size:.88rem}
+.btn-danger-quiet:hover{background:var(--danger-tint)}
+.btn-sm{padding:7px 12px;font-size:.88rem}
+.link{background:none;border:0;color:var(--blue);font-size:.9rem;text-decoration:none;padding:0}
+.link:hover{text-decoration:underline}
+
+/* ---------- lists ---------- */
+.list{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.rowitem{display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--line);transition:background .12s ease-out}
+.rowitem:last-child{border-bottom:0}
+.rowitem:hover{background:#fafcfe}
+.rowitem .thumb{width:44px;height:56px;object-fit:cover;border-radius:7px;flex-shrink:0;background:var(--bg)}
+.rowitem .thumb.wide{width:64px;height:44px}
+.rowitem .noimg{width:44px;height:56px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem;color:#fff;background:linear-gradient(135deg,var(--blue),var(--blue-dark))}
+.rowitem .info{flex:1;min-width:0}
+.rowitem .info strong{display:block;font-size:.97rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rowitem .info .t{font-size:.84rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rowitem .actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.chip{display:inline-block;font-size:.72rem;font-weight:600;background:var(--blue-tint);color:var(--blue-dark);padding:2px 8px;border-radius:99px;margin:2px 3px 0 0}
+.chip.warn{background:#fdf3e3;color:#8a5a00}
+.empty{padding:40px 20px;text-align:center;color:var(--muted)}
+.empty .big{font-size:1.05rem;font-weight:600;color:var(--ink);margin-bottom:4px}
+
+.search{position:relative;margin-bottom:14px;max-width:340px}
+.search input[type=text]{width:100%;padding:9px 12px 9px 38px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted);pointer-events:none}
+
+/* ---------- forms ---------- */
+label{display:block;font-size:.85rem;font-weight:600;margin:14px 0 5px}
+label:first-child{margin-top:0}
+input[type=text],input[type=email],input[type=password],input[type=date],input[type=number],textarea{width:100%;padding:9px 12px;border:1px solid #c9d4dd;border-radius:8px;background:#fff;transition:border-color .15s ease-out}
+input:focus,textarea:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(1,116,189,.15)}
+textarea{min-height:76px;resize:vertical}
+.hint{font-size:.8rem;color:var(--muted);margin-top:4px}
+.checks{display:flex;flex-wrap:wrap;gap:6px 18px;padding:2px 0}
+.checks label{display:flex;align-items:center;gap:6px;font-weight:400;margin:0;font-size:.92rem}
+.field-err{display:none;background:var(--danger-tint);color:var(--danger);border-radius:8px;padding:9px 13px;font-size:.9rem;margin-top:12px}
+.field-err.on{display:block}
+.field-ok{display:none;background:var(--ok-tint);color:var(--ok);border-radius:8px;padding:9px 13px;font-size:.9rem;margin-top:12px}
+.field-ok.on{display:block}
+
+/* ---------- modal ---------- */
+#backdrop{position:fixed;inset:0;background:rgba(11,29,42,.5);z-index:var(--z-backdrop);display:none}
+#backdrop.on{display:block;animation:fadein .15s ease-out}
+#panel{position:fixed;inset:0;z-index:var(--z-modal);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:4vh 16px}
+#panel.on{display:flex}
+.panel-card{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);width:100%;max-width:600px;margin-bottom:4vh;animation:pop .18s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line)}
+.panel-head h2{font-size:1.1rem}
+.panel-head button{background:none;border:0;color:var(--muted);font-size:1.5rem;line-height:1;padding:2px 6px;border-radius:6px}
+.panel-head button:hover{background:var(--bg);color:var(--ink)}
+.panel-body{padding:20px 22px}
+.panel-foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 22px;border-top:1px solid var(--line)}
+.curphoto{display:flex;align-items:center;gap:10px;margin-top:6px}
+.curphoto img{width:40px;height:50px;object-fit:cover;border-radius:6px}
+.curphoto span{font-size:.8rem;color:var(--muted)}
+
+/* ---------- toast ---------- */
+#toast{position:fixed;bottom:22px;right:22px;z-index:var(--z-toast);background:var(--navy);color:#fff;padding:11px 18px;border-radius:10px;font-size:.92rem;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s ease-out,transform .2s ease-out}
+#toast.on{opacity:1;transform:none}
+
+/* ---------- responsive ---------- */
+@media(max-width:860px){
+  #app.on{display:block}
+  aside{position:sticky;top:0;height:auto;flex-direction:row;align-items:center;gap:4px;padding:10px 12px;z-index:var(--z-sticky);overflow-x:auto}
+  .brand{padding:0 8px 0 4px}
+  .brand img{height:26px}
+  nav{flex-direction:row}
+  nav button{padding:8px 12px;white-space:nowrap}
+  nav button .count{display:none}
+  .side-foot{margin:0 0 0 auto;border:0;padding:0;flex-direction:row}
+  .side-user{display:none}
+  .side-foot a span,.side-foot button span{display:none}
+  main{padding:20px 16px}
+  .rowitem{flex-wrap:wrap}
+  .rowitem .actions{width:100%;justify-content:flex-end}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <img src="assets/logo.png" alt="Stígandi">
-    <div class="row">
-      <a href="index.html" class="muted" style="text-decoration:none">Skoða vefsíðu</a>
-      <button id="logout" class="btn-line btn-small" style="display:none">Útskrá</button>
-    </div>
-  </header>
 
-  <div id="login" class="panel">
+<!-- login -->
+<div class="auth" id="login-view">
+  <div class="auth-card">
+    <img src="assets/logo.png" alt="Stígandi sjúkraþjálfun">
     <h1>Stjórnborð</h1>
-    <p class="muted" style="margin-top:4px">Skráðu þig inn til að breyta starfsfólki og tilkynningum.</p>
-    <label>Netfang</label><input type="email" id="email" autocomplete="username">
-    <label>Lykilorð</label><input type="password" id="password" autocomplete="current-password">
-    <div class="msg" id="login-err"></div>
-    <div class="row" style="margin-top:14px;justify-content:space-between">
-      <button class="btn-blue" id="login-btn">Innskrá</button>
-      <a href="#" id="forgot" class="muted">Gleymt lykilorð?</a>
-    </div>
-  </div>
-
-  <div id="setpw" class="panel" style="display:none">
-    <h1>Veldu þér lykilorð</h1>
-    <p class="muted" style="margin-top:4px">Innskráning tókst – veldu nú lykilorð til að nota framvegis.</p>
-    <label>Nýtt lykilorð (minnst 8 stafir)</label><input type="password" id="newpw" autocomplete="new-password">
-    <label>Endurtaka lykilorð</label><input type="password" id="newpw2" autocomplete="new-password">
-    <div class="msg" id="setpw-msg"></div>
-    <button class="btn-blue" id="setpw-btn" style="margin-top:14px">Vista lykilorð</button>
-  </div>
-
-  <div id="app">
-    <div class="panel">
-      <h2>Tilkynningar og tilboð</h2>
-      <div id="news-list"></div>
-      <hr style="border:0;border-top:1px solid #eef2f5;margin:16px 0">
-      <strong style="font-size:.95rem">Ný tilkynning</strong>
-      <label>Titill</label><input type="text" id="n-title">
-      <label>Dagsetning</label><input type="date" id="n-date">
-      <label>Texti</label><textarea id="n-body"></textarea>
-      <div class="msg" id="n-msg"></div>
-      <button class="btn-blue" id="n-add" style="margin-top:12px">Birta tilkynningu</button>
-    </div>
-
-    <div class="panel">
-      <h2 class="row" style="justify-content:space-between">Starfsfólk <button class="btn-blue btn-small" id="s-new">+ Bæta við starfsmanni</button></h2>
-      <div id="staff-list"></div>
-    </div>
-
-    <div class="panel">
-      <h2 class="row" style="justify-content:space-between">Þjónusta <button class="btn-blue btn-small" id="v-new">+ Bæta við þjónustu</button></h2>
-      <div id="svc-list"></div>
-    </div>
-  </div>
-
-  <div id="amodal">
-    <div class="mcard">
-      <button class="mclose" id="amodal-close" aria-label="Loka">×</button>
-
-      <div id="form-staff">
-        <h2 id="s-form-title">Nýr starfsmaður</h2>
-        <label>Nafn</label><input type="text" id="s-name">
-        <label>Starfsheiti</label><input type="text" id="s-title" value="Sjúkraþjálfari">
-        <label>Netfang (má sleppa)</label><input type="email" id="s-email">
-        <label>Starfssvið</label><textarea id="s-starfssvid" style="min-height:80px" placeholder="Ein lína fyrir hvert atriði"></textarea>
-        <label>Sérhæfing</label><textarea id="s-serhaefing" style="min-height:52px"></textarea>
-        <label>Menntun / námskeið</label><textarea id="s-menntun" style="min-height:80px"></textarea>
-        <label>Starfsferill</label><textarea id="s-ferill" style="min-height:80px" placeholder="T.d. Stígandi sjúkraþjálfun 2024-"></textarea>
-        <label>Félagsstörf / áhugamál</label><textarea id="s-ahugamal" style="min-height:52px"></textarea>
-        <label>Sérsvið</label>
-        <div class="row" id="s-tags" style="gap:6px 16px"></div>
-        <label>Mynd (má sleppa)</label><input type="file" id="s-photo" accept="image/*">
-        <label class="row" style="font-weight:400;margin-top:12px"><input type="checkbox" id="s-leave"> Í fæðingarorlofi</label>
-        <div class="msg" id="s-msg"></div>
-        <button class="btn-blue" id="s-add" style="margin-top:14px">Bæta við</button>
-      </div>
-
-      <div id="form-svc">
-        <h2 id="v-form-title">Ný þjónusta</h2>
-        <label>Titill</label><input type="text" id="v-title">
-        <label>Stutt lýsing (birtist á spjaldinu)</label><input type="text" id="v-summary">
-        <label>Meginmál (birtist þegar smellt er á spjaldið)</label>
-        <textarea id="v-body" style="min-height:200px" placeholder="## Fyrirsögn&#10;Venjulegur texti&#10;- Punktur í lista"></textarea>
-        <p class="muted" style="margin-top:4px">Skrifaðu <b>##</b> fremst í línu fyrir fyrirsögn og <b>-</b> fremst fyrir punktalista.</p>
-        <label>Hnappur – texti (má sleppa)</label><input type="text" id="v-link-label" placeholder="t.d. Skráning – senda tölvupóst">
-        <label>Hnappur – hlekkur</label><input type="text" id="v-link-url" placeholder="t.d. mailto:mottaka@stigandi.is, tel:+3545991600 eða https://...">
-        <label>Röð (lægri tala birtist fyrst)</label><input type="number" id="v-sort" value="100" style="max-width:120px">
-        <label>Mynd (má sleppa)</label><input type="file" id="v-photo" accept="image/*">
-        <div class="msg" id="v-msg"></div>
-        <button class="btn-blue" id="v-add" style="margin-top:14px">Bæta við</button>
-      </div>
+    <p class="sub">Skráðu þig inn til að breyta efni vefsíðunnar.</p>
+    <label for="email">Netfang</label><input type="email" id="email" autocomplete="username">
+    <label for="password">Lykilorð</label><input type="password" id="password" autocomplete="current-password">
+    <div class="field-err" id="login-err"></div>
+    <div class="field-ok" id="login-ok"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px">
+      <button class="btn btn-primary" id="login-btn">Innskrá</button>
+      <button class="link" id="forgot">Gleymt lykilorð?</button>
     </div>
   </div>
 </div>
+
+<!-- set password (invite / recovery) -->
+<div class="auth" id="setpw-view" style="display:none">
+  <div class="auth-card">
+    <img src="assets/logo.png" alt="Stígandi sjúkraþjálfun">
+    <h1>Veldu þér lykilorð</h1>
+    <p class="sub">Innskráning tókst – veldu nú lykilorð til að nota framvegis.</p>
+    <label for="newpw">Nýtt lykilorð (minnst 8 stafir)</label><input type="password" id="newpw" autocomplete="new-password">
+    <label for="newpw2">Endurtaka lykilorð</label><input type="password" id="newpw2" autocomplete="new-password">
+    <div class="field-err" id="setpw-err"></div>
+    <button class="btn btn-primary" id="setpw-btn" style="margin-top:18px">Vista lykilorð</button>
+  </div>
+</div>
+
+<!-- app -->
+<div id="app">
+  <aside>
+    <div class="brand"><img src="assets/logo-white.png" alt="Stígandi"></div>
+    <nav aria-label="Aðalvalmynd">
+      <button data-nav="tilkynningar" aria-current="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-7-7 18-2.5-7.5L3 11z"/></svg>
+        Tilkynningar <span class="count" id="count-news">–</span>
+      </button>
+      <button data-nav="starfsfolk">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Starfsfólk <span class="count" id="count-staff">–</span>
+      </button>
+      <button data-nav="thjonusta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Þjónusta <span class="count" id="count-svc">–</span>
+      </button>
+    </nav>
+    <div class="side-foot">
+      <a href="index.html" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+        <span>Skoða vefsíðu</span>
+      </a>
+      <div class="side-user" id="side-user"></div>
+      <button id="logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        <span>Útskrá</span>
+      </button>
+    </div>
+  </aside>
+
+  <main>
+    <section data-view="tilkynningar" class="on">
+      <div class="view-head">
+        <h1>Tilkynningar</h1><div class="spacer"></div>
+        <button class="btn btn-primary" id="news-new">+ Ný tilkynning</button>
+      </div>
+      <p class="view-sub">Fréttir og tilboð sem birtast á forsíðunni, nýjast efst.</p>
+      <div class="list" id="news-list"></div>
+    </section>
+
+    <section data-view="starfsfolk">
+      <div class="view-head">
+        <h1>Starfsfólk</h1><div class="spacer"></div>
+        <button class="btn btn-primary" id="staff-new">+ Nýr starfsmaður</button>
+      </div>
+      <p class="view-sub">Fólkið sem birtist á vefsíðunni, með mynd, ferilskrá og sérsviðum.</p>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="staff-search" placeholder="Leita að nafni…" aria-label="Leita í starfsfólki">
+      </div>
+      <div class="list" id="staff-list"></div>
+    </section>
+
+    <section data-view="thjonusta">
+      <div class="view-head">
+        <h1>Þjónusta</h1><div class="spacer"></div>
+        <button class="btn btn-primary" id="svc-new">+ Ný þjónusta</button>
+      </div>
+      <p class="view-sub">Þjónustuspjöldin á forsíðunni og textinn sem opnast þegar smellt er á þau.</p>
+      <div class="list" id="svc-list"></div>
+    </section>
+  </main>
+</div>
+
+<!-- modal -->
+<div id="backdrop"></div>
+<div id="panel" role="dialog" aria-modal="true">
+  <div class="panel-card">
+    <div class="panel-head">
+      <h2 id="panel-title">–</h2>
+      <button id="panel-close" aria-label="Loka">×</button>
+    </div>
+    <div class="panel-body">
+
+      <div id="form-news" style="display:none">
+        <label>Titill</label><input type="text" id="n-title">
+        <label>Dagsetning</label><input type="date" id="n-date">
+        <label>Texti</label><textarea id="n-body" style="min-height:110px"></textarea>
+        <div class="field-err" id="n-err"></div>
+      </div>
+
+      <div id="form-staff" style="display:none">
+        <label>Nafn</label><input type="text" id="s-name">
+        <label>Starfsheiti</label><input type="text" id="s-title">
+        <label>Netfang (má sleppa)</label><input type="email" id="s-email">
+        <label>Starfssvið</label><textarea id="s-starfssvid" placeholder="Ein lína fyrir hvert atriði"></textarea>
+        <label>Sérhæfing</label><textarea id="s-serhaefing" style="min-height:52px"></textarea>
+        <label>Menntun / námskeið</label><textarea id="s-menntun"></textarea>
+        <label>Starfsferill</label><textarea id="s-ferill" placeholder="T.d. Stígandi sjúkraþjálfun 2024-"></textarea>
+        <label>Félagsstörf / áhugamál</label><textarea id="s-ahugamal" style="min-height:52px"></textarea>
+        <label>Sérsvið</label>
+        <div class="checks" id="s-tags"></div>
+        <label>Mynd</label>
+        <div class="curphoto" id="s-curphoto" style="display:none"><img id="s-curphoto-img" alt=""><span>Núverandi mynd – veldu nýja skrá til að skipta henni út</span></div>
+        <input type="file" id="s-photo" accept="image/*" style="margin-top:6px">
+        <label class="checks" style="margin-top:14px"><span style="display:flex;align-items:center;gap:6px;font-weight:400"><input type="checkbox" id="s-leave"> Í fæðingarorlofi</span></label>
+        <div class="field-err" id="s-err"></div>
+      </div>
+
+      <div id="form-svc" style="display:none">
+        <label>Titill</label><input type="text" id="v-title">
+        <label>Stutt lýsing (birtist á spjaldinu)</label><input type="text" id="v-summary">
+        <label>Meginmál (birtist þegar smellt er á spjaldið)</label>
+        <textarea id="v-body" style="min-height:190px" placeholder="## Fyrirsögn&#10;Venjulegur texti&#10;- Punktur í lista"></textarea>
+        <p class="hint">Skrifaðu <b>##</b> fremst í línu fyrir fyrirsögn og <b>-</b> fremst fyrir punktalista.</p>
+        <label>Hnappur – texti (má sleppa)</label><input type="text" id="v-link-label" placeholder="t.d. Skráning – senda tölvupóst">
+        <label>Hnappur – hlekkur</label><input type="text" id="v-link-url" placeholder="mailto:mottaka@stigandi.is · tel:+3545991600 · https://…">
+        <label>Röð (lægri tala birtist fyrst)</label><input type="number" id="v-sort" value="100" style="max-width:120px">
+        <label>Mynd</label>
+        <div class="curphoto" id="v-curphoto" style="display:none"><img id="v-curphoto-img" alt=""><span>Núverandi mynd – veldu nýja skrá til að skipta henni út</span></div>
+        <input type="file" id="v-photo" accept="image/*" style="margin-top:6px">
+        <div class="field-err" id="v-err"></div>
+      </div>
+
+    </div>
+    <div class="panel-foot">
+      <button class="btn btn-quiet" id="panel-cancel">Hætta við</button>
+      <button class="btn btn-primary" id="panel-save">Vista</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status"></div>
 
 <script src="assets/supabase.min.js"></script>
 <script>
 if (typeof supabase === 'undefined') {
   document.getElementById('login-err').textContent = 'Villa: kerfisskrá hlóðst ekki. Endurhladdu síðuna (Cmd+Shift+R).';
-  document.getElementById('login-err').className = 'msg err';
+  document.getElementById('login-err').classList.add('on');
   throw new Error('supabase-js failed to load');
 }
 const client = supabase.createClient(
@@ -151,240 +320,267 @@ const client = supabase.createClient(
 );
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const flash = (el, text, ok) => { el.textContent = text; el.className = 'msg ' + (ok ? 'ok' : 'err'); setTimeout(() => el.className = 'msg', 4000); };
+const err = (id, msg) => { const el = $(id); el.textContent = msg; el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 5000); };
+let toastTimer;
+const toast = msg => { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2600); };
 
-// arriving from an invite / password-reset email: the link carries a token in the #hash
+const TAGS = ['Öldrun','Stoðkerfi','Gigt','Hjarta og lungu','Íþróttir','Kvenheilsa','Svimi/jafnvægi','Höfuðhögg'];
+const BIO_FIELDS = [['s-starfssvid','starfssvid'],['s-serhaefing','serhaefing'],['s-menntun','menntun'],['s-ferill','starfsferill'],['s-ahugamal','ahugamal']];
+$('s-tags').innerHTML = TAGS.map(t => `<label><input type="checkbox" class="tagbox" value="${t}"> ${t}</label>`).join('');
+const getTags = () => [...document.querySelectorAll('.tagbox:checked')].map(c => c.value);
+const setTags = tags => document.querySelectorAll('.tagbox').forEach(c => c.checked = (tags || []).includes(c.value));
+const uploadPhoto = async (fileInput, prefix) => {
+  const file = fileInput.files[0];
+  if (!file) return undefined;
+  const path = prefix + Date.now() + '-' + file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
+  const { error } = await client.storage.from('photos').upload(path, file);
+  if (error) throw new Error('upload');
+  return client.storage.from('photos').getPublicUrl(path).data.publicUrl;
+};
+
+/* ---------- views & auth ---------- */
 let needsPassword = /type=(invite|recovery|signup)/.test(location.hash);
 
 async function show() {
   const { data: { session } } = await client.auth.getSession();
   const setpw = session && needsPassword;
-  $('setpw').style.display = setpw ? 'block' : 'none';
-  $('login').style.display = session ? 'none' : 'block';
-  $('app').style.display = session && !setpw ? 'block' : 'none';
-  $('logout').style.display = session ? 'inline-block' : 'none';
-  if (session && !setpw) { loadNews(); loadStaff(); loadServices(); }
+  $('login-view').style.display = session ? 'none' : 'flex';
+  $('setpw-view').style.display = setpw ? 'flex' : 'none';
+  $('app').classList.toggle('on', !!session && !setpw);
+  if (session && !setpw) {
+    $('side-user').textContent = session.user.email;
+    loadNews(); loadStaff(); loadServices();
+  }
 }
-// the token in the hash is processed async by supabase-js on load; re-render when it lands
 client.auth.onAuthStateChange(() => show());
-
-$('setpw-btn').onclick = async () => {
-  const pw = $('newpw').value;
-  if (pw.length < 8) return flash($('setpw-msg'), 'Lykilorð þarf að vera minnst 8 stafir.', false);
-  if (pw !== $('newpw2').value) return flash($('setpw-msg'), 'Lykilorðin stemma ekki.', false);
-  const { error } = await client.auth.updateUser({ password: pw });
-  if (error) return flash($('setpw-msg'), 'Villa: ' + error.message, false);
-  needsPassword = false;
-  history.replaceState(null, '', location.pathname);
-  show();
-};
-
-$('forgot').onclick = async e => {
-  e.preventDefault();
-  const email = $('email').value.trim();
-  if (!email) { $('login-err').textContent = 'Skrifaðu netfangið þitt fyrst í reitinn að ofan.'; $('login-err').className = 'msg err'; return; }
-  const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
-  $('login-err').textContent = error ? 'Villa: ' + error.message : 'Tölvupóstur með endursetningarhlekk hefur verið sendur á ' + email + '.';
-  $('login-err').className = 'msg ' + (error ? 'err' : 'ok');
-};
 
 $('login-btn').onclick = async () => {
   const { error } = await client.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
-  if (error) { $('login-err').textContent = 'Innskráning tókst ekki: ' + error.message; $('login-err').className = 'msg err'; return; }
+  if (error) return err('login-err', 'Innskráning tókst ekki: ' + error.message);
   show();
 };
 $('password').addEventListener('keydown', e => { if (e.key === 'Enter') $('login-btn').click(); });
 $('logout').onclick = async () => { await client.auth.signOut(); show(); };
 
-/* ---- news ---- */
+$('forgot').onclick = async () => {
+  const email = $('email').value.trim();
+  if (!email) return err('login-err', 'Skrifaðu netfangið þitt fyrst í reitinn að ofan.');
+  const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+  if (error) return err('login-err', 'Villa: ' + error.message);
+  const ok = $('login-ok'); ok.textContent = 'Tölvupóstur með endursetningarhlekk hefur verið sendur á ' + email + '.'; ok.classList.add('on');
+};
+
+$('setpw-btn').onclick = async () => {
+  const pw = $('newpw').value;
+  if (pw.length < 8) return err('setpw-err', 'Lykilorð þarf að vera minnst 8 stafir.');
+  if (pw !== $('newpw2').value) return err('setpw-err', 'Lykilorðin stemma ekki.');
+  const { error } = await client.auth.updateUser({ password: pw });
+  if (error) return err('setpw-err', 'Villa: ' + error.message);
+  needsPassword = false;
+  history.replaceState(null, '', location.pathname);
+  toast('Lykilorð vistað');
+  show();
+};
+
+/* ---------- navigation ---------- */
+document.querySelectorAll('[data-nav]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-nav]').forEach(x => x.setAttribute('aria-current', x === b));
+  document.querySelectorAll('section[data-view]').forEach(s => s.classList.toggle('on', s.dataset.view === b.dataset.nav));
+});
+
+/* ---------- modal ---------- */
+let mode = null, editId = null;
+function openPanel(kind, title) {
+  mode = kind;
+  $('panel-title').textContent = title;
+  ['form-news','form-staff','form-svc'].forEach(f => $(f).style.display = f === 'form-' + kind ? 'block' : 'none');
+  $('backdrop').classList.add('on'); $('panel').classList.add('on');
+  $('panel').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+function closePanel() {
+  $('backdrop').classList.remove('on'); $('panel').classList.remove('on');
+  document.body.style.overflow = ''; mode = null; editId = null;
+}
+$('panel-close').onclick = closePanel;
+$('panel-cancel').onclick = closePanel;
+$('panel').addEventListener('click', e => { if (e.target === $('panel')) closePanel(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+
+$('panel-save').onclick = async () => {
+  const save = { news: saveNews, staff: saveStaff, svc: saveSvc }[mode];
+  if (save) await save();
+};
+
+/* ---------- news ---------- */
 async function loadNews() {
   const { data, error } = await client.from('news').select('*').order('date', { ascending: false });
   if (error) return;
+  window._news = data;
+  $('count-news').textContent = data.length;
   $('news-list').innerHTML = data.map(n => `
-    <div class="item">
-      <div class="info"><strong>${esc(n.title)}</strong><div class="t">${esc(n.date)}</div></div>
-      <button class="btn-del" data-del-news="${n.id}">Eyða</button>
-    </div>`).join('') || '<p class="muted">Engar tilkynningar.</p>';
+    <div class="rowitem">
+      <div class="info"><strong>${esc(n.title)}</strong><div class="t">${esc(n.date)}${n.body ? ' · ' + esc(n.body.slice(0, 80)) : ''}</div></div>
+      <div class="actions">
+        <button class="btn btn-quiet btn-sm" data-edit-news="${n.id}">Breyta</button>
+        <button class="btn-danger-quiet btn" data-del-news="${n.id}">Eyða</button>
+      </div>
+    </div>`).join('') || '<div class="empty"><div class="big">Engar tilkynningar</div>Smelltu á „+ Ný tilkynning“ til að birta frétt eða tilboð.</div>';
 }
-$('n-add').onclick = async () => {
-  if (!$('n-title').value.trim()) return flash($('n-msg'), 'Titil vantar.', false);
-  const { error } = await client.from('news').insert({
-    title: $('n-title').value.trim(),
-    body: $('n-body').value.trim(),
-    date: $('n-date').value || new Date().toISOString().slice(0, 10)
-  });
-  if (error) return flash($('n-msg'), 'Villa kom upp – reyndu aftur.', false);
-  $('n-title').value = ''; $('n-body').value = ''; $('n-date').value = '';
-  flash($('n-msg'), 'Tilkynning birt.', true); loadNews();
+$('news-new').onclick = () => {
+  $('n-title').value = ''; $('n-body').value = '';
+  $('n-date').value = new Date().toISOString().slice(0, 10);
+  editId = null;
+  openPanel('news', 'Ný tilkynning');
 };
+async function saveNews() {
+  if (!$('n-title').value.trim()) return err('n-err', 'Titil vantar.');
+  const row = { title: $('n-title').value.trim(), body: $('n-body').value.trim(), date: $('n-date').value || new Date().toISOString().slice(0, 10) };
+  const { error } = editId
+    ? await client.from('news').update(row).eq('id', editId)
+    : await client.from('news').insert(row);
+  if (error) return err('n-err', 'Villa kom upp – reyndu aftur.');
+  const wasEdit = !!editId;
+  closePanel(); toast(wasEdit ? 'Tilkynning vistuð' : 'Tilkynning birt'); loadNews();
+}
 
-/* ---- staff ---- */
+/* ---------- staff ---------- */
+function staffRow(m) {
+  return `
+    <div class="rowitem" data-name="${esc(m.name.toLowerCase())}">
+      ${m.photo_url ? `<img class="thumb" src="${esc(m.photo_url)}" alt="" loading="lazy">` : `<div class="noimg">${esc(m.name.split(' ').map(w => w[0]).slice(0, 2).join(''))}</div>`}
+      <div class="info">
+        <strong>${esc(m.name)}</strong>
+        <div class="t">${esc(m.title)}</div>
+        <div>${(m.tags || []).map(t => `<span class="chip">${esc(t)}</span>`).join('')}${m.on_leave ? '<span class="chip warn">Í fæðingarorlofi</span>' : ''}</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-quiet btn-sm" data-leave="${m.id}" data-val="${m.on_leave}">${m.on_leave ? 'Úr orlofi' : 'Í orlof'}</button>
+        <button class="btn btn-quiet btn-sm" data-edit-staff="${m.id}">Breyta</button>
+        <button class="btn-danger-quiet btn" data-del-staff="${m.id}">Eyða</button>
+      </div>
+    </div>`;
+}
 async function loadStaff() {
   const { data, error } = await client.from('staff').select('*').order('sort').order('name');
   if (error) return;
-  $('staff-list').innerHTML = data.map(m => `
-    <div class="item">
-      ${m.photo_url ? `<img src="${esc(m.photo_url)}">` : `<div class="noimg">${esc(m.name.split(' ').map(w => w[0]).slice(0, 2).join(''))}</div>`}
-      <div class="info"><strong>${esc(m.name)}</strong><div class="t">${esc(m.title)}</div></div>
-      ${m.on_leave ? '<span class="tag">Í fæðingarorlofi</span>' : ''}
-      <button class="btn-line btn-small" data-leave="${m.id}" data-val="${m.on_leave}">${m.on_leave ? 'Komin/n úr orlofi' : 'Skrá í orlof'}</button>
-      <button class="btn-line btn-small" data-edit="${m.id}">Breyta</button>
-      <button class="btn-del" data-del-staff="${m.id}">Eyða</button>
-    </div>`).join('');
   window._staff = data;
+  $('count-staff').textContent = data.length;
+  $('staff-list').innerHTML = data.map(staffRow).join('') || '<div class="empty"><div class="big">Enginn starfsmaður skráður</div>Smelltu á „+ Nýr starfsmaður“ til að byrja.</div>';
+  filterStaff();
 }
-
-const BIO_FIELDS = [['s-starfssvid','starfssvid'],['s-serhaefing','serhaefing'],['s-menntun','menntun'],['s-ferill','starfsferill'],['s-ahugamal','ahugamal']];
-const TAGS = ['Öldrun','Stoðkerfi','Gigt','Hjarta og lungu','Íþróttir','Kvenheilsa','Svimi/jafnvægi','Höfuðhögg'];
-$('s-tags').innerHTML = TAGS.map(t =>
-  `<label class="row" style="font-weight:400;gap:5px;margin:0"><input type="checkbox" class="tagbox" value="${t}"> ${t}</label>`).join('');
-const getTags = () => [...document.querySelectorAll('.tagbox:checked')].map(c => c.value);
-const setTags = tags => document.querySelectorAll('.tagbox').forEach(c => c.checked = (tags || []).includes(c.value));
-
-/* ---- edit modal ---- */
-const amodal = $('amodal');
-function openModal(kind) {
-  $('form-staff').style.display = kind === 'staff' ? 'block' : 'none';
-  $('form-svc').style.display = kind === 'svc' ? 'block' : 'none';
-  amodal.classList.add('open');
-  amodal.querySelector('.mcard').scrollTop = 0;
-  document.body.style.overflow = 'hidden';
+function filterStaff() {
+  const q = $('staff-search').value.trim().toLowerCase();
+  document.querySelectorAll('#staff-list .rowitem').forEach(r => r.style.display = !q || r.dataset.name.includes(q) ? 'flex' : 'none');
 }
-function closeModal() { amodal.classList.remove('open'); document.body.style.overflow = ''; }
-$('amodal-close').onclick = closeModal;
-amodal.addEventListener('click', e => { if (e.target === amodal) closeModal(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+$('staff-search').addEventListener('input', filterStaff);
 
-let editingId = null;
-function resetStaffForm() {
-  editingId = null;
-  $('s-form-title').textContent = 'Nýr starfsmaður';
-  $('s-add').textContent = 'Bæta við';
-  $('s-name').value = ''; $('s-title').value = 'Sjúkraþjálfari'; $('s-email').value = '';
-  BIO_FIELDS.forEach(([id]) => $(id).value = '');
-  $('s-photo').value = ''; $('s-leave').checked = false;
-  setTags([]);
+function fillStaff(m) {
+  $('s-name').value = m?.name || '';
+  $('s-title').value = m?.title || 'Sjúkraþjálfari';
+  $('s-email').value = m?.email || '';
+  BIO_FIELDS.forEach(([id, col]) => $(id).value = m?.[col] || '');
+  setTags(m?.tags);
+  $('s-leave').checked = !!m?.on_leave;
+  $('s-photo').value = '';
+  $('s-curphoto').style.display = m?.photo_url ? 'flex' : 'none';
+  if (m?.photo_url) $('s-curphoto-img').src = m.photo_url;
 }
-$('s-new').onclick = () => { resetStaffForm(); openModal('staff'); };
-
-$('s-add').onclick = async () => {
+$('staff-new').onclick = () => { fillStaff(null); editId = null; openPanel('staff', 'Nýr starfsmaður'); };
+async function saveStaff() {
   const name = $('s-name').value.trim();
-  if (!name) return flash($('s-msg'), 'Nafn vantar.', false);
+  if (!name) return err('s-err', 'Nafn vantar.');
   let photo_url;
-  const file = $('s-photo').files[0];
-  if (file) {
-    const path = Date.now() + '-' + file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
-    const { error: upErr } = await client.storage.from('photos').upload(path, file);
-    if (upErr) return flash($('s-msg'), 'Ekki tókst að hlaða upp mynd.', false);
-    photo_url = client.storage.from('photos').getPublicUrl(path).data.publicUrl;
-  }
-  const row = {
-    name, title: $('s-title').value.trim() || 'Sjúkraþjálfari',
-    email: $('s-email').value.trim() || null,
-    on_leave: $('s-leave').checked,
-    tags: getTags()
-  };
+  try { photo_url = await uploadPhoto($('s-photo'), ''); }
+  catch { return err('s-err', 'Ekki tókst að hlaða upp mynd.'); }
+  const row = { name, title: $('s-title').value.trim() || 'Sjúkraþjálfari', email: $('s-email').value.trim() || null, on_leave: $('s-leave').checked, tags: getTags() };
   BIO_FIELDS.forEach(([id, col]) => row[col] = $(id).value.trim() || null);
   if (photo_url) row.photo_url = photo_url;
-  const { error } = editingId
-    ? await client.from('staff').update(row).eq('id', editingId)
+  const { error } = editId
+    ? await client.from('staff').update(row).eq('id', editId)
     : await client.from('staff').insert(row);
-  if (error) return flash($('s-msg'), 'Villa kom upp – reyndu aftur.', false);
-  closeModal(); resetStaffForm(); loadStaff();
-};
+  if (error) return err('s-err', 'Villa kom upp – reyndu aftur.');
+  const wasEdit = !!editId;
+  closePanel(); toast(wasEdit ? 'Breytingar vistaðar' : name + ' bætt við'); loadStaff();
+}
 
-/* ---- services ---- */
+/* ---------- services ---------- */
 async function loadServices() {
   const { data, error } = await client.from('services').select('*').order('sort').order('title');
   if (error) return;
-  $('svc-list').innerHTML = data.map(s => `
-    <div class="item">
-      ${s.photo_url ? `<img src="${esc(s.photo_url)}">` : `<div class="noimg">Þ</div>`}
-      <div class="info"><strong>${esc(s.title)}</strong><div class="t">${esc(s.summary || '')}</div></div>
-      <button class="btn-line btn-small" data-edit-svc="${s.id}">Breyta</button>
-      <button class="btn-del" data-del-svc="${s.id}">Eyða</button>
-    </div>`).join('') || '<p class="muted">Engin þjónusta skráð.</p>';
   window._services = data;
+  $('count-svc').textContent = data.length;
+  $('svc-list').innerHTML = data.map(s => `
+    <div class="rowitem">
+      ${s.photo_url ? `<img class="thumb wide" src="${esc(s.photo_url)}" alt="" loading="lazy">` : '<div class="noimg">Þ</div>'}
+      <div class="info"><strong>${esc(s.title)}</strong><div class="t">${esc(s.summary || '')}</div></div>
+      <div class="actions">
+        <button class="btn btn-quiet btn-sm" data-edit-svc="${s.id}">Breyta</button>
+        <button class="btn-danger-quiet btn" data-del-svc="${s.id}">Eyða</button>
+      </div>
+    </div>`).join('') || '<div class="empty"><div class="big">Engin þjónusta skráð</div>Smelltu á „+ Ný þjónusta“ til að byrja.</div>';
 }
-
-let editingSvcId = null;
-function resetSvcForm() {
-  editingSvcId = null;
-  $('v-form-title').textContent = 'Ný þjónusta';
-  $('v-add').textContent = 'Bæta við';
-  ['v-title','v-summary','v-body','v-link-label','v-link-url'].forEach(id => $(id).value = '');
-  $('v-sort').value = 100; $('v-photo').value = '';
+function fillSvc(s) {
+  $('v-title').value = s?.title || '';
+  $('v-summary').value = s?.summary || '';
+  $('v-body').value = s?.body || '';
+  $('v-link-label').value = s?.link_label || '';
+  $('v-link-url').value = s?.link_url || '';
+  $('v-sort').value = s?.sort ?? 100;
+  $('v-photo').value = '';
+  $('v-curphoto').style.display = s?.photo_url ? 'flex' : 'none';
+  if (s?.photo_url) $('v-curphoto-img').src = s.photo_url;
 }
-$('v-new').onclick = () => { resetSvcForm(); openModal('svc'); };
-
-$('v-add').onclick = async () => {
+$('svc-new').onclick = () => { fillSvc(null); editId = null; openPanel('svc', 'Ný þjónusta'); };
+async function saveSvc() {
   const title = $('v-title').value.trim();
-  if (!title) return flash($('v-msg'), 'Titil vantar.', false);
+  if (!title) return err('v-err', 'Titil vantar.');
   let photo_url;
-  const file = $('v-photo').files[0];
-  if (file) {
-    const path = 'svc-' + Date.now() + '-' + file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
-    const { error: upErr } = await client.storage.from('photos').upload(path, file);
-    if (upErr) return flash($('v-msg'), 'Ekki tókst að hlaða upp mynd.', false);
-    photo_url = client.storage.from('photos').getPublicUrl(path).data.publicUrl;
-  }
-  const row = {
-    title,
-    summary: $('v-summary').value.trim() || null,
-    body: $('v-body').value.trim() || null,
-    link_label: $('v-link-label').value.trim() || null,
-    link_url: $('v-link-url').value.trim() || null,
-    sort: parseInt($('v-sort').value) || 100
-  };
+  try { photo_url = await uploadPhoto($('v-photo'), 'svc-'); }
+  catch { return err('v-err', 'Ekki tókst að hlaða upp mynd.'); }
+  const row = { title, summary: $('v-summary').value.trim() || null, body: $('v-body').value.trim() || null,
+    link_label: $('v-link-label').value.trim() || null, link_url: $('v-link-url').value.trim() || null,
+    sort: parseInt($('v-sort').value) || 100 };
   if (photo_url) row.photo_url = photo_url;
-  const { error } = editingSvcId
-    ? await client.from('services').update(row).eq('id', editingSvcId)
+  const { error } = editId
+    ? await client.from('services').update(row).eq('id', editId)
     : await client.from('services').insert(row);
-  if (error) return flash($('v-msg'), 'Villa kom upp – reyndu aftur.', false);
-  closeModal(); resetSvcForm(); loadServices();
-};
+  if (error) return err('v-err', 'Villa kom upp – reyndu aftur.');
+  const wasEdit = !!editId;
+  closePanel(); toast(wasEdit ? 'Breytingar vistaðar' : title + ' bætt við'); loadServices();
+}
 
+/* ---------- row actions ---------- */
 document.addEventListener('click', async e => {
   const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.editNews) {
+    const n = (window._news || []).find(x => x.id === b.dataset.editNews); if (!n) return;
+    $('n-title').value = n.title; $('n-date').value = n.date; $('n-body').value = n.body || '';
+    editId = n.id; openPanel('news', 'Breyta: ' + n.title);
+  }
   if (b.dataset.delNews) {
     if (!confirm('Eyða þessari tilkynningu?')) return;
-    await client.from('news').delete().eq('id', b.dataset.delNews); loadNews();
+    await client.from('news').delete().eq('id', b.dataset.delNews); toast('Tilkynningu eytt'); loadNews();
+  }
+  if (b.dataset.editStaff) {
+    const m = (window._staff || []).find(x => x.id === b.dataset.editStaff); if (!m) return;
+    fillStaff(m); editId = m.id; openPanel('staff', 'Breyta: ' + m.name);
   }
   if (b.dataset.delStaff) {
     if (!confirm('Fjarlægja þennan starfsmann af síðunni?')) return;
-    await client.from('staff').delete().eq('id', b.dataset.delStaff); loadStaff();
+    await client.from('staff').delete().eq('id', b.dataset.delStaff); toast('Starfsmaður fjarlægður'); loadStaff();
   }
   if (b.dataset.leave) {
-    await client.from('staff').update({ on_leave: b.dataset.val !== 'true' }).eq('id', b.dataset.leave); loadStaff();
+    await client.from('staff').update({ on_leave: b.dataset.val !== 'true' }).eq('id', b.dataset.leave);
+    toast('Orlofsstaða uppfærð'); loadStaff();
+  }
+  if (b.dataset.editSvc) {
+    const s = (window._services || []).find(x => x.id === b.dataset.editSvc); if (!s) return;
+    fillSvc(s); editId = s.id; openPanel('svc', 'Breyta: ' + s.title);
   }
   if (b.dataset.delSvc) {
     if (!confirm('Fjarlægja þessa þjónustu af síðunni?')) return;
-    await client.from('services').delete().eq('id', b.dataset.delSvc); loadServices();
-  }
-  if (b.dataset.editSvc) {
-    const s = (window._services || []).find(x => x.id === b.dataset.editSvc);
-    if (!s) return;
-    editingSvcId = s.id;
-    $('v-form-title').textContent = 'Breyta: ' + s.title;
-    $('v-add').textContent = 'Vista breytingar';
-    $('v-title').value = s.title; $('v-summary').value = s.summary || '';
-    $('v-body').value = s.body || ''; $('v-link-label').value = s.link_label || '';
-    $('v-link-url').value = s.link_url || ''; $('v-sort').value = s.sort;
-    $('v-photo').value = '';
-    openModal('svc');
-  }
-  if (b.dataset.edit) {
-    const m = (window._staff || []).find(x => x.id === b.dataset.edit);
-    if (!m) return;
-    editingId = m.id;
-    $('s-form-title').textContent = 'Breyta: ' + m.name;
-    $('s-add').textContent = 'Vista breytingar';
-    $('s-name').value = m.name; $('s-title').value = m.title || '';
-    $('s-email').value = m.email || '';
-    BIO_FIELDS.forEach(([id, col]) => $(id).value = m[col] || '');
-    $('s-leave').checked = !!m.on_leave; $('s-photo').value = '';
-    setTags(m.tags);
-    openModal('staff');
+    await client.from('services').delete().eq('id', b.dataset.delSvc); toast('Þjónustu eytt'); loadServices();
   }
 });
 
