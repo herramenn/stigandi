@@ -92,6 +92,8 @@ button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px 18px
       <label>Starfsheiti</label><input type="text" id="s-title" value="Sjúkraþjálfari">
       <label>Netfang (má sleppa)</label><input type="email" id="s-email">
       <label>Ferilskrá / kynning (má sleppa)</label><textarea id="s-bio" style="min-height:140px" placeholder="Starfssvið&#10;...&#10;Menntun&#10;...&#10;Starfsferill&#10;..."></textarea>
+      <label>Sérsvið</label>
+      <div class="row" id="s-tags" style="gap:6px 16px"></div>
       <label>Mynd (má sleppa)</label><input type="file" id="s-photo" accept="image/*">
       <label class="row" style="font-weight:400;margin-top:12px"><input type="checkbox" id="s-leave"> Í fæðingarorlofi</label>
       <div class="msg" id="s-msg"></div>
@@ -199,6 +201,12 @@ async function loadStaff() {
   window._staff = data;
 }
 
+const TAGS = ['Öldrun','Stoðkerfi','Gigt','Hjarta og lungu','Íþróttir','Kvenheilsa','Svimi/jafnvægi','Höfuðhögg'];
+$('s-tags').innerHTML = TAGS.map(t =>
+  `<label class="row" style="font-weight:400;gap:5px;margin:0"><input type="checkbox" class="tagbox" value="${t}"> ${t}</label>`).join('');
+const getTags = () => [...document.querySelectorAll('.tagbox:checked')].map(c => c.value);
+const setTags = tags => document.querySelectorAll('.tagbox').forEach(c => c.checked = (tags || []).includes(c.value));
+
 let editingId = null;
 function resetStaffForm() {
   editingId = null;
@@ -208,6 +216,7 @@ function resetStaffForm() {
   $('s-name').value = ''; $('s-title').value = 'Sjúkraþjálfari';
   $('s-email').value = ''; $('s-bio').value = '';
   $('s-photo').value = ''; $('s-leave').checked = false;
+  setTags([]);
 }
 $('s-cancel').onclick = resetStaffForm;
 
@@ -226,7 +235,8 @@ $('s-add').onclick = async () => {
     name, title: $('s-title').value.trim() || 'Sjúkraþjálfari',
     email: $('s-email').value.trim() || null,
     bio: $('s-bio').value.trim() || null,
-    on_leave: $('s-leave').checked
+    on_leave: $('s-leave').checked,
+    tags: getTags()
   };
   if (photo_url) row.photo_url = photo_url;
   const { error } = editingId
@@ -260,6 +270,7 @@ document.addEventListener('click', async e => {
     $('s-name').value = m.name; $('s-title').value = m.title || '';
     $('s-email').value = m.email || ''; $('s-bio').value = m.bio || '';
     $('s-leave').checked = !!m.on_leave; $('s-photo').value = '';
+    setTags(m.tags);
     $('s-add').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 });

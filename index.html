@@ -64,6 +64,10 @@ header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);backdro
 .news-item p{color:#333;font-size:.97rem;white-space:pre-line}
 
 /* staff */
+.tag-filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px}
+.tag-filters button{font:inherit;font-size:.9rem;font-weight:500;padding:8px 20px;border-radius:99px;border:1.5px solid var(--blue);background:none;color:var(--blue);cursor:pointer}
+.tag-filters button:hover{background:#eef4fa}
+.tag-filters button.active{background:var(--blue);color:#fff}
 .staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:20px}
 .person{text-align:center}
 .person .ph{aspect-ratio:3/4;border-radius:var(--radius);overflow:hidden;background:var(--bg-soft);margin-bottom:10px;position:relative}
@@ -164,6 +168,7 @@ footer h2{color:#fff}
   <div class="wrap">
     <h2>Starfsfólk</h2>
     <p class="section-sub">Hjá okkur starfar öflugur hópur sjúkraþjálfara</p>
+    <div id="tag-filters" class="tag-filters"></div>
     <div id="staff-grid" class="staff-grid"></div>
   </div>
 </section>
@@ -230,15 +235,42 @@ const photoOrInitials = m => {
   return m.photo_url ? `<img src="${esc(m.photo_url)}" alt="${esc(m.name)}" loading="lazy">` : `<div class="initials">${esc(initials)}</div>`;
 };
 
-sb('staff?select=id,name,title,photo_url,on_leave,bio,email&order=sort.asc,name.asc').then(members => {
-  STAFF = members;
-  document.getElementById('staff-grid').innerHTML = members.map((m, i) => `
+// ponytail: fixed tag set mirrors the clinic's service areas; edit here if they ever change
+const TAGS = ['Allir','Öldrun','Stoðkerfi','Gigt','Hjarta og lungu','Íþróttir','Kvenheilsa','Svimi/jafnvægi','Höfuðhögg'];
+let activeTag = 'Allir';
+
+function renderStaff() {
+  const list = activeTag === 'Allir' ? STAFF : STAFF.filter(m => (m.tags || []).includes(activeTag));
+  document.getElementById('staff-grid').innerHTML = list.map(m => {
+    const i = STAFF.indexOf(m);
+    return `
     <div class="person${m.bio ? ' has-bio' : ''}" ${m.bio ? `data-bio="${i}" tabindex="0" role="button" aria-label="Nánar um ${esc(m.name)}"` : ''}>
       <div class="ph">${photoOrInitials(m)}</div>
       <h3>${esc(m.name)}</h3>
       <div class="title">${esc(m.title)}</div>
       ${m.on_leave ? '<span class="badge">Í fæðingarorlofi</span>' : ''}
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
+
+const filtersEl = document.getElementById('tag-filters');
+filtersEl.innerHTML = TAGS.map(t =>
+  `<button class="${t === 'Allir' ? 'active' : ''}" data-tag="${esc(t)}" aria-pressed="${t === 'Allir'}">${esc(t)}</button>`).join('');
+filtersEl.addEventListener('click', e => {
+  const b = e.target.closest('button[data-tag]');
+  if (!b) return;
+  activeTag = b.dataset.tag;
+  filtersEl.querySelectorAll('button').forEach(x => {
+    const on = x === b;
+    x.classList.toggle('active', on);
+    x.setAttribute('aria-pressed', on);
+  });
+  renderStaff();
+});
+
+sb('staff?select=id,name,title,photo_url,on_leave,bio,email,tags&order=sort.asc,name.asc').then(members => {
+  STAFF = members;
+  renderStaff();
 });
 
 const modal = document.getElementById('modal');
