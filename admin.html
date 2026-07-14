@@ -365,6 +365,10 @@ textarea{min-height:76px;resize:vertical}
       </div>
       <p class="view-sub">Námskeið og hópar á vefsíðunni – hverri síðu þeir tilheyra, dagsetningar og skráningar frá viðskiptavinum.</p>
       <div class="list" id="course-list"></div>
+      <div style="margin-top:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <button class="btn btn-quiet btn-sm" id="reg-cleanup">Eyða skráningum eldri en árs…</button>
+        <span class="hint" style="margin:0">Persónuverndarstefnan lofar að skráningum sé eytt innan árs – gott að smella hér reglulega.</span>
+      </div>
     </section>
     <section data-view="textar">
       <div class="view-head"><h1>Textar</h1></div>
@@ -1096,6 +1100,20 @@ $('c-hide-instead').onclick = async () => {
   await client.from('courses').update({ hidden: true }).eq('id', editId);
   toast('Námskeið falið af vefsíðunni'); closePanel(); loadCourses();
 };
+$('reg-cleanup').onclick = async () => {
+  const cutoff = new Date(Date.now() - 365 * 864e5).toISOString();
+  const { count, error } = await client.from('registrations').select('id', { count: 'exact', head: true }).lt('created_at', cutoff);
+  if (error) return toast('Villa kom upp – reyndu aftur.');
+  if (!count) return toast('Engar skráningar eru eldri en árs.');
+  if (!confirm(count === 1
+    ? 'Eyða 1 skráningu sem er eldri en árs? Þetta er ekki hægt að afturkalla.'
+    : `Eyða ${count} skráningum sem eru eldri en árs? Þetta er ekki hægt að afturkalla.`)) return;
+  const { error: delErr } = await client.from('registrations').delete().lt('created_at', cutoff);
+  if (delErr) return toast('Villa kom upp – reyndu aftur.');
+  toast(count === 1 ? '1 skráningu eytt' : count + ' skráningum eytt');
+  loadCourses();
+};
+
 $('c-reg-list').addEventListener('change', async e => {
   const sel = e.target.closest('[data-reg-status]'); if (!sel) return;
   await client.from('registrations').update({ status: sel.value }).eq('id', sel.dataset.regStatus);

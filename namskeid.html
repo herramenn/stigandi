@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Námskeið | Stígandi sjúkraþjálfun</title>
 <link rel="icon" type="image/png" href="assets/logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
 <style>
+/* self-hosted Bricolage Grotesque (variable) - no third-party font CDN */
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-stretch:100%;font-display:swap;src:url(assets/fonts/bricolage-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-stretch:100%;font-display:swap;src:url(assets/fonts/bricolage-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 :root{
   --blue:#0174BD;
   --blue-dark:#015a94;
@@ -219,14 +219,14 @@ Promise.all([
         <p class="date-hint">Hægt er að velja allt að 3 dagsetningar.</p>` : ''}
         <div class="grid2">
           <div><label for="f-name">Fullt nafn *</label><input type="text" id="f-name" autocomplete="name" required></div>
-          <div><label for="f-kt">Kennitala *</label><input type="text" id="f-kt" inputmode="numeric" placeholder="000000-0000" required></div>
+          <div><label for="f-kt">Kennitala (má sleppa)</label><input type="text" id="f-kt" inputmode="numeric" placeholder="000000-0000"></div>
           <div><label for="f-email">Netfang *</label><input type="email" id="f-email" autocomplete="email" required></div>
           <div><label for="f-phone">Símanúmer *</label><input type="tel" id="f-phone" autocomplete="tel" inputmode="numeric" required></div>
         </div>
         <label for="f-msg">Athugasemd (má sleppa)</label>
         <textarea id="f-msg" placeholder="T.d. spurningar eða annað sem gott er fyrir okkur að vita"></textarea>
         <input type="text" id="f-web" class="hp" tabindex="-1" autocomplete="off">
-        <p class="smallprint">Skráning er ekki greiðsla – greiðsla fer fram þegar námskeið hefur verið staðfest. Upplýsingarnar eru eingöngu notaðar til að halda utan um skráninguna og til samskipta vegna námskeiðsins. Sjá <a href="thjonusta.html#personuverndarstefna">persónuverndarstefnu</a>.</p>
+        <p class="smallprint">Skráning er ekki greiðsla – greiðsla fer fram hjá þjónustuaðila þegar námskeið hefur verið staðfest. Upplýsingarnar eru eingöngu notaðar til að halda utan um skráninguna og til samskipta vegna námskeiðsins, og þeim er eytt í síðasta lagi ári eftir að skráningu er lokið. Sjá <a href="thjonusta.html#personuverndarstefna">persónuverndarstefnu</a>.</p>
         <div class="msg err" id="f-err"></div>
         <button class="btn" type="submit" id="f-send">Senda skráningu</button>
       </form>
@@ -255,7 +255,7 @@ Promise.all([
     const phone = document.getElementById('f-phone').value.trim();
     const dateIds = [...document.querySelectorAll('.date-opt input:checked')].map(c2 => c2.value);
     if (!name) return show('Vinsamlegast skráðu fullt nafn.');
-    if (!/^\d{6}-?\d{4}$/.test(kt)) return show('Kennitala þarf að vera 10 tölustafir.');
+    if (kt && !/^\d{6}-?\d{4}$/.test(kt)) return show('Kennitala þarf að vera 10 tölustafir.');
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return show('Netfangið lítur ekki rétt út.');
     if (!phone) return show('Vinsamlegast skráðu símanúmer.');
     if (DATES.filter(d => d.status !== 'full').length && !dateIds.length) return show('Veldu að minnsta kosti eina dagsetningu.');
@@ -266,7 +266,7 @@ Promise.all([
       headers: { ...hdrs, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         course_id: COURSE.id, date_ids: dateIds, name,
-        kennitala: kt.replace('-', ''), email, phone,
+        kennitala: kt ? kt.replace('-', '') : null, email, phone,
         message: document.getElementById('f-msg').value.trim() || null
       })
     }).catch(() => null);
