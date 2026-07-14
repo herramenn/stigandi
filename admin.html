@@ -266,7 +266,7 @@ textarea{min-height:76px;resize:vertical}
       </button>
       <button data-nav="thjonusta">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Þjónusta <span class="count" id="count-svc">–</span>
+        Síður <span class="count" id="count-svc">–</span>
       </button>
       <button data-nav="namskeid">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
@@ -309,8 +309,8 @@ textarea{min-height:76px;resize:vertical}
         </button>
         <button class="tile" data-nav="thjonusta">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          <strong>Þjónusta</strong>
-          <span class="t">Spjöldin og textarnir á forsíðunni</span>
+          <strong>Síður</strong>
+          <span class="t">Þjónustusíður, Um okkur og aðrar síður vefsins</span>
           <span class="n" id="tile-svc">–</span>
         </button>
         <button class="tile" data-nav="namskeid">
@@ -351,10 +351,10 @@ textarea{min-height:76px;resize:vertical}
 
     <section data-view="thjonusta">
       <div class="view-head">
-        <h1>Þjónusta</h1><div class="spacer"></div>
-        <button class="btn btn-primary" id="svc-new">+ Ný þjónusta</button>
+        <h1>Síður</h1><div class="spacer"></div>
+        <button class="btn btn-primary" id="svc-new">+ Ný síða</button>
       </div>
-      <p class="view-sub">Þjónustuspjöldin á forsíðunni og textinn sem opnast þegar smellt er á þau.</p>
+      <p class="view-sub">Síður vefsins – þjónusta birtist sem spjöld á forsíðunni, almennar síður (t.d. Um okkur og stefnur) aðeins þar sem tengt er á þær.</p>
       <div class="list" id="svc-list"></div>
     </section>
 
@@ -457,6 +457,11 @@ textarea{min-height:76px;resize:vertical}
 
       <div id="form-svc" style="display:none">
         <label>Titill</label><input type="text" id="v-title">
+        <label>Tegund</label>
+        <select id="v-kind">
+          <option value="service">Þjónusta – birtist sem spjald á forsíðunni</option>
+          <option value="page">Almenn síða – t.d. Um okkur eða stefna</option>
+        </select>
         <label>Stutt lýsing (birtist á spjaldinu)</label><input type="text" id="v-summary">
         <label>Meginmál (birtist þegar smellt er á spjaldið)</label>
         <textarea id="v-body" style="min-height:190px" placeholder="## Fyrirsögn&#10;Venjulegur texti&#10;- Punktur í lista"></textarea>
@@ -476,9 +481,9 @@ textarea{min-height:76px;resize:vertical}
         <p class="hint">Birtist sem myndasafn neðst á síðunni. Nýjar myndir vistast þegar þú smellir á Vista.</p>
         <div class="field-err" id="v-err"></div>
         <div class="danger-zone" id="v-danger" style="display:none">
-          <button type="button" class="btn btn-danger-quiet" id="v-del-open">Eyða þjónustu…</button>
+          <button type="button" class="btn btn-danger-quiet" id="v-del-open">Eyða síðu…</button>
           <div class="warnbox" id="v-del-warn" hidden>
-            <p><b>Ertu viss?</b> Þetta eyðir þjónustunni og öllum texta hennar varanlega. Ef þú vilt geyma hana til seinni tíma er betra að setja hana í geymslu – þá hverfur hún af vefsíðunni en helst hér í stjórnborðinu.</p>
+            <p><b>Ertu viss?</b> Þetta eyðir síðunni og öllum texta hennar varanlega. Ef þú vilt geyma hana til seinni tíma er betra að setja hana í geymslu – þá hverfur hún af vefsíðunni en helst hér í stjórnborðinu.</p>
             <div class="row-btns">
               <button type="button" class="btn btn-danger" id="v-del-confirm">Eyða varanlega</button>
               <button type="button" class="btn btn-quiet" id="v-archive-instead">Setja í geymslu</button>
@@ -913,6 +918,7 @@ $('v-gal-files').addEventListener('change', () => {
 
 function fillSvc(s) {
   $('v-title').value = s?.title || '';
+  $('v-kind').value = s?.kind || 'service';
   $('v-summary').value = s?.summary || '';
   $('v-body').value = s?.body || '';
   fillCtas(s?.links?.length ? s.links : (s?.link_url ? [{ label: s.link_label, url: s.link_url }] : []));
@@ -926,7 +932,7 @@ function fillSvc(s) {
   $('v-danger').style.display = s ? 'block' : 'none';
   $('v-del-warn').hidden = true;
 }
-$('svc-new').onclick = () => { fillSvc(null); editId = null; openPanel('svc', 'Ný þjónusta'); };
+$('svc-new').onclick = () => { fillSvc(null); editId = null; openPanel('svc', 'Ný síða'); };
 async function saveSvc() {
   const title = $('v-title').value.trim();
   if (!title) return err('v-err', 'Titil vantar.');
@@ -939,7 +945,7 @@ async function saveSvc() {
   catch { return err('v-err', 'Ekki tókst að hlaða upp mynd.'); }
   const ctas = readCtas();
   if (ctas.error) return err('v-err', ctas.error);
-  const row = { title, summary: $('v-summary').value.trim() || null, body: $('v-body').value.trim() || null,
+  const row = { title, kind: $('v-kind').value, summary: $('v-summary').value.trim() || null, body: $('v-body').value.trim() || null,
     links: ctas.links, link_label: ctas.links[0]?.label || null, link_url: ctas.links[0]?.url || null,
     gallery: gal.length ? gal : null,
     sort: parseInt($('v-sort').value) || 100 };
@@ -1177,7 +1183,7 @@ document.addEventListener('click', async e => {
     if (b.dataset.hideSvc) {
       const hide = b.dataset.val !== 'true';
       await client.from('services').update({ hidden: hide }).eq('id', b.dataset.hideSvc);
-      toast(hide ? 'Þjónusta falin af vefsíðunni' : 'Þjónusta sýnileg á ný'); loadServices();
+      toast(hide ? 'Síða falin af vefsíðunni' : 'Síða sýnileg á ný'); loadServices();
       return;
     }
     if (b.dataset.hideCourse) {
@@ -1230,12 +1236,12 @@ $('v-del-cancel').onclick = () => $('v-del-warn').hidden = true;
 $('v-del-confirm').onclick = async () => {
   if (!editId) return;
   await client.from('services').delete().eq('id', editId);
-  toast('Þjónustu eytt'); closePanel(); loadServices();
+  toast('Síðu eytt'); closePanel(); loadServices();
 };
 $('v-archive-instead').onclick = async () => {
   if (!editId) return;
   await client.from('services').update({ hidden: true }).eq('id', editId);
-  toast('Þjónusta sett í geymslu'); closePanel(); loadServices();
+  toast('Síða sett í geymslu'); closePanel(); loadServices();
 };
 
 show();

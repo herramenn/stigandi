@@ -37,6 +37,10 @@ header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdro
 .nav ul{display:flex;gap:6px;list-style:none;align-items:center}
 .nav ul a{color:var(--ink);text-decoration:none;font-size:.95rem;font-weight:500;padding:9px 14px;border-radius:99px;transition:background .15s,color .15s}
 .nav ul a:hover{background:var(--blue-tint);color:var(--blue-dark)}
+.nav li{position:relative}
+.nav .sub{position:absolute;top:100%;left:6px;display:none;flex-direction:column;gap:2px;list-style:none;background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:0 8px 24px -10px rgba(10,40,70,.22);min-width:150px}
+.nav li:hover > .sub,.nav li:focus-within > .sub{display:flex}
+.nav .sub a{display:block}
 .nav .cta{background:var(--navy);color:#fff}
 .nav .cta:hover{background:var(--blue);color:#fff}
 @media(max-width:760px){.nav ul{display:none}}
@@ -106,8 +110,13 @@ footer a:hover{text-decoration:underline}
     <a href="index.html"><img src="assets/logo.png" alt="Stígandi sjúkraþjálfun"></a>
     <ul>
       <li><a href="index.html#thjonusta">Þjónusta</a></li>
-      <li><a href="index.html#tilkynningar">Tilkynningar</a></li>
-      <li><a href="index.html#starfsfolk">Starfsfólk</a></li>
+      <li class="has-sub">
+        <a href="thjonusta.html#um-okkur">Um okkur</a>
+        <ul class="sub">
+          <li><a href="thjonusta.html#adstadan">Aðstaðan</a></li>
+          <li><a href="index.html#starfsfolk">Starfsfólk</a></li>
+        </ul>
+      </li>
       <li><a href="index.html#gjaldskra">Gjaldskrá</a></li>
       <li><a href="index.html#samband" class="cta">Hafa samband</a></li>
     </ul>
