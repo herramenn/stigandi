@@ -276,6 +276,10 @@ textarea{min-height:76px;resize:vertical}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5h16v2"/><path d="M12 5v14"/><path d="M9 19h6"/></svg>
         Textar
       </button>
+      <button data-nav="stillingar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Stillingar
+      </button>
     </nav>
     <div class="side-foot">
       <a href="index.html" target="_blank" rel="noopener">
@@ -390,6 +394,22 @@ textarea{min-height:76px;resize:vertical}
         <p class="hint">Uppfærðu t.d. þegar hámarksupphæðir Sjúkratrygginga Íslands breytast.</p>
         <div class="field-err" id="t-err"></div>
         <div class="ed-foot"><button class="btn btn-primary" id="textar-save">Vista</button></div>
+      </div>
+    </section>
+    <section data-view="stillingar">
+      <div class="view-head"><h1>Stillingar</h1></div>
+      <p class="view-sub">Aðgangur að stjórnborðinu – bjóddu nýjum notendum og sjáðu hverjir hafa aðgang.</p>
+      <div class="editor-card">
+        <label style="margin-top:0">Bjóða nýjum notanda aðgang</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="email" id="u-email" placeholder="netfang@daemi.is" style="flex:1;min-width:200px">
+          <button class="btn btn-primary" id="u-invite">Senda boð</button>
+        </div>
+        <p class="hint">Viðkomandi fær tölvupóst með hlekk til að velja sér lykilorð. Allir notendur hafa fullan aðgang að stjórnborðinu.</p>
+        <div class="field-err" id="u-err"></div>
+        <div class="field-ok" id="u-ok"></div>
+        <label style="margin-top:22px">Notendur</label>
+        <div class="list" id="u-list"><div class="empty">Sæki notendur…</div></div>
       </div>
     </section>
     <section data-view="editor">
@@ -678,6 +698,7 @@ $('setpw-btn').onclick = async () => {
 document.querySelectorAll('[data-nav]').forEach(b => b.onclick = () => {
   mode = null; editId = null;
   showView(b.dataset.nav);
+  if (b.dataset.nav === 'stillingar') loadUsers();
 });
 
 /* ---------- in-page editor ---------- */
@@ -1139,6 +1160,50 @@ $('textar-save').onclick = async () => {
   if (error) return err('t-err', 'Villa kom upp – reyndu aftur.');
   toast('Textar vistaðir');
 };
+
+/* ---------- settings: admin users (via admin-users edge function) ---------- */
+async function loadUsers() {
+  const { data, error } = await client.functions.invoke('admin-users', { body: { action: 'list' } });
+  if (error || data?.error) {
+    $('u-list').innerHTML = '<div class="empty"><div class="big">Ekki tókst að sækja notendur</div>Athugaðu nettengingu og reyndu aftur.</div>';
+    return;
+  }
+  const { data: { user: me } } = await client.auth.getUser();
+  $('u-list').innerHTML = data.users.map(u => `
+    <div class="rowitem">
+      <div class="info">
+        <strong>${esc(u.email)}</strong>
+        <div class="t">${u.last_sign_in_at ? 'Síðast innskráð/ur ' + isDate(u.last_sign_in_at.slice(0, 10)) : 'Boð sent – hefur ekki skráð sig inn'}</div>
+      </div>
+      <div class="actions">${u.id === me?.id
+        ? '<span class="chip">Þú</span>'
+        : `<button class="btn btn-danger-quiet btn-sm" data-del-user="${u.id}" data-email="${esc(u.email)}">Fjarlægja</button>`}</div>
+    </div>`).join('');
+}
+$('u-invite').onclick = async () => {
+  const email = $('u-email').value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err('u-err', 'Netfangið lítur ekki rétt út.');
+  $('u-invite').disabled = true;
+  const { data, error } = await client.functions.invoke('admin-users', { body: { action: 'invite', email } });
+  $('u-invite').disabled = false;
+  if (error || data?.error) return err('u-err', 'Ekki tókst að senda boð – reyndu aftur eftir smá stund.');
+  $('u-email').value = '';
+  const ok = $('u-ok');
+  ok.textContent = 'Boð sent á ' + email + ' – viðkomandi velur sér lykilorð í tölvupóstinum.';
+  ok.classList.add('on');
+  setTimeout(() => ok.classList.remove('on'), 6000);
+  loadUsers();
+};
+$('u-email').addEventListener('keydown', e => { if (e.key === 'Enter') $('u-invite').click(); });
+$('u-list').addEventListener('click', async e => {
+  const b = e.target.closest('[data-del-user]');
+  if (!b) return;
+  if (!confirm(`Fjarlægja aðgang ${b.dataset.email} að stjórnborðinu? Þetta hefur engin áhrif á efni vefsíðunnar.`)) return;
+  const { data, error } = await client.functions.invoke('admin-users', { body: { action: 'remove', id: b.dataset.delUser } });
+  if (error || data?.error) return err('u-err', 'Ekki tókst að fjarlægja notandann – reyndu aftur.');
+  toast('Aðgangur fjarlægður');
+  loadUsers();
+});
 
 /* ---------- open profile / row actions ---------- */
 function openStaff(id) {
