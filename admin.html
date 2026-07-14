@@ -272,6 +272,10 @@ textarea{min-height:76px;resize:vertical}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         Námskeið <span class="count" id="count-course">–</span>
       </button>
+      <button data-nav="textar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5h16v2"/><path d="M12 5v14"/><path d="M9 19h6"/></svg>
+        Textar
+      </button>
     </nav>
     <div class="side-foot">
       <a href="index.html" target="_blank" rel="noopener">
@@ -315,6 +319,11 @@ textarea{min-height:76px;resize:vertical}
           <span class="t">Dagsetningar og skráningar</span>
           <span class="n" id="tile-course">–</span>
         </button>
+        <button class="tile" data-nav="textar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5h16v2"/><path d="M12 5v14"/><path d="M9 19h6"/></svg>
+          <strong>Textar</strong>
+          <span class="t">Fyrirsögn, inngangur og gjaldskrártexti á forsíðunni</span>
+        </button>
       </div>
     </section>
 
@@ -356,6 +365,28 @@ textarea{min-height:76px;resize:vertical}
       </div>
       <p class="view-sub">Námskeið og hópar á vefsíðunni – hverri síðu þeir tilheyra, dagsetningar og skráningar frá viðskiptavinum.</p>
       <div class="list" id="course-list"></div>
+    </section>
+    <section data-view="textar">
+      <div class="view-head"><h1>Textar</h1></div>
+      <p class="view-sub">Fastir textar á forsíðunni – breytingar birtast strax og þú vistar.</p>
+      <div class="editor-card">
+        <label>Fyrirsögn efst á forsíðunni</label>
+        <textarea id="t-hero_title" style="min-height:76px"></textarea>
+        <p class="hint">Hver lína birtist sér – síðasta línan birtist í bláum lit.</p>
+        <label>Inngangstexti efst á forsíðunni</label>
+        <textarea id="t-hero_lead" style="min-height:90px"></textarea>
+        <label>Texti undir „Þjónustan okkar“</label>
+        <textarea id="t-svc_intro" style="min-height:52px"></textarea>
+        <label>Texti undir „Tilkynningar“</label>
+        <textarea id="t-news_intro" style="min-height:52px"></textarea>
+        <label>Texti undir „Starfsfólkið“</label>
+        <textarea id="t-staff_intro" style="min-height:52px"></textarea>
+        <label>Gjaldskrártexti</label>
+        <textarea id="t-gjaldskra_note" style="min-height:90px"></textarea>
+        <p class="hint">Uppfærðu t.d. þegar hámarksupphæðir Sjúkratrygginga Íslands breytast.</p>
+        <div class="field-err" id="t-err"></div>
+        <div class="ed-foot"><button class="btn btn-primary" id="textar-save">Vista</button></div>
+      </div>
     </section>
     <section data-view="editor">
       <div class="view-head">
@@ -601,7 +632,7 @@ async function show() {
   $('app').classList.toggle('on', !!session && !setpw);
   if (session && !setpw) {
     $('side-user').textContent = session.user.email;
-    loadNews(); loadStaff(); loadServices(); loadCourses();
+    loadNews(); loadStaff(); loadServices(); loadCourses(); loadTextar();
   }
 }
 client.auth.onAuthStateChange(() => show());
@@ -1070,6 +1101,20 @@ $('c-reg-list').addEventListener('change', async e => {
   await client.from('registrations').update({ status: sel.value }).eq('id', sel.dataset.regStatus);
   toast('Staða skráningar uppfærð');
 });
+
+/* ---------- site texts ---------- */
+const TEXT_KEYS = ['hero_title','hero_lead','svc_intro','news_intro','staff_intro','gjaldskra_note'];
+async function loadTextar() {
+  const { data, error } = await client.from('site_texts').select('key,value');
+  if (error) return err('t-err', 'Ekki tókst að sækja textana – endurhladdu síðuna.');
+  (data || []).forEach(r => { const el = $('t-' + r.key); if (el) el.value = r.value; });
+}
+$('textar-save').onclick = async () => {
+  const rows = TEXT_KEYS.map(k => ({ key: k, value: $('t-' + k).value.trim() })).filter(r => r.value);
+  const { error } = await client.from('site_texts').upsert(rows);
+  if (error) return err('t-err', 'Villa kom upp – reyndu aftur.');
+  toast('Textar vistaðir');
+};
 
 /* ---------- open profile / row actions ---------- */
 function openStaff(id) {

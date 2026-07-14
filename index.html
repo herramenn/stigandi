@@ -205,8 +205,8 @@ footer a:hover{text-decoration:underline}
 
 <div class="hero">
   <div class="wrap">
-    <h1>Þín markmið.<br>Okkar þekking.<br><em>Samvinna sem skilar árangri.</em></h1>
-    <p class="lead">Stígandi er sjúkraþjálfun og þjálfun í Heilsuklasanum á Bíldshöfða. Hjá okkur starfar öflugur hópur sjúkraþjálfara sem tekur á móti fólki á öllum aldri – hvort sem markmiðið er endurhæfing, forvarnir eða betri líðan.</p>
+    <h1 id="t-hero-title">Þín markmið.<br>Okkar þekking.<br><em>Samvinna sem skilar árangri.</em></h1>
+    <p class="lead" id="t-hero-lead">Stígandi er sjúkraþjálfun og þjálfun í Heilsuklasanum á Bíldshöfða. Hjá okkur starfar öflugur hópur sjúkraþjálfara sem tekur á móti fólki á öllum aldri – hvort sem markmiðið er endurhæfing, forvarnir eða betri líðan.</p>
     <div class="buttons">
       <a class="btn btn-primary" href="tel:+3545991600">Panta tíma – 599 1600</a>
       <a class="btn btn-light" href="#thjonusta">Skoða þjónustu</a>
@@ -226,7 +226,7 @@ footer a:hover{text-decoration:underline}
   <div class="wrap">
     <div class="sec-head">
       <h2>Þjónustan okkar</h2>
-      <p>Einstaklingsmeðferð, námskeið og þjálfun í sal og sundlaug – veldu þjónustu til að lesa meira og skrá þig.</p>
+      <p id="t-svc-intro">Einstaklingsmeðferð, námskeið og þjálfun í sal og sundlaug – veldu þjónustu til að lesa meira og skrá þig.</p>
     </div>
     <div class="cards" id="svc-cards"></div>
   </div>
@@ -236,7 +236,7 @@ footer a:hover{text-decoration:underline}
   <div class="wrap">
     <div class="sec-head">
       <h2>Tilkynningar</h2>
-      <p>Fréttir og tilboð frá okkur.</p>
+      <p id="t-news-intro">Fréttir og tilboð frá okkur.</p>
     </div>
     <div id="news-list"><p style="color:var(--muted)">Sæki tilkynningar…</p></div>
   </div>
@@ -246,7 +246,7 @@ footer a:hover{text-decoration:underline}
   <div class="wrap">
     <div class="sec-head">
       <h2>Starfsfólkið</h2>
-      <p>Sjúkraþjálfarar með fjölbreytta sérþekkingu – síaðu eftir sérsviði og smelltu á mynd til að kynnast fólkinu.</p>
+      <p id="t-staff-intro">Sjúkraþjálfarar með fjölbreytta sérþekkingu – síaðu eftir sérsviði og smelltu á mynd til að kynnast fólkinu.</p>
     </div>
     <div id="tag-filters" class="tag-filters"></div>
     <div id="staff-grid" class="staff-grid"></div>
@@ -258,7 +258,7 @@ footer a:hover{text-decoration:underline}
     <div class="panel">
       <div>
         <h2>Gjaldskrá</h2>
-        <p class="note">Í almanaksmánuði greiða almennir sjúkratryggðir einstaklingar að hámarki 37.794 kr. meðan aldraðir, öryrkjar, börn og börn með umönnunarmat greiða að hámarki 25.198 kr. samkvæmt reglum Sjúkratrygginga Íslands.</p>
+        <p class="note" id="t-gjaldskra-note">Í almanaksmánuði greiða almennir sjúkratryggðir einstaklingar að hámarki 37.794 kr. meðan aldraðir, öryrkjar, börn og börn með umönnunarmat greiða að hámarki 25.198 kr. samkvæmt reglum Sjúkratrygginga Íslands.</p>
       </div>
       <a class="btn" href="assets/gjaldskra.pdf" target="_blank" rel="noopener">Sækja gjaldskrá (PDF)</a>
     </div>
@@ -323,6 +323,18 @@ const sb = path => fetch(`${SB_URL}/rest/v1/${path}`, { headers: { apikey: SB_KE
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
 const loadFail = (id, retryFn) => document.getElementById(id).innerHTML =
   `<div class="load-err"><p>Ekki tókst að sækja efni – athugaðu nettengingu.</p><button onclick="${retryFn}()">Reyna aftur</button></div>`;
+
+/* editable site texts — hardcoded copy above is the fallback if this fails */
+sb('site_texts?select=key,value').then(rows => {
+  const t = Object.fromEntries(rows.map(r => [r.key, r.value]));
+  if (t.hero_title) {
+    const lines = t.hero_title.split('\n').map(l => l.trim()).filter(Boolean).map(esc);
+    if (lines.length) lines[lines.length - 1] = `<em>${lines[lines.length - 1]}</em>`;
+    document.getElementById('t-hero-title').innerHTML = lines.join('<br>');
+  }
+  [['hero_lead','t-hero-lead'],['svc_intro','t-svc-intro'],['news_intro','t-news-intro'],['staff_intro','t-staff-intro'],['gjaldskra_note','t-gjaldskra-note']]
+    .forEach(([k, id]) => { if (t[k]) document.getElementById(id).textContent = t[k]; });
+}).catch(() => {});
 
 function loadNews() {
   sb('news?select=title,body,date&order=date.desc').then(items => {
