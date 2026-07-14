@@ -185,6 +185,11 @@ textarea{min-height:76px;resize:vertical}
 .ed-course-item{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin-bottom:6px;font-size:.9rem;transition:border-color .15s ease-out,color .15s ease-out}
 .ed-course-item:hover{border-color:var(--blue);color:var(--blue)}
 .ed-course-item.dim{opacity:.55}
+.gal-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.gal-grid:empty{display:none}
+.gal-item{position:relative}
+.gal-item img{width:88px;height:66px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.gal-item button{position:absolute;top:-7px;right:-7px;width:21px;height:21px;border-radius:50%;border:0;background:var(--danger);color:#fff;font-size:.8rem;line-height:1;cursor:pointer}
 .curphoto{display:flex;align-items:center;gap:10px;margin-top:6px}
 .curphoto img{width:40px;height:50px;object-fit:cover;border-radius:6px}
 .curphoto span{font-size:.8rem;color:var(--muted)}
@@ -430,6 +435,10 @@ textarea{min-height:76px;resize:vertical}
         <div class="curphoto" id="v-curphoto" style="display:none"><img id="v-curphoto-img" alt=""><span>Núverandi mynd – veldu nýja skrá til að skipta henni út</span></div>
         <label class="filebtn" style="margin-top:8px">Velja mynd<input type="file" id="v-photo" accept="image/*"></label>
         <div class="filename" id="v-photo-name">Engin ný mynd valin</div>
+        <label>Myndasafn (má sleppa)</label>
+        <div id="v-gal" class="gal-grid"></div>
+        <label class="filebtn" style="margin-top:8px">Bæta við myndum<input type="file" id="v-gal-files" accept="image/*" multiple></label>
+        <p class="hint">Birtist sem myndasafn neðst á síðunni. Nýjar myndir vistast þegar þú smellir á Vista.</p>
         <div class="field-err" id="v-err"></div>
         <div class="danger-zone" id="v-danger" style="display:none">
           <button type="button" class="btn btn-danger-quiet" id="v-del-open">Eyða þjónustu…</button>
@@ -573,14 +582,13 @@ const BIO_FIELDS = [['s-starfssvid','starfssvid'],['s-serhaefing','serhaefing'],
 $('s-tags').innerHTML = TAGS.map(t => `<label><input type="checkbox" class="tagbox" value="${t}"> ${t}</label>`).join('');
 const getTags = () => [...document.querySelectorAll('.tagbox:checked')].map(c => c.value);
 const setTags = tags => document.querySelectorAll('.tagbox').forEach(c => c.checked = (tags || []).includes(c.value));
-const uploadPhoto = async (fileInput, prefix) => {
-  const file = fileInput.files[0];
-  if (!file) return undefined;
-  const path = prefix + Date.now() + '-' + file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
+const uploadFile = async (file, prefix = '') => {
+  const path = prefix + Date.now() + '-' + Math.random().toString(36).slice(2, 6) + '-' + file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
   const { error } = await client.storage.from('photos').upload(path, file);
   if (error) throw new Error('upload');
   return client.storage.from('photos').getPublicUrl(path).data.publicUrl;
 };
+const uploadPhoto = (fileInput, prefix) => fileInput.files[0] ? uploadFile(fileInput.files[0], prefix) : undefined;
 
 /* ---------- views & auth ---------- */
 let needsPassword = /type=(invite|recovery|signup)/.test(location.hash);
@@ -843,12 +851,31 @@ async function loadServices() {
   $('svc-list').innerHTML = data.map(s => `
     <div class="rowitem click${s.hidden ? ' dim' : ''}" data-open-svc="${s.id}" tabindex="0" role="button" aria-label="Opna ${esc(s.title)}">
       ${s.photo_url ? `<img class="thumb wide" src="${esc(s.photo_url)}" alt="" loading="lazy">` : '<div class="noimg">Þ</div>'}
-      <div class="info"><strong>${esc(s.title)}</strong><div class="t">${esc(s.summary || '')}</div>${s.hidden ? '<div><span class="chip">Í geymslu – birtist ekki á vefsíðunni</span></div>' : ''}</div>
+      <div class="info"><strong>${esc(s.title)}</strong><div class="t">${esc(s.summary || '')}</div><div>${s.kind === 'page' ? '<span class="chip">Síða – birtist ekki á forsíðuspjöldum</span>' : ''}${s.hidden ? '<span class="chip">Í geymslu – birtist ekki á vefsíðunni</span>' : ''}</div></div>
       <div class="actions">
         <button class="btn btn-quiet btn-sm" data-hide-svc="${s.id}" data-val="${s.hidden}">${s.hidden ? 'Sýna' : 'Fela'}</button>
       </div>
     </div>`).join('') || '<div class="empty"><div class="big">Engin þjónusta skráð</div>Smelltu á „+ Ný þjónusta“ til að byrja.</div>';
 }
+let galUrls = [], galFiles = [];
+function renderGal() {
+  $('v-gal').innerHTML = galUrls.map((u, i) =>
+    `<div class="gal-item"><img src="${esc(u)}" alt=""><button type="button" data-gal-url="${i}" aria-label="Fjarlægja mynd">×</button></div>`).join('')
+  + galFiles.map((f, i) =>
+    `<div class="gal-item"><img src="${URL.createObjectURL(f)}" alt=""><button type="button" data-gal-file="${i}" aria-label="Fjarlægja mynd">×</button></div>`).join('');
+}
+$('v-gal').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.galUrl !== undefined) galUrls.splice(+b.dataset.galUrl, 1);
+  else galFiles.splice(+b.dataset.galFile, 1);
+  renderGal();
+});
+$('v-gal-files').addEventListener('change', () => {
+  galFiles.push(...$('v-gal-files').files);
+  $('v-gal-files').value = '';
+  renderGal();
+});
+
 function fillSvc(s) {
   $('v-title').value = s?.title || '';
   $('v-summary').value = s?.summary || '';
@@ -859,6 +886,8 @@ function fillSvc(s) {
   $('v-photo-name').textContent = 'Engin ný mynd valin';
   $('v-curphoto').style.display = s?.photo_url ? 'flex' : 'none';
   if (s?.photo_url) $('v-curphoto-img').src = s.photo_url;
+  galUrls = [...(s?.gallery || [])]; galFiles = [];
+  renderGal();
   $('v-danger').style.display = s ? 'block' : 'none';
   $('v-del-warn').hidden = true;
 }
@@ -867,12 +896,17 @@ async function saveSvc() {
   const title = $('v-title').value.trim();
   if (!title) return err('v-err', 'Titil vantar.');
   let photo_url;
-  try { photo_url = await uploadPhoto($('v-photo'), 'svc-'); }
+  const gal = [...galUrls];
+  try {
+    photo_url = await uploadPhoto($('v-photo'), 'svc-');
+    for (const f of galFiles) gal.push(await uploadFile(f, 'svc-gal-'));
+  }
   catch { return err('v-err', 'Ekki tókst að hlaða upp mynd.'); }
   const ctas = readCtas();
   if (ctas.error) return err('v-err', ctas.error);
   const row = { title, summary: $('v-summary').value.trim() || null, body: $('v-body').value.trim() || null,
     links: ctas.links, link_label: ctas.links[0]?.label || null, link_url: ctas.links[0]?.url || null,
+    gallery: gal.length ? gal : null,
     sort: parseInt($('v-sort').value) || 100 };
   if (!editId) row.slug = slugify(title) || 'thjonusta-' + Date.now().toString(36);
   if (photo_url) row.photo_url = photo_url;

@@ -197,6 +197,7 @@ footer a:hover{text-decoration:underline}
       <li><a href="#tilkynningar">Tilkynningar</a></li>
       <li><a href="#starfsfolk">Starfsfólk</a></li>
       <li><a href="#gjaldskra">Gjaldskrá</a></li>
+      <li><a href="thjonusta.html#um-okkur">Um okkur</a></li>
       <li><a href="#samband" class="cta">Hafa samband</a></li>
     </ul>
   </div>
@@ -341,7 +342,7 @@ function loadNews() {
 loadNews();
 
 function loadSvcCards() {
-  sb('services?select=slug,title,summary,photo_url&hidden=eq.false&order=sort.asc,title.asc').then(list => {
+  sb('services?select=slug,title,summary,photo_url&hidden=eq.false&kind=eq.service&order=sort.asc,title.asc').then(list => {
     document.getElementById('svc-cards').innerHTML = list.map(s => `
       <a class="card" href="thjonusta.html#${esc(s.slug || '')}" aria-label="Nánar um ${esc(s.title)}">
         ${s.photo_url ? `<img src="${esc(s.photo_url)}" alt="${esc(s.title)}" loading="lazy">` : ''}

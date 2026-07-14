@@ -74,6 +74,10 @@ h1{font-size:clamp(1.9rem,4.4vw,2.9rem);font-weight:800;letter-spacing:-.02em;ma
 
 .notfound{text-align:center;padding:90px 0}
 
+/* photo gallery (services with gallery jsonb) */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin:34px 0 10px}
+.gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:var(--r-md);box-shadow:0 8px 24px -10px rgba(10,40,70,.22)}
+
 /* course tiles */
 .course-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:34px}
 .ctile{display:flex;flex-direction:column;gap:8px;background:var(--navy);color:#fff;border-radius:var(--r-lg);padding:26px 26px 22px;text-decoration:none;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
@@ -179,13 +183,20 @@ fetch(`${SB_URL}/rest/v1/services?slug=eq.${encodeURIComponent(slug)}&hidden=eq.
       return;
     }
     document.title = s.title + ' | Stígandi sjúkraþjálfun';
+    if (s.kind === 'page') {
+      const bl = document.querySelector('.backlink');
+      bl.href = 'index.html';
+      bl.textContent = '← Forsíða';
+    }
     const links = (s.links && s.links.length) ? s.links : [];
+    const gallery = (s.gallery || []).map(u => `<img src="${esc(u)}" alt="${esc(s.title)}" loading="lazy">`).join('');
     page.innerHTML = `
       ${s.photo_url ? `<img class="hero-img" src="${esc(s.photo_url)}" alt="${esc(s.title)}">` : ''}
       <h1>${esc(s.title)}</h1>
       ${s.summary ? `<p class="summary">${esc(s.summary)}</p>` : ''}
       <div class="cta-row" id="cta-top"></div>
       <div class="content">${svcHtml(s.body)}</div>
+      ${gallery ? `<div class="gallery">${gallery}</div>` : ''}
       <div id="course-tiles" class="course-tiles"></div>
       <div class="cta-row" id="cta-bottom"></div>`;
     loadCourses(s.slug).catch(() => {
