@@ -141,8 +141,8 @@ footer a:hover{text-decoration:underline}
 
 <footer>
   <div class="wrap">
-    <div><b>Stígandi sjúkraþjálfun</b><br>Heilsuklasinn, Bíldshöfða 9, 110 Reykjavík</div>
-    <div><a href="tel:+3545991600">599 1600</a><br><a href="mailto:mottaka@stigandi.is">mottaka@stigandi.is</a></div>
+    <div><b id="f-name">Stígandi sjúkraþjálfun</b><br><span id="f-addr">Heilsuklasinn, Bíldshöfða 9, 110 Reykjavík</span></div>
+    <div><a id="f-phone" href="tel:+3545991600">599 1600</a><br><a id="f-email" href="mailto:mottaka@stigandi.is">mottaka@stigandi.is</a></div>
     <div>Opið mán–fös<br>kl. 8:00 – 17:00</div>
     <div><a href="thjonusta.html#personuverndarstefna">Persónuverndarstefna</a><br><a href="thjonusta.html#vefkokustefna">Vefkökustefna</a></div>
   </div>
@@ -247,6 +247,16 @@ async function loadCourses(serviceSlug) {
   }).join('');
 }
 window.addEventListener('hashchange', () => location.reload());
+
+/* company info in the footer (editable in admin -> Stillingar) */
+fetch(`${SB_URL}/rest/v1/site_texts?select=key,value&key=in.(company_name,company_address,company_phone,company_email)`, { headers: { apikey: SB_KEY } })
+  .then(r => r.json()).then(rows => {
+    const t = Object.fromEntries(rows.map(r2 => [r2.key, r2.value]));
+    if (t.company_name) document.getElementById('f-name').textContent = t.company_name;
+    if (t.company_address) document.getElementById('f-addr').textContent = t.company_address.split('\n').map(l => l.trim()).filter(Boolean).join(', ');
+    if (t.company_phone) { const p = document.getElementById('f-phone'); p.textContent = t.company_phone; p.href = 'tel:+354' + t.company_phone.replace(/\D/g, ''); }
+    if (t.company_email) { const m = document.getElementById('f-email'); m.textContent = t.company_email; m.href = 'mailto:' + t.company_email; }
+  }).catch(() => {});
 </script>
 </body>
 </html>

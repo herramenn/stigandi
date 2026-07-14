@@ -160,6 +160,11 @@ footer h3{color:#fff;font-size:.95rem;font-weight:700;margin-bottom:12px}
 footer p,footer a{font-size:.94rem;line-height:1.9}
 footer a{color:#8ec6f0;text-decoration:none}
 footer a:hover{text-decoration:underline}
+footer .social{display:flex;gap:12px;margin-top:18px}
+footer .social:empty{display:none}
+footer .social a{color:#8ec6f0;transition:color .15s}
+footer .social a:hover{color:#fff}
+footer .social svg{width:22px;height:22px;display:block}
 .fineprint{margin-top:44px;border-top:1px solid rgba(255,255,255,.13);padding-top:20px;font-size:.8rem;color:#7e93a3;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
 /* ---------- responsive ---------- */
@@ -288,14 +293,15 @@ footer a:hover{text-decoration:underline}
       <div>
         <img class="logo" src="assets/logo.png" alt="Stígandi sjúkraþjálfun">
         <p style="margin-top:14px;max-width:34ch">Þín markmið – okkar þekking. Samvinna sem skilar árangri.</p>
+        <div class="social" id="f-social"></div>
       </div>
       <div>
         <h3>Heimilisfang</h3>
-        <p>Heilsuklasinn<br>Bíldshöfða 9<br>110 Reykjavík<br><a href="https://maps.google.com/?q=B%C3%ADldsh%C3%B6f%C3%B0i+9,+Reykjav%C3%ADk" target="_blank" rel="noopener">Sjá á korti ↗</a></p>
+        <p><span id="f-address">Heilsuklasinn<br>Bíldshöfða 9<br>110 Reykjavík</span><br><a href="https://maps.google.com/?q=B%C3%ADldsh%C3%B6f%C3%B0i+9,+Reykjav%C3%ADk" target="_blank" rel="noopener">Sjá á korti ↗</a></p>
       </div>
       <div>
         <h3>Samband</h3>
-        <p><a href="tel:+3545991600">599 1600</a><br><a href="mailto:mottaka@stigandi.is">mottaka@stigandi.is</a></p>
+        <p><a id="f-phone" href="tel:+3545991600">599 1600</a><br><a id="f-email" href="mailto:mottaka@stigandi.is">mottaka@stigandi.is</a></p>
       </div>
       <div>
         <h3>Opnunartími</h3>
@@ -303,9 +309,9 @@ footer a:hover{text-decoration:underline}
       </div>
     </div>
     <div class="fineprint">
-      <span>© Stígandi sjúkraþjálfun · kt. 520220-2160</span>
+      <span id="f-fine">© Stígandi sjúkraþjálfun · kt. 520220-2160</span>
       <span><a href="thjonusta.html#personuverndarstefna">Persónuverndarstefna</a> · <a href="thjonusta.html#vefkokustefna">Vefkökustefna</a></span>
-      <span>Bíldshöfða 9, 110 Reykjavík</span>
+      <span id="f-fineaddr">Bíldshöfða 9, 110 Reykjavík</span>
     </div>
   </div>
 </footer>
@@ -354,6 +360,31 @@ sb('site_texts?select=key,value').then(rows => {
   }
   [['hero_lead','t-hero-lead'],['svc_intro','t-svc-intro'],['news_intro','t-news-intro'],['staff_intro','t-staff-intro'],['gjaldskra_note','t-gjaldskra-note']]
     .forEach(([k, id]) => { if (t[k]) document.getElementById(id).textContent = t[k]; });
+  // company info in the footer
+  const addrLines = (t.company_address || '').split('\n').map(l => l.trim()).filter(Boolean);
+  if (addrLines.length) {
+    document.getElementById('f-address').innerHTML = addrLines.map(esc).join('<br>');
+    document.getElementById('f-fineaddr').textContent = addrLines.slice(-2).join(', ');
+  }
+  if (t.company_phone) {
+    const p = document.getElementById('f-phone');
+    p.textContent = t.company_phone;
+    p.href = 'tel:+354' + t.company_phone.replace(/\D/g, '');
+  }
+  if (t.company_email) {
+    const m = document.getElementById('f-email');
+    m.textContent = t.company_email;
+    m.href = 'mailto:' + t.company_email;
+  }
+  if (t.company_name) document.getElementById('f-fine').textContent =
+    '© ' + t.company_name + (t.company_kennitala ? ' · kt. ' + t.company_kennitala : '');
+  // social icons — only rendered when a URL is set in admin
+  const SOC = [
+    ['social_facebook', 'Facebook', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21.5v-8h2.7l.4-3.1h-3.1V8.4c0-.9.25-1.5 1.55-1.5h1.65V4.1c-.3-.04-1.3-.13-2.5-.13-2.5 0-4.2 1.5-4.2 4.3v2.1H7.3v3.1H10v8h3.5z"/></svg>'],
+    ['social_instagram', 'Instagram', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>']
+  ];
+  document.getElementById('f-social').innerHTML = SOC.filter(([k]) => t[k])
+    .map(([k, label, svg]) => `<a href="${esc(t[k])}" target="_blank" rel="noopener" aria-label="${label}">${svg}</a>`).join('');
   reanchor();
 }).catch(() => {});
 

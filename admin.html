@@ -398,6 +398,41 @@ textarea{min-height:76px;resize:vertical}
     </section>
     <section data-view="stillingar">
       <div class="view-head"><h1>Stillingar</h1></div>
+      <p class="view-sub">Veldu það sem þú vilt skoða eða breyta.</p>
+      <div class="tiles">
+        <button class="tile" data-nav="notendur">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <strong>Notendur</strong>
+          <span class="t">Aðgangur að stjórnborðinu</span>
+        </button>
+        <button class="tile" data-nav="fyrirtaeki">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>
+          <strong>Fyrirtækið</strong>
+          <span class="t">Nafn, kennitala, heimilisfang og samband</span>
+        </button>
+        <button class="tile" data-nav="samfelagsmidlar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+          <strong>Samfélagsmiðlar</strong>
+          <span class="t">Hlekkir sem birtast neðst á forsíðunni</span>
+        </button>
+        <button class="tile" data-open-policy="personuverndarstefna">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <strong>Persónuverndarstefna</strong>
+          <span class="t">Stefnan eins og hún birtist á vefsíðunni</span>
+        </button>
+        <button class="tile" data-open-policy="vefkokustefna">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8.5 9h.01M15 8h.01M9 15.5h.01M14.5 14.5h.01M12 11.5h.01"/></svg>
+          <strong>Vafrakökustefna</strong>
+          <span class="t">Um vafrakökur og gagnasöfnun</span>
+        </button>
+      </div>
+    </section>
+
+    <section data-view="notendur">
+      <div class="view-head">
+        <button class="btn btn-quiet" data-nav="stillingar">← Til baka</button>
+        <h1>Notendur</h1>
+      </div>
       <p class="view-sub">Aðgangur að stjórnborðinu – bjóddu nýjum notendum og sjáðu hverjir hafa aðgang.</p>
       <div class="editor-card">
         <label style="margin-top:0">Bjóða nýjum notanda aðgang</label>
@@ -410,6 +445,39 @@ textarea{min-height:76px;resize:vertical}
         <div class="field-ok" id="u-ok"></div>
         <label style="margin-top:22px">Notendur</label>
         <div class="list" id="u-list"><div class="empty">Sæki notendur…</div></div>
+      </div>
+    </section>
+
+    <section data-view="fyrirtaeki">
+      <div class="view-head">
+        <button class="btn btn-quiet" data-nav="stillingar">← Til baka</button>
+        <h1>Fyrirtækið</h1>
+      </div>
+      <p class="view-sub">Upplýsingar sem birtast neðst á öllum síðum vefsins.</p>
+      <div class="editor-card">
+        <label style="margin-top:0">Nafn</label><input type="text" id="t-company_name">
+        <label>Kennitala</label><input type="text" id="t-company_kennitala">
+        <label>Heimilisfang</label>
+        <textarea id="t-company_address" style="min-height:76px"></textarea>
+        <p class="hint">Hver lína birtist sér í fæti vefsíðunnar.</p>
+        <label>Símanúmer</label><input type="text" id="t-company_phone">
+        <label>Netfang</label><input type="email" id="t-company_email">
+        <div class="field-err" id="fy-err"></div>
+        <div class="ed-foot"><button class="btn btn-primary" id="fyrirtaeki-save">Vista</button></div>
+      </div>
+    </section>
+
+    <section data-view="samfelagsmidlar">
+      <div class="view-head">
+        <button class="btn btn-quiet" data-nav="stillingar">← Til baka</button>
+        <h1>Samfélagsmiðlar</h1>
+      </div>
+      <p class="view-sub">Slóðir á samfélagsmiðla – táknmynd birtist neðst á forsíðunni þegar slóð er skráð. Tómur reitur felur táknmyndina.</p>
+      <div class="editor-card">
+        <label style="margin-top:0">Facebook</label><input type="text" id="t-social_facebook" placeholder="https://www.facebook.com/…">
+        <label>Instagram</label><input type="text" id="t-social_instagram" placeholder="https://www.instagram.com/…">
+        <div class="field-err" id="sm-err"></div>
+        <div class="ed-foot"><button class="btn btn-primary" id="samfelagsmidlar-save">Vista</button></div>
       </div>
     </section>
     <section data-view="editor">
@@ -698,14 +766,17 @@ $('setpw-btn').onclick = async () => {
 document.querySelectorAll('[data-nav]').forEach(b => b.onclick = () => {
   mode = null; editId = null;
   showView(b.dataset.nav);
-  if (b.dataset.nav === 'stillingar') loadUsers();
+  if (b.dataset.nav === 'notendur') loadUsers();
+  if (b.dataset.nav === 'fyrirtaeki') loadKeys(COMPANY_KEYS);
+  if (b.dataset.nav === 'samfelagsmidlar') loadKeys(SOCIAL_KEYS);
 });
 
 /* ---------- in-page editor ---------- */
 let mode = null, editId = null, returnView = 'tilkynningar';
+const VIEW_PARENT = { notendur: 'stillingar', fyrirtaeki: 'stillingar', samfelagsmidlar: 'stillingar' };
 function showView(name) {
   document.querySelectorAll('section[data-view]').forEach(s => s.classList.toggle('on', s.dataset.view === name));
-  document.querySelectorAll('[data-nav]').forEach(x => x.setAttribute('aria-current', x.dataset.nav === name));
+  document.querySelectorAll('[data-nav]').forEach(x => x.setAttribute('aria-current', x.dataset.nav === name || x.dataset.nav === VIEW_PARENT[name]));
 }
 function openPanel(kind, title) {
   mode = kind;
@@ -902,14 +973,16 @@ function readCtas(box = 'v-ctas') {
   }
   return { links: out };
 }
+const POLICY_SLUGS = ['personuverndarstefna', 'vefkokustefna']; // edited via Stillingar, hidden from the Síður list
 async function loadServices() {
   const { data, error } = await client.from('services').select('*').order('sort').order('title');
   if (error) return loadErr('svc-list', 'loadServices');
   window._services = data;
-  $('count-svc').textContent = data.length;
-  const inArchive = data.filter(s => s.hidden).length;
-  $('tile-svc').textContent = data.length + ' skráðar' + (inArchive ? ' · ' + inArchive + ' í geymslu' : '');
-  $('svc-list').innerHTML = data.map(s => `
+  const listed = data.filter(s => !POLICY_SLUGS.includes(s.slug));
+  $('count-svc').textContent = listed.length;
+  const inArchive = listed.filter(s => s.hidden).length;
+  $('tile-svc').textContent = listed.length + ' skráðar' + (inArchive ? ' · ' + inArchive + ' í geymslu' : '');
+  $('svc-list').innerHTML = listed.map(s => `
     <div class="rowitem click${s.hidden ? ' dim' : ''}" data-open-svc="${s.id}" tabindex="0" role="button" aria-label="Opna ${esc(s.title)}">
       ${s.photo_url ? `<img class="thumb wide" src="${esc(s.photo_url)}" alt="" loading="lazy">` : '<div class="noimg">Þ</div>'}
       <div class="info"><strong>${esc(s.title)}</strong><div class="t">${esc(s.summary || '')}</div><div>${s.kind === 'page' ? '<span class="chip">Síða – birtist ekki á forsíðuspjöldum</span>' : ''}${s.hidden ? '<span class="chip">Í geymslu – birtist ekki á vefsíðunni</span>' : ''}</div></div>
@@ -1160,6 +1233,37 @@ $('textar-save').onclick = async () => {
   if (error) return err('t-err', 'Villa kom upp – reyndu aftur.');
   toast('Textar vistaðir');
 };
+
+/* ---------- settings: company info & social (site_texts) ---------- */
+const COMPANY_KEYS = ['company_name','company_kennitala','company_address','company_phone','company_email'];
+const SOCIAL_KEYS = ['social_facebook','social_instagram'];
+async function loadKeys(keys) {
+  const { data } = await client.from('site_texts').select('key,value').in('key', keys);
+  keys.forEach(k => { const el = $('t-' + k); if (el) el.value = ''; });
+  (data || []).forEach(r => { const el = $('t-' + r.key); if (el) el.value = r.value; });
+}
+async function saveKeys(keys, errId, okMsg) {
+  const rows = keys.map(k => ({ key: k, value: $('t-' + k).value.trim() }));
+  const { error } = await client.from('site_texts').upsert(rows);
+  if (error) return err(errId, 'Villa kom upp – reyndu aftur.');
+  toast(okMsg);
+}
+$('fyrirtaeki-save').onclick = () => saveKeys(COMPANY_KEYS, 'fy-err', 'Upplýsingar vistaðar');
+$('samfelagsmidlar-save').onclick = () => {
+  SOCIAL_KEYS.forEach(k => {
+    const el = $('t-' + k);
+    const v = el.value.trim();
+    if (v && !/^https?:\/\//.test(v)) el.value = 'https://' + v;
+  });
+  saveKeys(SOCIAL_KEYS, 'sm-err', 'Samfélagsmiðlar vistaðir');
+};
+
+/* policy tiles open the existing page editor */
+document.querySelectorAll('[data-open-policy]').forEach(b => b.onclick = () => {
+  const s = (window._services || []).find(x => x.slug === b.dataset.openPolicy);
+  if (!s) return toast('Síðan fannst ekki – endurhladdu stjórnborðið.');
+  openSvc(s.id);
+});
 
 /* ---------- settings: admin users (via admin-users edge function) ---------- */
 async function loadUsers() {
