@@ -149,8 +149,23 @@ header.scrolled{border-color:var(--line)}
 #gjaldskra .panel::before{content:"";position:absolute;bottom:-180px;left:-100px;width:440px;height:440px;border-radius:50%;background:radial-gradient(closest-side,rgba(1,116,189,.4),transparent 70%)}
 #gjaldskra h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;letter-spacing:-.02em;position:relative}
 #gjaldskra .note{color:#b9cbd8;font-size:.93rem;max-width:56ch;margin-top:12px;line-height:1.75;position:relative}
+#gjaldskra .panel-btns{position:relative;display:flex;gap:12px;flex-wrap:wrap}
 #gjaldskra .btn{position:relative;background:#fff;color:var(--navy)}
 #gjaldskra .btn:hover{background:var(--blue-tint)}
+#gjaldskra .btn-light{background:rgba(255,255,255,.1);color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35)}
+#gjaldskra .btn-light:hover{background:rgba(255,255,255,.18)}
+
+/* gjaldskrá PDF overlay */
+#pdf-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(9,24,36,.65);backdrop-filter:blur(4px);padding:max(2.5vh,14px) 14px}
+#pdf-overlay.open{display:flex}
+.pdf-card{background:var(--navy);border-radius:var(--r-lg);width:100%;max-width:880px;height:min(92vh,1000px);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg)}
+.pdf-head{display:flex;align-items:center;gap:14px;padding:14px 20px;flex-shrink:0;color:#fff}
+.pdf-head h2{font-size:1.1rem;font-weight:700;letter-spacing:-.01em}
+.pdf-head .pdf-sub{font-size:.85rem;color:#b9cbd8;margin-left:auto}
+.pdf-head .pdf-sub a{color:#8ec6f0;font-weight:600}
+.pdf-close{background:rgba(255,255,255,.12);border:0;width:36px;height:36px;border-radius:50%;font-size:1.3rem;color:#fff;cursor:pointer;line-height:1;flex-shrink:0;transition:background .15s}
+.pdf-close:hover{background:var(--blue)}
+#pdf-frame{flex:1;width:100%;border:0;background:#fff}
 
 /* ---------- footer ---------- */
 footer{background:var(--navy);color:#b9cbd8;padding:clamp(48px,7vw,80px) 0 36px}
@@ -275,7 +290,10 @@ footer .social svg{width:22px;height:22px;display:block}
         <h2>Gjaldskrá</h2>
         <p class="note" id="t-gjaldskra-note">Í almanaksmánuði greiða almennir sjúkratryggðir einstaklingar að hámarki 37.794 kr. meðan aldraðir, öryrkjar, börn og börn með umönnunarmat greiða að hámarki 25.198 kr. samkvæmt reglum Sjúkratrygginga Íslands.</p>
       </div>
-      <a class="btn" href="assets/gjaldskra.pdf" target="_blank" rel="noopener">Sækja gjaldskrá (PDF)</a>
+      <div class="panel-btns">
+        <a class="btn" id="gjaldskra-open" href="assets/gjaldskra.pdf" target="_blank" rel="noopener">Skoða gjaldskrá</a>
+        <a class="btn btn-light" href="https://island.is/greidsluthatttaka-vegna-heilbrigdisthjonustu" target="_blank" rel="noopener">Greiðsluþátttaka ↗</a>
+      </div>
     </div>
   </div>
 </section>
@@ -284,6 +302,17 @@ footer .social svg{width:22px;height:22px;display:block}
   <div class="modal-card">
     <button class="modal-close" aria-label="Loka">×</button>
     <div id="modal-body"></div>
+  </div>
+</div>
+
+<div id="pdf-overlay" role="dialog" aria-modal="true" aria-label="Gjaldskrá">
+  <div class="pdf-card">
+    <div class="pdf-head">
+      <h2>Gjaldskrá</h2>
+      <span class="pdf-sub"><a href="assets/gjaldskra.pdf" target="_blank" rel="noopener">Opna í nýjum glugga ↗</a></span>
+      <button class="pdf-close" id="pdf-close" aria-label="Loka">×</button>
+    </div>
+    <iframe id="pdf-frame" title="Gjaldskrá"></iframe>
   </div>
 </div>
 
@@ -479,6 +508,21 @@ function loadStaffData() {
   }).catch(() => loadFail('staff-grid', 'loadStaffData'));
 }
 loadStaffData();
+
+/* gjaldskrá overlay — on small screens the link just opens the PDF (better on phones) */
+const pdfOverlay = document.getElementById('pdf-overlay');
+document.getElementById('gjaldskra-open').addEventListener('click', e => {
+  if (matchMedia('(max-width:760px)').matches) return;
+  e.preventDefault();
+  const f = document.getElementById('pdf-frame');
+  if (!f.src) f.src = 'assets/gjaldskra.pdf#toolbar=0&navpanes=0&view=FitH';
+  pdfOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+});
+function closePdf() { pdfOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+document.getElementById('pdf-close').onclick = closePdf;
+pdfOverlay.addEventListener('click', e => { if (e.target === pdfOverlay) closePdf(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePdf(); });
 
 const modal = document.getElementById('modal');
 function openBio(m) {
