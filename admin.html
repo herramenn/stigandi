@@ -182,6 +182,9 @@ textarea{min-height:76px;resize:vertical}
   .ed-photo-ctl{flex:1}
   .ed-photo-ctl label{margin-top:0}
 }
+.ed-course-item{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin-bottom:6px;font-size:.9rem;transition:border-color .15s ease-out,color .15s ease-out}
+.ed-course-item:hover{border-color:var(--blue);color:var(--blue)}
+.ed-course-item.dim{opacity:.55}
 .curphoto{display:flex;align-items:center;gap:10px;margin-top:6px}
 .curphoto img{width:40px;height:50px;object-fit:cover;border-radius:6px}
 .curphoto span{font-size:.8rem;color:var(--muted)}
@@ -346,7 +349,7 @@ textarea{min-height:76px;resize:vertical}
         <h1>Námskeið</h1><div class="spacer"></div>
         <button class="btn btn-primary" id="course-new">+ Nýtt námskeið</button>
       </div>
-      <p class="view-sub">Námskeiðin á vefsíðunni, dagsetningar þeirra og skráningar frá viðskiptavinum.</p>
+      <p class="view-sub">Námskeið og hópar á vefsíðunni – hverri síðu þeir tilheyra, dagsetningar og skráningar frá viðskiptavinum.</p>
       <div class="list" id="course-list"></div>
     </section>
     <section data-view="editor">
@@ -454,7 +457,12 @@ textarea{min-height:76px;resize:vertical}
           <div><label>Röð (lægri tala birtist fyrst)</label><input type="number" id="c-sort" value="100"></div>
           <div><label>Lágmarksfjöldi þátttakenda</label><input type="number" id="c-min" placeholder="t.d. 4"></div>
           <div><label>Hámarksfjöldi (má sleppa)</label><input type="number" id="c-max"></div>
+          <div><label>Birtist undir</label><select id="c-service"></select></div>
         </div>
+        <label>Skráningarhnappur (má sleppa)</label>
+        <div id="c-ctas"></div>
+        <button type="button" class="btn btn-quiet btn-sm" id="c-cta-add" style="margin-top:4px">+ Bæta við hnappi</button>
+        <p class="hint">Ef hnappur er skráður birtist hann í stað skráningarformsins – t.d. fyrir áskrift í gegnum Abler.</p>
         <label>Dagsetningar í boði</label>
         <p class="hint" style="margin:0 0 8px">Viðskiptavinir velja allt að 3 dagsetningar í skráningu. Merktu dagsetningu „Staðfest" þegar lágmarksfjölda er náð.</p>
         <div id="c-dates"></div>
@@ -490,6 +498,12 @@ textarea{min-height:76px;resize:vertical}
           <div class="filename" id="s-photo-name">Engin ný mynd valin</div>
           <p class="hint">Ný mynd vistast þegar þú smellir á Vista.</p>
         </div>
+      </div>
+      <div class="ed-photo" id="ed-courses" style="display:none">
+        <strong style="font-size:.95rem">Námskeið og hópar</strong>
+        <div id="ed-course-list" style="margin-top:10px"></div>
+        <button type="button" class="btn btn-quiet btn-sm" id="ed-course-new" style="margin-top:4px">+ Nýtt</button>
+        <p class="hint">Birtast sem spjöld á síðu þjónustunnar. Smelltu til að breyta.</p>
       </div>
       </div>
     </section>
@@ -626,10 +640,11 @@ function showView(name) {
 function openPanel(kind, title) {
   mode = kind;
   returnView = document.querySelector('section[data-view].on')?.dataset.view || returnView;
-  if (returnView === 'editor') returnView = 'tilkynningar';
+  if (returnView === 'editor') returnView = kind === 'course' ? 'thjonusta' : 'tilkynningar';
   $('ed-title').textContent = title;
   ['form-news','form-staff','form-svc','form-course'].forEach(f => $(f).style.display = f === 'form-' + kind ? 'block' : 'none');
   $('ed-photo').style.display = kind === 'staff' ? 'block' : 'none';
+  $('ed-courses').style.display = 'none';
   showView('editor');
   document.querySelectorAll('[data-nav]').forEach(x => x.setAttribute('aria-current', x.dataset.nav === returnView));
   window.scrollTo(0, 0);
@@ -792,19 +807,22 @@ function ctaRowHtml(type = 'email', value = '', label = '') {
   </div>`;
 }
 $('v-cta-add').onclick = () => $('v-ctas').insertAdjacentHTML('beforeend', ctaRowHtml());
-$('v-ctas').addEventListener('click', e => { if (e.target.classList.contains('cta-del')) e.target.closest('.cta-row').remove(); });
-$('v-ctas').addEventListener('change', e => {
-  if (!e.target.classList.contains('cta-type')) return;
-  const row = e.target.closest('.cta-row');
-  row.querySelector('.cta-value').placeholder = CTA[e.target.value].ph;
-  row.querySelector('.cta-label').placeholder = CTA[e.target.value].defLabel;
+$('c-cta-add').onclick = () => $('c-ctas').insertAdjacentHTML('beforeend', ctaRowHtml());
+['v-ctas', 'c-ctas'].forEach(id => {
+  $(id).addEventListener('click', e => { if (e.target.classList.contains('cta-del')) e.target.closest('.cta-row').remove(); });
+  $(id).addEventListener('change', e => {
+    if (!e.target.classList.contains('cta-type')) return;
+    const row = e.target.closest('.cta-row');
+    row.querySelector('.cta-value').placeholder = CTA[e.target.value].ph;
+    row.querySelector('.cta-label').placeholder = CTA[e.target.value].defLabel;
+  });
 });
-function fillCtas(links) {
-  $('v-ctas').innerHTML = (links || []).map(l => ctaRowHtml(...parseCta(l), l.label || '')).join('');
+function fillCtas(links, box = 'v-ctas') {
+  $(box).innerHTML = (links || []).map(l => ctaRowHtml(...parseCta(l), l.label || '')).join('');
 }
-function readCtas() {
+function readCtas(box = 'v-ctas') {
   const out = [];
-  for (const row of document.querySelectorAll('#v-ctas .cta-row')) {
+  for (const row of document.querySelectorAll(`#${box} .cta-row`)) {
     const type = row.querySelector('.cta-type').value;
     const v = row.querySelector('.cta-value').value.trim();
     if (!v) return { error: CTA[type].name + ': gildi vantar fyrir hnappinn.' };
@@ -887,7 +905,7 @@ async function loadCourses() {
       <div class="info">
         <strong>${esc(c.title)}</strong>
         <div class="t">${esc(c.price || '')}${c.schedule ? ' · ' + esc(c.schedule) : ''}</div>
-        <div>${regCount[c.id] ? `<span class="chip">${regCount[c.id]} skráningar</span>` : ''}${c.hidden ? '<span class="chip">Falið – birtist ekki á vefsíðunni</span>' : ''}</div>
+        <div>${c.service_slug !== 'namskeid' ? `<span class="chip">${esc(((window._services || []).find(s => s.slug === c.service_slug) || {}).title || c.service_slug)}</span>` : ''}${regCount[c.id] ? `<span class="chip">${regCount[c.id]} skráningar</span>` : ''}${c.hidden ? '<span class="chip">Falið – birtist ekki á vefsíðunni</span>' : ''}</div>
       </div>
       <div class="actions">
         <button class="btn btn-quiet btn-sm" data-hide-course="${c.id}" data-val="${c.hidden}">${c.hidden ? 'Sýna' : 'Fela'}</button>
@@ -918,6 +936,10 @@ function fillCourse(c) {
   $('c-sort').value = c?.sort ?? 100;
   $('c-min').value = c?.min_participants ?? '';
   $('c-max').value = c?.max_participants ?? '';
+  $('c-service').innerHTML = (window._services || []).map(s =>
+    `<option value="${esc(s.slug)}">${esc(s.title)}</option>`).join('') || '<option value="namskeid">Námskeið</option>';
+  $('c-service').value = c?.service_slug || 'namskeid';
+  fillCtas(c?.links, 'c-ctas');
   $('c-dates').innerHTML = '';
   $('c-reg-list').innerHTML = '';
   $('c-regs').style.display = 'none';
@@ -961,11 +983,14 @@ async function openCourse(id) {
 async function saveCourse() {
   const title = $('c-title').value.trim();
   if (!title) return err('c-err', 'Heiti námskeiðs vantar.');
+  const ctas = readCtas('c-ctas');
+  if (ctas.error) return err('c-err', ctas.error);
   const row = {
     title, summary: $('c-summary').value.trim() || null, body: $('c-body').value.trim() || null,
     price: $('c-price').value.trim() || null, schedule: $('c-schedule').value.trim() || null,
     location: $('c-location').value.trim() || null, sort: parseInt($('c-sort').value) || 100,
-    min_participants: parseInt($('c-min').value) || null, max_participants: parseInt($('c-max').value) || null
+    min_participants: parseInt($('c-min').value) || null, max_participants: parseInt($('c-max').value) || null,
+    service_slug: $('c-service').value || 'namskeid', links: ctas.links.length ? ctas.links : null
   };
   let courseId = editId;
   if (editId) {
@@ -1019,7 +1044,18 @@ function openStaff(id) {
 function openSvc(id) {
   const s = (window._services || []).find(x => x.id === id); if (!s) return;
   fillSvc(s); editId = s.id; openPanel('svc', 'Breyta: ' + s.title);
+  const list = (window._courses || []).filter(c => c.service_slug === s.slug);
+  $('ed-course-list').innerHTML = list.map(c =>
+    `<button type="button" class="ed-course-item${c.hidden ? ' dim' : ''}" data-open-course="${c.id}">${esc(c.title)}</button>`).join('')
+    || '<p class="hint" style="margin:0 0 6px">Engin skráð á þessari síðu</p>';
+  $('ed-course-new').dataset.slug = s.slug;
+  $('ed-courses').style.display = 'block';
 }
+$('ed-course-new').onclick = () => {
+  fillCourse(null); editId = null;
+  openPanel('course', 'Nýtt námskeið');
+  $('c-service').value = $('ed-course-new').dataset.slug || 'namskeid';
+};
 function openNews(id) {
   const n = (window._news || []).find(x => x.id === id); if (!n) return;
   $('n-title').value = n.title; $('n-date').value = n.date; $('n-body').value = n.body || '';

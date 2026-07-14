@@ -112,7 +112,7 @@ footer a{color:#8ec6f0;text-decoration:none}
 </header>
 
 <div class="wrap">
-  <a class="backlink" href="thjonusta.html#namskeid">← Öll námskeið</a>
+  <a class="backlink" id="backlink" href="thjonusta.html#namskeid">← Öll námskeið</a>
   <div id="page"><p style="color:var(--muted);margin-top:30px">Sæki efni…</p></div>
 </div>
 
@@ -162,8 +162,33 @@ Promise.all([
   }
   COURSE = c;
   document.title = c.title + ' | Stígandi sjúkraþjálfun';
+  if (c.service_slug && c.service_slug !== 'namskeid') {
+    const bl = document.getElementById('backlink');
+    bl.href = 'thjonusta.html#' + encodeURIComponent(c.service_slug);
+    bl.textContent = '← Til baka';
+  }
   const today = new Date().toISOString().slice(0, 10);
   DATES = await fetch(`${SB_URL}/rest/v1/course_dates?course_id=eq.${c.id}&start_date=gte.${today}&status=neq.cancelled&order=start_date.asc`, { headers: hdrs }).then(r => r.json());
+
+  // ponytail: course with signup links (e.g. Abler subscription) gets buttons instead
+  // of the date/waitlist form; links open in new tab, no embed overlay on this page
+  if (c.links && c.links.length) {
+    page.innerHTML = `
+    <h1>${esc(c.title)}</h1>
+    ${c.summary ? `<p class="summary">${esc(c.summary)}</p>` : ''}
+    <div class="facts">
+      ${c.price ? `<span class="fact">${esc(c.price)}</span>` : ''}
+      ${c.schedule ? `<span class="fact">${esc(c.schedule)}</span>` : ''}
+      ${c.location ? `<span class="fact">${esc(c.location)}</span>` : ''}
+    </div>
+    <div class="content">${svcHtml(c.body)}</div>
+    <div id="signup">
+      <h2>Skráning</h2>
+      <p class="sub">Skráning fer fram í öruggu greiðsluferli hjá Abler.</p>
+      ${c.links.map(l => `<a class="btn" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label || 'Skráning')} ↗</a>`).join(' ')}
+    </div>`;
+    return;
+  }
 
   page.innerHTML = `
     <h1>${esc(c.title)}</h1>

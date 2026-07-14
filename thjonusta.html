@@ -74,12 +74,6 @@ h1{font-size:clamp(1.9rem,4.4vw,2.9rem);font-weight:800;letter-spacing:-.02em;ma
 
 .notfound{text-align:center;padding:90px 0}
 
-/* service section tiles (2+ "## " headings in body) */
-.svc-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin:30px 0 10px}
-.stile{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px 24px 20px}
-.stile h3{color:var(--blue-dark);font-size:1.2rem;font-weight:700;letter-spacing:-.01em;margin-bottom:4px}
-.stile p,.stile li{font-size:.95rem}
-
 /* course tiles */
 .course-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:34px}
 .ctile{display:flex;flex-direction:column;gap:8px;background:var(--navy);color:#fff;border-radius:var(--r-lg);padding:26px 26px 22px;text-decoration:none;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
@@ -145,37 +139,19 @@ const SB_URL = 'https://zzcfyeylqojvzewfpehv.supabase.co';
 const SB_KEY = 'sb_publishable_8dDmyIaz6Ygu9_bVXYjGmg_9sRgt3kF';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-function blockHtml(lines) {
+function svcHtml(body) {
   let out = '', inList = false;
-  for (const line of lines) {
+  for (let line of (body || '').split('\n')) {
+    line = line.trim();
+    if (!line) continue;
     const isB = line.startsWith('- ');
     if (isB && !inList) { out += '<ul>'; inList = true; }
     if (!isB && inList) { out += '</ul>'; inList = false; }
-    out += isB ? `<li>${esc(line.slice(2))}</li>` : `<p>${esc(line)}</p>`;
+    if (line.startsWith('## ')) out += `<h4>${esc(line.slice(3))}</h4>`;
+    else if (isB) out += `<li>${esc(line.slice(2))}</li>`;
+    else out += `<p>${esc(line)}</p>`;
   }
   return out + (inList ? '</ul>' : '');
-}
-
-function svcHtml(body) {
-  const lines = (body || '').split('\n').map(l => l.trim()).filter(Boolean);
-  const sections = [{ h: null, lines: [] }];
-  for (const line of lines) {
-    if (line.startsWith('## ')) sections.push({ h: line.slice(3), lines: [] });
-    else sections[sections.length - 1].lines.push(line);
-  }
-  if (sections.length < 3) // 0–1 headings: flat page as before
-    return sections.map(s => (s.h ? `<h4>${esc(s.h)}</h4>` : '') + blockHtml(s.lines)).join('');
-  // 2+ headings → tiles. ponytail: paragraphs after the last section's final bullet
-  // are treated as page-level outro, not part of that tile
-  const last = sections[sections.length - 1];
-  let outro = [];
-  const lastBullet = last.lines.map(l => l.startsWith('- ')).lastIndexOf(true);
-  if (lastBullet !== -1) outro = last.lines.splice(lastBullet + 1);
-  return blockHtml(sections[0].lines)
-    + '<div class="svc-tiles">'
-    + sections.slice(1).map(s => `<div class="stile"><h3>${esc(s.h)}</h3>${blockHtml(s.lines)}</div>`).join('')
-    + '</div>'
-    + blockHtml(outro);
 }
 
 function openShop(url) {
@@ -212,7 +188,7 @@ fetch(`${SB_URL}/rest/v1/services?slug=eq.${encodeURIComponent(slug)}&hidden=eq.
       <div class="content">${svcHtml(s.body)}</div>
       <div id="course-tiles" class="course-tiles"></div>
       <div class="cta-row" id="cta-bottom"></div>`;
-    if (s.slug === 'namskeid') loadCourses();
+    loadCourses(s.slug);
     const btnHtml = links.map((l, i) => l.embed
       ? `<button class="btn btn-primary" data-shop="${esc(l.url)}">${esc(l.label || 'Kaupa')}</button>`
       : `<a class="btn ${i === 0 ? 'btn-primary' : 'btn-ghost'}" href="${esc(l.url)}">${esc(l.label || 'Nánar')}</a>`).join('');
@@ -221,24 +197,27 @@ fetch(`${SB_URL}/rest/v1/services?slug=eq.${encodeURIComponent(slug)}&hidden=eq.
     document.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => openShop(b.dataset.shop));
   });
 const MAN = ['janúar','febrúar','mars','apríl','maí','júní','júlí','ágúst','september','október','nóvember','desember'];
-async function loadCourses() {
+async function loadCourses(serviceSlug) {
   const hdrs = { apikey: SB_KEY };
   const today = new Date().toISOString().slice(0, 10);
   const [courses, dates] = await Promise.all([
-    fetch(`${SB_URL}/rest/v1/courses?hidden=eq.false&select=slug,title,summary,price,id&order=sort.asc`, { headers: hdrs }).then(r => r.json()),
+    fetch(`${SB_URL}/rest/v1/courses?hidden=eq.false&service_slug=eq.${encodeURIComponent(serviceSlug)}&select=slug,title,summary,price,schedule,links,id&order=sort.asc`, { headers: hdrs }).then(r => r.json()),
     fetch(`${SB_URL}/rest/v1/course_dates?start_date=gte.${today}&status=eq.open&select=course_id,start_date&order=start_date.asc`, { headers: hdrs }).then(r => r.json())
   ]);
   const nextByCourse = {};
   dates.forEach(d => { if (!nextByCourse[d.course_id]) nextByCourse[d.course_id] = d.start_date; });
   const fmt = iso => { const [y, m, d] = iso.split('-').map(Number); return `${d}. ${MAN[m-1]}`; };
-  document.getElementById('course-tiles').innerHTML = courses.map(c => `
+  document.getElementById('course-tiles').innerHTML = courses.map(c => {
+    const open = nextByCourse[c.id] || (c.links && c.links.length); // open date or direct signup link
+    return `
     <a class="ctile" href="namskeid.html#${esc(c.slug)}">
       <h3>${esc(c.title)}</h3>
       <p>${esc(c.summary || '')}</p>
       ${c.price ? `<span class="price">${esc(c.price)}</span>` : ''}
-      <span class="next">${nextByCourse[c.id] ? 'Næsta námskeið: ' + fmt(nextByCourse[c.id]) : 'Dagsetningar auglýstar fljótlega'}</span>
-      <span class="go">Skoða og skrá</span>
-    </a>`).join('');
+      <span class="next">${nextByCourse[c.id] ? 'Næsta námskeið: ' + fmt(nextByCourse[c.id]) : esc(c.schedule || 'Dagsetningar auglýstar fljótlega')}</span>
+      <span class="go">${open ? 'Skráning' : 'Skrá á biðlista'}</span>
+    </a>`;
+  }).join('');
 }
 window.addEventListener('hashchange', () => location.reload());
 </script>
