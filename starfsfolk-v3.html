@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Starfsfólk – drög 3 | Stígandi sjúkraþjálfun</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0174BD;
+  --blue-dark:#015a94;
+  --blue-tint:#eaf3fa;
+  --navy:#0e2433;
+  --ink:#152430;
+  --muted:#54646f;
+  --line:#e3e9ee;
+  --bg:#ffffff;
+  --bg-soft:#f3f7fa;
+  --r-lg:20px;
+  --r-md:14px;
+  --shadow-lg:0 20px 50px -18px rgba(10,40,70,.28);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Bricolage Grotesque",-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;font-size:16.5px}
+img{max-width:100%;display:block}
+a{color:var(--blue)}
+.wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+
+.draftbar{background:var(--bg-soft);border-bottom:1px solid var(--line);font-size:.88rem;color:var(--muted)}
+.draftbar .wrap{display:flex;align-items:center;gap:14px;height:52px;flex-wrap:wrap}
+.draftbar img{height:26px}
+.draftbar b{color:var(--ink);font-weight:600}
+.draftbar nav{margin-left:auto;display:flex;gap:6px}
+.draftbar nav a{text-decoration:none;font-weight:600;padding:4px 12px;border-radius:99px;color:var(--muted)}
+.draftbar nav a.on{background:var(--navy);color:#fff}
+.draftbar nav a:hover:not(.on){background:var(--blue-tint);color:var(--blue-dark)}
+
+section#starfsfolk{background:var(--navy);color:#fff;padding:clamp(56px,9vw,110px) 0;position:relative;overflow:hidden}
+section#starfsfolk::before{content:"";position:absolute;top:-260px;right:-180px;width:680px;height:680px;border-radius:50%;background:radial-gradient(closest-side,rgba(1,116,189,.32),transparent 70%)}
+section#starfsfolk::after{content:"";position:absolute;bottom:-300px;left:-220px;width:640px;height:640px;border-radius:50%;background:radial-gradient(closest-side,rgba(1,116,189,.2),transparent 70%)}
+section#starfsfolk .wrap{position:relative;z-index:1}
+.sec-head{max-width:640px;margin-bottom:clamp(28px,4vw,48px)}
+.sec-head h2{font-size:clamp(1.8rem,3.4vw,2.6rem);font-weight:700;letter-spacing:-.02em;line-height:1.12;text-wrap:balance}
+.sec-head p{color:#b9cbd8;margin-top:10px;font-size:1.05rem}
+
+.tag-filters{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:clamp(30px,4vw,46px)}
+.tag-filters button{font-family:inherit;font-size:.92rem;font-weight:600;padding:9px 20px;border-radius:99px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#dbe7ef;cursor:pointer;transition:all .16s}
+.tag-filters button:hover{border-color:#7cc4f0;color:#fff}
+.tag-filters button.active{background:#fff;border-color:#fff;color:var(--navy)}
+
+.staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:26px 22px;padding-bottom:26px}
+.person{text-align:left;animation:rise .55s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(var(--i)*40ms)}
+@media(min-width:560px){.person:nth-child(even){transform:translateY(24px)}}
+@keyframes rise{from{opacity:0;translate:0 16px}}
+.person .ph{aspect-ratio:3/4;border-radius:var(--r-md);overflow:hidden;background:var(--navy);margin-bottom:12px;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,.09),0 14px 34px -14px rgba(0,0,0,.55)}
+.person .ph img{width:100%;height:100%;object-fit:cover;transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.person .initials{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.1rem;font-weight:800;color:#fff;background:linear-gradient(145deg,#1d8ad1,#0a1a26)}
+.person h3{font-size:1rem;font-weight:700;line-height:1.3;letter-spacing:-.01em;color:#fff;transition:color .16s}
+.person .title{font-size:.84rem;color:#b9cbd8;margin-top:2px}
+.person.has-bio{cursor:pointer}
+.person.has-bio:hover .ph img,.person.has-bio:focus-visible .ph img{transform:scale(1.05)}
+.person.has-bio:hover h3,.person.has-bio:focus-visible h3{color:#7cc4f0}
+.badge{display:inline-block;margin-top:7px;font-size:.73rem;font-weight:600;background:#fdf3e3;color:#8a5a00;padding:3px 10px;border-radius:99px}
+
+#modal{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;background:rgba(9,24,36,.6);backdrop-filter:blur(4px);padding:5vh 18px;overflow-y:auto}
+#modal.open{display:flex}
+.modal-card{background:#fff;border-radius:var(--r-lg);max-width:660px;width:100%;padding:34px;position:relative;margin-bottom:5vh;box-shadow:var(--shadow-lg)}
+.modal-close{position:absolute;top:14px;right:16px;background:var(--bg-soft);border:0;width:36px;height:36px;border-radius:50%;font-size:1.3rem;color:var(--muted);cursor:pointer;line-height:1;transition:background .15s,color .15s}
+.modal-close:hover{background:var(--blue-tint);color:var(--blue-dark)}
+.modal-head{display:flex;gap:20px;align-items:center;margin-bottom:18px}
+.modal-head img,.modal-head .initials{width:92px;height:118px;object-fit:cover;border-radius:var(--r-md);flex-shrink:0}
+.modal-head .initials{display:flex;align-items:center;justify-content:center;font-size:1.9rem;font-weight:800;color:#fff;background:linear-gradient(145deg,#1d8ad1,var(--navy))}
+.modal-head h3{font-size:1.4rem;font-weight:700;letter-spacing:-.015em;line-height:1.25}
+.modal-head .title{color:var(--muted);font-size:.92rem;margin-top:3px}
+.modal-head a{font-size:.92rem;font-weight:500}
+.modal-bio h4{color:var(--blue-dark);margin:20px 0 6px;font-size:1.02rem;font-weight:700}
+.modal-bio p{font-size:.95rem;margin:4px 0;color:#33424d}
+
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="draftbar">
+  <div class="wrap">
+    <img src="assets/logo.png" alt="Stígandi">
+    <span><b>Drög – Starfsfólk</b> · Útgáfa 3: Dökkt band</span>
+    <nav aria-label="Útgáfur">
+      <a href="starfsfolk-v1.html">1</a>
+      <a href="starfsfolk-v2.html">2</a>
+      <a class="on" href="starfsfolk-v3.html" aria-current="true">3</a>
+      <a href="index.html#starfsfolk">Núverandi ↗</a>
+    </nav>
+  </div>
+</div>
+
+<section id="starfsfolk">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Starfsfólkið</h2>
+      <p>Sjúkraþjálfarar með fjölbreytta sérþekkingu – síaðu eftir sérsviði og smelltu á mynd til að kynnast fólkinu.</p>
+    </div>
+    <div id="tag-filters" class="tag-filters"></div>
+    <div id="staff-grid" class="staff-grid"></div>
+  </div>
+</section>
+
+<div id="modal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <button class="modal-close" aria-label="Loka">×</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MAN = ['janúar','febrúar','mars','apríl','maí','júní','júlí','ágúst','september','október','nóvember','desember'];
+const isDate = d => { const [y,m,day] = (d||'').split('-').map(Number); return y ? `${day}. ${MAN[m-1]} ${y}` : ''; };
+const SB_URL = 'https://zzcfyeylqojvzewfpehv.supabase.co';
+const SB_KEY = 'sb_publishable_8dDmyIaz6Ygu9_bVXYjGmg_9sRgt3kF';
+const sb = path => fetch(`${SB_URL}/rest/v1/${path}`, { headers: { apikey: SB_KEY } }).then(r => r.json());
+
+let STAFF = [];
+const BIO_SECTIONS = [['Starfssvið','starfssvid'],['Sérhæfing','serhaefing'],['Menntun / námskeið','menntun'],['Starfsferill','starfsferill'],['Félagsstörf / áhugamál','ahugamal']];
+const hasBio = m => BIO_SECTIONS.some(([, f]) => m[f]);
+const bioHtml = m => BIO_SECTIONS.map(([label, f]) => m[f]
+  ? `<h4>${label}</h4>` + m[f].split('\n').filter(l => l.trim()).map(l => `<p>${esc(l)}</p>`).join('')
+  : '').join('');
+const photoOrInitials = m => {
+  const initials = m.name.split(' ').map(w => w[0]).slice(0,2).join('');
+  return m.photo_url ? `<img src="${esc(m.photo_url)}" alt="${esc(m.name)}" loading="lazy">` : `<div class="initials">${esc(initials)}</div>`;
+};
+
+const TAGS = ['Allir','Öldrun','Stoðkerfi','Gigt','Hjarta og lungu','Íþróttir','Kvenheilsa','Svimi/jafnvægi','Höfuðhögg'];
+let activeTag = 'Allir';
+
+function renderStaff() {
+  const list = activeTag === 'Allir' ? STAFF : STAFF.filter(m => (m.tags || []).includes(activeTag));
+  document.getElementById('staff-grid').innerHTML = list.map((m, idx) => {
+    const i = STAFF.indexOf(m);
+    return `
+    <div class="person${hasBio(m) ? ' has-bio' : ''}" style="--i:${idx}" ${hasBio(m) ? `data-bio="${i}" tabindex="0" role="button" aria-label="Nánar um ${esc(m.name)}"` : ''}>
+      <div class="ph">${photoOrInitials(m)}</div>
+      <h3>${esc(m.name)}</h3>
+      <div class="title">${esc(m.title)}</div>
+      ${m.on_leave ? `<span class="badge">Í fæðingarorlofi${m.show_leave_date && m.leave_until ? ' til ' + isDate(m.leave_until) : ''}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+const filtersEl = document.getElementById('tag-filters');
+filtersEl.innerHTML = TAGS.map(t =>
+  `<button class="${t === 'Allir' ? 'active' : ''}" data-tag="${esc(t)}" aria-pressed="${t === 'Allir'}">${esc(t)}</button>`).join('');
+filtersEl.addEventListener('click', e => {
+  const b = e.target.closest('button[data-tag]');
+  if (!b) return;
+  activeTag = b.dataset.tag;
+  filtersEl.querySelectorAll('button').forEach(x => {
+    const on = x === b;
+    x.classList.toggle('active', on);
+    x.setAttribute('aria-pressed', on);
+  });
+  renderStaff();
+});
+
+sb('staff?select=id,name,title,photo_url,on_leave,leave_until,show_leave_date,email,tags,starfssvid,serhaefing,menntun,starfsferill,ahugamal&hidden=eq.false&order=sort.asc,name.asc').then(members => {
+  STAFF = members;
+  renderStaff();
+});
+
+const modal = document.getElementById('modal');
+function openBio(m) {
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-head">
+      ${photoOrInitials(m)}
+      <div>
+        <h3>${esc(m.name)}</h3>
+        <div class="title">${esc(m.title)}${m.on_leave ? ' · í fæðingarorlofi' + (m.show_leave_date && m.leave_until ? ' til ' + isDate(m.leave_until) : '') : ''}</div>
+        ${m.email ? `<a href="mailto:${esc(m.email)}">${esc(m.email)}</a>` : ''}
+      </div>
+    </div>
+    <div class="modal-bio">${bioHtml(m)}</div>`;
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeBio() { modal.classList.remove('open'); document.body.style.overflow = ''; }
+document.getElementById('staff-grid').addEventListener('click', e => {
+  const card = e.target.closest('[data-bio]');
+  if (card) openBio(STAFF[card.dataset.bio]);
+});
+document.getElementById('staff-grid').addEventListener('keydown', e => {
+  const card = e.target.closest('[data-bio]');
+  if (card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openBio(STAFF[card.dataset.bio]); }
+});
+modal.addEventListener('click', e => { if (e.target === modal || e.target.closest('.modal-close')) closeBio(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBio(); });
+</script>
+</body>
+</html>
