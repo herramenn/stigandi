@@ -79,6 +79,10 @@ input[type=text],input[type=email],input[type=tel],textarea{width:100%;padding:1
 input:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(1,116,189,.13)}
 textarea{min-height:90px;resize:vertical}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.phone-row{display:flex;gap:8px}
+.phone-row select{width:auto;padding:12px 10px;border:1.5px solid var(--line);border-radius:var(--r-md);background:#fff;font:inherit;font-size:1rem;transition:border-color .15s,box-shadow .15s}
+.phone-row select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(1,116,189,.13)}
+.phone-row input{flex:1;min-width:0}
 @media(max-width:600px){.grid2{grid-template-columns:1fr}}
 .smallprint{font-size:.83rem;color:var(--muted);margin-top:18px;line-height:1.7;max-width:66ch}
 .btn{display:inline-flex;align-items:center;gap:9px;padding:15px 32px;border-radius:99px;text-decoration:none;font-weight:700;font-size:1.02rem;border:0;cursor:pointer;font-family:inherit;background:var(--blue);color:#fff;margin-top:20px;transition:background .18s,transform .18s}
@@ -163,6 +167,16 @@ const hdrs = { apikey: SB_KEY };
 let COURSE = null, DATES = [];
 
 const okJson = r => { if (!r.ok) throw new Error(r.status); return r.json(); };
+
+/* kennitala mod-11 check digit (catches typos, not just format) */
+function validKennitala(kt) {
+  const d = kt.replace('-', '');
+  if (!/^\d{10}$/.test(d)) return false;
+  const w = [3, 2, 7, 6, 5, 4, 3, 2];
+  let c = 11 - (w.reduce((s, wi, i) => s + wi * +d[i], 0) % 11);
+  if (c === 11) c = 0;
+  return c !== 10 && c === +d[8];
+}
 Promise.all([
   fetch(`${SB_URL}/rest/v1/courses?slug=eq.${encodeURIComponent(slug)}&hidden=eq.false&select=*`, { headers: hdrs }).then(okJson),
 ]).then(async ([[c]]) => {
@@ -230,8 +244,22 @@ Promise.all([
         <div class="grid2">
           <div><label for="f-name">Fullt nafn *</label><input type="text" id="f-name" autocomplete="name" required></div>
           <div><label for="f-kt">Kennitala (má sleppa)</label><input type="text" id="f-kt" inputmode="numeric" placeholder="000000-0000"></div>
-          <div><label for="f-email">Netfang *</label><input type="email" id="f-email" autocomplete="email" required></div>
-          <div><label for="f-phone">Símanúmer *</label><input type="tel" id="f-phone" autocomplete="tel" inputmode="numeric" required></div>
+          <div><label for="f-email">Netfang *</label><input type="email" id="f-email" autocomplete="email" placeholder="netfang@daemi.is" required></div>
+          <div><label for="f-phone">Símanúmer *</label>
+            <div class="phone-row">
+              <select id="f-cc" aria-label="Landsnúmer">
+                <option value="+354" selected>+354</option>
+                <option value="+45">+45</option>
+                <option value="+46">+46</option>
+                <option value="+47">+47</option>
+                <option value="+44">+44</option>
+                <option value="+48">+48</option>
+                <option value="+49">+49</option>
+                <option value="+1">+1</option>
+              </select>
+              <input type="tel" id="f-phone" autocomplete="tel-national" inputmode="numeric" placeholder="000 0000" required>
+            </div>
+          </div>
         </div>
         <label for="f-msg">Athugasemd (má sleppa)</label>
         <textarea id="f-msg" placeholder="T.d. spurningar eða annað sem gott er fyrir okkur að vita"></textarea>
@@ -246,6 +274,21 @@ Promise.all([
         <p>Takk fyrir – við höfum samband um leið og dagsetning hefur verið staðfest. Ef spurningar vakna má alltaf hringja í 599 1600.</p>
       </div>
     </div>`;
+
+  /* live input formatting */
+  const ktEl = document.getElementById('f-kt');
+  ktEl.addEventListener('input', () => {
+    const d = ktEl.value.replace(/\D/g, '').slice(0, 10);
+    ktEl.value = d.length > 6 ? d.slice(0, 6) + '-' + d.slice(6) : d;
+  });
+  const phoneEl = document.getElementById('f-phone');
+  const ccEl = document.getElementById('f-cc');
+  const trimPhone = () => {
+    const max = ccEl.value === '+354' ? 7 : 15;
+    phoneEl.value = phoneEl.value.replace(/\D/g, '').slice(0, max);
+  };
+  phoneEl.addEventListener('input', trimPhone);
+  ccEl.addEventListener('change', trimPhone);
 
   document.querySelectorAll('.date-opt input').forEach(cb => cb.addEventListener('change', () => {
     const sel = [...document.querySelectorAll('.date-opt input:checked')];
@@ -265,9 +308,12 @@ Promise.all([
     const phone = document.getElementById('f-phone').value.trim();
     const dateIds = [...document.querySelectorAll('.date-opt input:checked')].map(c2 => c2.value);
     if (!name) return show('Vinsamlegast skráðu fullt nafn.');
-    if (kt && !/^\d{6}-?\d{4}$/.test(kt)) return show('Kennitala þarf að vera 10 tölustafir.');
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return show('Netfangið lítur ekki rétt út.');
-    if (!phone) return show('Vinsamlegast skráðu símanúmer.');
+    if (kt && !validKennitala(kt)) return show('Kennitalan er ekki gild – athugaðu innsláttinn.');
+    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) return show('Netfangið lítur ekki rétt út – t.d. nafn@daemi.is.');
+    const cc = document.getElementById('f-cc').value;
+    const phoneDigits = phone.replace(/\D/g, '');
+    if (cc === '+354' && phoneDigits.length !== 7) return show('Íslenskt símanúmer þarf að vera 7 tölustafir.');
+    if (cc !== '+354' && phoneDigits.length < 5) return show('Símanúmerið lítur ekki rétt út.');
     if (DATES.filter(d => d.status !== 'full').length && !dateIds.length) return show('Veldu að minnsta kosti eina dagsetningu.');
     const btn = document.getElementById('f-send');
     btn.disabled = true; btn.textContent = 'Sendi…';
@@ -276,7 +322,8 @@ Promise.all([
       headers: { ...hdrs, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         course_id: COURSE.id, date_ids: dateIds, name,
-        kennitala: kt ? kt.replace('-', '') : null, email, phone,
+        kennitala: kt ? kt.replace('-', '') : null, email,
+        phone: cc + ' ' + phoneDigits,
         message: document.getElementById('f-msg').value.trim() || null
       })
     }).catch(() => null);
