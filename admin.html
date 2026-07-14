@@ -527,6 +527,7 @@ const client = supabase.createClient(
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const err = (id, msg) => { const el = $(id); el.textContent = msg; el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 5000); };
+const loadErr = (id, fn) => $(id).innerHTML = `<div class="empty"><div class="big">Ekki tókst að sækja gögn</div>Athugaðu nettengingu.<div style="margin-top:14px"><button class="btn btn-quiet" onclick="${fn}()">Reyna aftur</button></div></div>`;
 let toastTimer;
 const toast = msg => { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2600); };
 
@@ -667,7 +668,7 @@ $('ed-save-top').onclick = doSave;
 /* ---------- news ---------- */
 async function loadNews() {
   const { data, error } = await client.from('news').select('*').order('date', { ascending: false });
-  if (error) return;
+  if (error) return loadErr('news-list', 'loadNews');
   window._news = data;
   $('count-news').textContent = data.length;
   $('tile-news').textContent = data.length === 1 ? '1 tilkynning' : data.length + ' tilkynningar';
@@ -713,7 +714,7 @@ function staffRow(m) {
 }
 async function loadStaff() {
   const { data, error } = await client.from('staff').select('*').order('sort').order('name');
-  if (error) return;
+  if (error) return loadErr('staff-list', 'loadStaff');
   window._staff = data;
   $('count-staff').textContent = data.length;
   const onLeave = data.filter(m => m.on_leave).length;
@@ -834,7 +835,7 @@ function readCtas(box = 'v-ctas') {
 }
 async function loadServices() {
   const { data, error } = await client.from('services').select('*').order('sort').order('title');
-  if (error) return;
+  if (error) return loadErr('svc-list', 'loadServices');
   window._services = data;
   $('count-svc').textContent = data.length;
   const inArchive = data.filter(s => s.hidden).length;
@@ -893,7 +894,7 @@ async function loadCourses() {
     client.from('courses').select('*').order('sort').order('title'),
     client.from('registrations').select('course_id,status')
   ]);
-  if (!data) return;
+  if (!data) return loadErr('course-list', 'loadCourses');
   window._courses = data;
   const regCount = {};
   (regs || []).forEach(r => { if (r.status !== 'cancelled') regCount[r.course_id] = (regCount[r.course_id] || 0) + 1; });

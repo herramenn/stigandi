@@ -171,7 +171,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeShop();
 
 const slug = decodeURIComponent(location.hash.slice(1) || '');
 fetch(`${SB_URL}/rest/v1/services?slug=eq.${encodeURIComponent(slug)}&hidden=eq.false&select=*`, { headers: { apikey: SB_KEY } })
-  .then(r => r.json())
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(([s]) => {
     const page = document.getElementById('page');
     if (!s) {
@@ -188,21 +188,27 @@ fetch(`${SB_URL}/rest/v1/services?slug=eq.${encodeURIComponent(slug)}&hidden=eq.
       <div class="content">${svcHtml(s.body)}</div>
       <div id="course-tiles" class="course-tiles"></div>
       <div class="cta-row" id="cta-bottom"></div>`;
-    loadCourses(s.slug);
+    loadCourses(s.slug).catch(() => {
+      document.getElementById('course-tiles').innerHTML = '<p style="grid-column:1/-1;color:var(--muted)">Ekki tókst að sækja námskeiðin. <a href="">Reyna aftur</a></p>';
+    });
     const btnHtml = links.map((l, i) => l.embed
       ? `<button class="btn btn-primary" data-shop="${esc(l.url)}">${esc(l.label || 'Kaupa')}</button>`
       : `<a class="btn ${i === 0 ? 'btn-primary' : 'btn-ghost'}" href="${esc(l.url)}">${esc(l.label || 'Nánar')}</a>`).join('');
     document.getElementById('cta-bottom').innerHTML = btnHtml;
     if (s.body && s.body.length > 400) document.getElementById('cta-top').innerHTML = btnHtml;
     document.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => openShop(b.dataset.shop));
+  })
+  .catch(() => {
+    document.getElementById('page').innerHTML = '<div class="notfound"><h1>Ekki tókst að sækja efni</h1><p style="color:var(--muted);margin:10px 0 22px">Athugaðu nettengingu og reyndu aftur.</p><button class="btn btn-primary" onclick="location.reload()">Reyna aftur</button></div>';
   });
 const MAN = ['janúar','febrúar','mars','apríl','maí','júní','júlí','ágúst','september','október','nóvember','desember'];
 async function loadCourses(serviceSlug) {
   const hdrs = { apikey: SB_KEY };
   const today = new Date().toISOString().slice(0, 10);
+  const ok = r => { if (!r.ok) throw new Error(r.status); return r.json(); };
   const [courses, dates] = await Promise.all([
-    fetch(`${SB_URL}/rest/v1/courses?hidden=eq.false&service_slug=eq.${encodeURIComponent(serviceSlug)}&select=slug,title,summary,price,schedule,links,id&order=sort.asc`, { headers: hdrs }).then(r => r.json()),
-    fetch(`${SB_URL}/rest/v1/course_dates?start_date=gte.${today}&status=eq.open&select=course_id,start_date&order=start_date.asc`, { headers: hdrs }).then(r => r.json())
+    fetch(`${SB_URL}/rest/v1/courses?hidden=eq.false&service_slug=eq.${encodeURIComponent(serviceSlug)}&select=slug,title,summary,price,schedule,links,id&order=sort.asc`, { headers: hdrs }).then(ok),
+    fetch(`${SB_URL}/rest/v1/course_dates?start_date=gte.${today}&status=eq.open&select=course_id,start_date&order=start_date.asc`, { headers: hdrs }).then(ok)
   ]);
   const nextByCourse = {};
   dates.forEach(d => { if (!nextByCourse[d.course_id]) nextByCourse[d.course_id] = d.start_date; });

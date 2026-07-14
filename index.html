@@ -118,6 +118,11 @@ header.scrolled{border-color:var(--line)}
 .person.has-bio:hover .more,.person.has-bio:focus-visible .more{opacity:1;transform:none;max-height:2em;margin-top:10px}
 .badge{position:absolute;top:14px;left:14px;font-size:.74rem;font-weight:600;background:#fdf3e3;color:#8a5a00;padding:4px 11px;border-radius:99px;z-index:1}
 
+/* ---------- load error ---------- */
+.load-err{grid-column:1/-1;text-align:center;padding:36px 20px;background:#fff;border:1.5px solid var(--line);border-radius:var(--r-md);color:var(--muted)}
+.load-err button{margin-top:14px;font-family:inherit;font-size:.92rem;font-weight:600;padding:10px 22px;border-radius:99px;border:1.5px solid var(--blue);background:#fff;color:var(--blue-dark);cursor:pointer;transition:background .15s}
+.load-err button:hover{background:var(--blue-tint)}
+
 /* ---------- modal ---------- */
 #modal{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;background:rgba(9,24,36,.6);backdrop-filter:blur(4px);padding:5vh 18px;overflow-y:auto}
 #modal.open{display:flex}
@@ -313,34 +318,43 @@ const isDate = d => { const [y,m,day] = (d||'').split('-').map(Number); return y
 
 const SB_URL = 'https://zzcfyeylqojvzewfpehv.supabase.co';
 const SB_KEY = 'sb_publishable_8dDmyIaz6Ygu9_bVXYjGmg_9sRgt3kF';
-const sb = path => fetch(`${SB_URL}/rest/v1/${path}`, { headers: { apikey: SB_KEY } }).then(r => r.json());
+const sb = path => fetch(`${SB_URL}/rest/v1/${path}`, { headers: { apikey: SB_KEY } })
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+const loadFail = (id, retryFn) => document.getElementById(id).innerHTML =
+  `<div class="load-err"><p>Ekki tókst að sækja efni – athugaðu nettengingu.</p><button onclick="${retryFn}()">Reyna aftur</button></div>`;
 
-sb('news?select=title,body,date&order=date.desc').then(items => {
-  document.getElementById('news-list').innerHTML = items.length ? items.map(n => {
-    const [y, m, d] = (n.date || '').split('-').map(Number);
-    return `
-    <div class="news-item">
-      ${y ? `<div class="news-date"><b>${d}</b><span>${MAN[m-1].slice(0,3)} ${y}</span></div>` : ''}
-      <div>
-        <h3>${esc(n.title)}</h3>
-        <p>${esc(n.body)}</p>
-      </div>
-    </div>`;
-  }).join('') : '<p style="color:var(--muted)">Engar tilkynningar í augnablikinu.</p>';
-});
+function loadNews() {
+  sb('news?select=title,body,date&order=date.desc').then(items => {
+    document.getElementById('news-list').innerHTML = items.length ? items.map(n => {
+      const [y, m, d] = (n.date || '').split('-').map(Number);
+      return `
+      <div class="news-item">
+        ${y ? `<div class="news-date"><b>${d}</b><span>${MAN[m-1].slice(0,3)} ${y}</span></div>` : ''}
+        <div>
+          <h3>${esc(n.title)}</h3>
+          <p>${esc(n.body)}</p>
+        </div>
+      </div>`;
+    }).join('') : '<p style="color:var(--muted)">Engar tilkynningar í augnablikinu.</p>';
+  }).catch(() => loadFail('news-list', 'loadNews'));
+}
+loadNews();
 
-sb('services?select=slug,title,summary,photo_url&hidden=eq.false&order=sort.asc,title.asc').then(list => {
-  document.getElementById('svc-cards').innerHTML = list.map(s => `
-    <a class="card" href="thjonusta.html#${esc(s.slug || '')}" aria-label="Nánar um ${esc(s.title)}">
-      ${s.photo_url ? `<img src="${esc(s.photo_url)}" alt="${esc(s.title)}" loading="lazy">` : ''}
-      <div class="scrim"></div>
-      <div class="body">
-        <h3>${esc(s.title)}</h3>
-        <p>${esc(s.summary || '')}</p>
-        <span class="more">Lesa meira</span>
-      </div>
-    </a>`).join('');
-});
+function loadSvcCards() {
+  sb('services?select=slug,title,summary,photo_url&hidden=eq.false&order=sort.asc,title.asc').then(list => {
+    document.getElementById('svc-cards').innerHTML = list.map(s => `
+      <a class="card" href="thjonusta.html#${esc(s.slug || '')}" aria-label="Nánar um ${esc(s.title)}">
+        ${s.photo_url ? `<img src="${esc(s.photo_url)}" alt="${esc(s.title)}" loading="lazy">` : ''}
+        <div class="scrim"></div>
+        <div class="body">
+          <h3>${esc(s.title)}</h3>
+          <p>${esc(s.summary || '')}</p>
+          <span class="more">Lesa meira</span>
+        </div>
+      </a>`).join('');
+  }).catch(() => loadFail('svc-cards', 'loadSvcCards'));
+}
+loadSvcCards();
 
 /* ---------- staff ---------- */
 let STAFF = [];
@@ -390,10 +404,13 @@ filtersEl.addEventListener('click', e => {
   renderStaff();
 });
 
-sb('staff?select=id,name,title,photo_url,on_leave,leave_until,show_leave_date,email,tags,starfssvid,serhaefing,menntun,starfsferill,ahugamal&hidden=eq.false&order=sort.asc,name.asc').then(members => {
-  STAFF = members;
-  renderStaff();
-});
+function loadStaffData() {
+  sb('staff?select=id,name,title,photo_url,on_leave,leave_until,show_leave_date,email,tags,starfssvid,serhaefing,menntun,starfsferill,ahugamal&hidden=eq.false&order=sort.asc,name.asc').then(members => {
+    STAFF = members;
+    renderStaff();
+  }).catch(() => loadFail('staff-grid', 'loadStaffData'));
+}
+loadStaffData();
 
 const modal = document.getElementById('modal');
 function openBio(m) {
