@@ -324,6 +324,15 @@ const sb = path => fetch(`${SB_URL}/rest/v1/${path}`, { headers: { apikey: SB_KE
 const loadFail = (id, retryFn) => document.getElementById(id).innerHTML =
   `<div class="load-err"><p>Ekki tókst að sækja efni – athugaðu nettengingu.</p><button onclick="${retryFn}()">Reyna aftur</button></div>`;
 
+/* re-anchor to the hash target as async sections load and push anchors down;
+   stops as soon as the user scrolls on their own */
+let userScrolled = false;
+['wheel','touchstart','keydown'].forEach(ev => addEventListener(ev, () => userScrolled = true, { once: true, passive: true }));
+function reanchor() {
+  if (userScrolled || !location.hash) return;
+  try { document.querySelector(location.hash)?.scrollIntoView({ behavior: 'instant', block: 'start' }); } catch {}
+}
+
 /* editable site texts — hardcoded copy above is the fallback if this fails */
 sb('site_texts?select=key,value').then(rows => {
   const t = Object.fromEntries(rows.map(r => [r.key, r.value]));
@@ -334,6 +343,7 @@ sb('site_texts?select=key,value').then(rows => {
   }
   [['hero_lead','t-hero-lead'],['svc_intro','t-svc-intro'],['news_intro','t-news-intro'],['staff_intro','t-staff-intro'],['gjaldskra_note','t-gjaldskra-note']]
     .forEach(([k, id]) => { if (t[k]) document.getElementById(id).textContent = t[k]; });
+  reanchor();
 }).catch(() => {});
 
 function loadNews() {
@@ -349,6 +359,7 @@ function loadNews() {
         </div>
       </div>`;
     }).join('') : '<p style="color:var(--muted)">Engar tilkynningar í augnablikinu.</p>';
+    reanchor();
   }).catch(() => loadFail('news-list', 'loadNews'));
 }
 loadNews();
@@ -365,6 +376,7 @@ function loadSvcCards() {
           <span class="more">Lesa meira</span>
         </div>
       </a>`).join('');
+    reanchor();
   }).catch(() => loadFail('svc-cards', 'loadSvcCards'));
 }
 loadSvcCards();
@@ -421,6 +433,7 @@ function loadStaffData() {
   sb('staff?select=id,name,title,photo_url,on_leave,leave_until,show_leave_date,email,tags,starfssvid,serhaefing,menntun,starfsferill,ahugamal&hidden=eq.false&order=sort.asc,name.asc').then(members => {
     STAFF = members;
     renderStaff();
+    reanchor();
   }).catch(() => loadFail('staff-grid', 'loadStaffData'));
 }
 loadStaffData();
